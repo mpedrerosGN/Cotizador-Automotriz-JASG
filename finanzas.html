@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Finanzas - JASG Taller Chile</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="jasg-brand.js?v=2"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full antialiased">
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-slate-900 text-white border-r border-slate-700/80 shadow-2xl shrink-0">
+            <div class="px-5 py-6 border-b border-slate-700/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
+                        <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                        <i data-jasg-brand-fallback class="fa-solid fa-wallet text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black tracking-tight">JASG</div>
+                        <div class="text-[10px] text-slate-300 uppercase tracking-[0.2em]">Finanzas</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-file-invoice"></i> Cotizador</a>
+                <a href="planificador.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-list-check"></i> Planificador</a>
+                <a href="agendamientos.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-calendar-days"></i> Agendamientos</a>
+                <a href="ordenes-trabajo.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-clipboard-list"></i> Órdenes</a>
+                <a href="inventario.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+                <a href="tasador.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-car-side"></i> Tasador</a>
+                <a href="finanzas.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-all"><i class="fa-solid fa-wallet"></i> Finanzas</a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+            <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-11 h-11 bg-white p-1 rounded-xl border border-slate-200 shadow-md flex items-center justify-center overflow-hidden">
+                            <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                            <i data-jasg-brand-fallback class="fa-solid fa-file-invoice-dollar text-blue-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-bold text-slate-900 tracking-tight">JASG Taller</h1>
+                            <p class="text-xs text-slate-500 hidden sm:block">Gestión Financiera & Tributaria (Norma Chilena - IVA 19%)</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="hidden lg:flex items-center space-x-4 text-xs font-semibold text-slate-600 bg-slate-100 px-3.5 py-2 rounded-xl">
+                            <span>Ingresos Brutos: <strong id="top-stat-bruto" class="text-blue-600">$0</strong></span>
+                            <span>•</span>
+                            <span>IVA Débito (19%): <strong id="top-stat-iva" class="text-amber-600">$0</strong></span>
+                            <span>•</span>
+                            <span>Utilidad Neta: <strong id="top-stat-utilidad" class="text-emerald-600">$0</strong></span>
+                        </div>
+                        <button onclick="openPaymentModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm transition-all shadow-md flex items-center space-x-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Registrar Pago / Ingreso</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-hidden flex flex-col">
+
+        <!-- NOTIFICATION TOAST -->
+        <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-message" class="text-sm font-medium">Acción realizada con éxito</span>
+        </div>
+
+        <!-- NAVIGATION TABS -->
+        <div class="flex items-center space-x-2 border-b border-slate-200 mb-6 pb-2 flex-shrink-0 overflow-x-auto">
+            <button onclick="switchTab('pagos')" id="tab-btn-pagos" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-blue-600 text-white shadow-sm flex items-center space-x-2">
+                <i class="fa-solid fa-receipt"></i>
+                <span>Pagos y Facturación</span>
+            </button>
+            <button onclick="switchTab('abonos')" id="tab-btn-abonos" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex items-center space-x-2">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
+                <span>Abonos y Anticipos</span>
+            </button>
+            <button onclick="switchTab('rentabilidad')" id="tab-btn-rentabilidad" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex items-center space-x-2">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Rentabilidad y Costos</span>
+            </button>
+        </div>
+
+        <!-- ==================== TAB 1: PAGOS Y FACTURACIÓN ==================== -->
+        <div id="tab-pagos" class="flex-1 flex flex-col overflow-hidden">
+            <!-- SEARCH & FILTERS -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
+                <div class="relative flex-1 w-full sm:w-80">
+                    <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="search-payment" oninput="renderPayments()" placeholder="Buscar por cliente, RUT, N° Doc o Patente..."
+                        class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                    <select id="filter-doc-type" onchange="renderPayments()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">Todos los documentos</option>
+                        <option value="Factura Electrónica">Factura Electrónica</option>
+                        <option value="Boleta de Venta">Boleta de Venta</option>
+                    </select>
+                    <select id="filter-pay-status" onchange="renderPayments()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="all">Todos los estados</option>
+                        <option value="Pagado">Pagado</option>
+                        <option value="Pendiente">Pendiente</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PAYMENTS TABLE CONTAINER -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex-1 overflow-hidden flex flex-col">
+                <div class="overflow-y-auto custom-scrollbar flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-slate-600 text-[11px] uppercase tracking-wider font-bold">
+                            <tr>
+                                <th class="p-3.5">Documento / N°</th>
+                                <th class="p-3.5">Cliente / RUT</th>
+                                <th class="p-3.5">Vehículo / OT</th>
+                                <th class="p-3.5 text-right">Neto (CLP)</th>
+                                <th class="p-3.5 text-right">IVA (19%)</th>
+                                <th class="p-3.5 text-right">Total Bruto</th>
+                                <th class="p-3.5 text-center">Estado</th>
+                                <th class="p-3.5 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-table-body" class="divide-y divide-slate-100 text-xs text-slate-700">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: ABONOS Y ANTICIPOS ==================== -->
+        <div id="tab-abonos" class="flex-1 flex flex-col overflow-hidden hidden">
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-4 flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
+                <div class="relative flex-1 w-full sm:w-80">
+                    <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="search-abono" oninput="renderAbonos()" placeholder="Buscar abono por cliente o patente..."
+                        class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button onclick="openAbonoModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Registrar Nuevo Abono</span>
+                </button>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex-1 overflow-hidden flex flex-col">
+                <div class="overflow-y-auto custom-scrollbar flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-slate-600 text-[11px] uppercase tracking-wider font-bold">
+                            <tr>
+                                <th class="p-3.5">Fecha</th>
+                                <th class="p-3.5">Cliente</th>
+                                <th class="p-3.5">Vehículo / OT Vinculada</th>
+                                <th class="p-3.5">Método de Pago</th>
+                                <th class="p-3.5 text-right">Monto Abonado</th>
+                                <th class="p-3.5 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="abonos-table-body" class="divide-y divide-slate-100 text-xs text-slate-700">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: RENTABILIDAD Y COSTOS ==================== -->
+        <div id="tab-rentabilidad" class="flex-1 overflow-y-auto custom-scrollbar pr-1 hidden space-y-6">
+            <!-- Summary KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Ingresos Totales (Bruto)</span>
+                        <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-wallet text-sm"></i>
+                        </div>
+                    </div>
+                    <h3 id="kpi-ingresos-brutos" class="text-xl font-bold text-slate-900">$0</h3>
+                    <p class="text-[11px] text-slate-500 mt-1">Incluye IVA 19% facturado/boleteado</p>
+                </div>
+
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Costo Repuestos</span>
+                        <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-boxes-stacked text-sm"></i>
+                        </div>
+                    </div>
+                    <h3 id="kpi-costo-repuestos" class="text-xl font-bold text-slate-900">$0</h3>
+                    <p class="text-[11px] text-slate-500 mt-1">Inversión en insumos y repuestos</p>
+                </div>
+
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Mano de Obra</span>
+                        <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-user-gear text-sm"></i>
+                        </div>
+                    </div>
+                    <h3 id="kpi-mano-obra" class="text-xl font-bold text-slate-900">$0</h3>
+                    <p class="text-[11px] text-slate-500 mt-1">Valor asignado a técnicos</p>
+                </div>
+
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm border-l-4 border-l-emerald-500">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Utilidad Neta Taller</span>
+                        <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-chart-line text-sm"></i>
+                        </div>
+                    </div>
+                    <h3 id="kpi-utilidad-neta" class="text-xl font-bold text-emerald-600">$0</h3>
+                    <p id="kpi-margen-porcentaje" class="text-[11px] text-emerald-700 font-semibold mt-1">Margen: 0%</p>
+                </div>
+            </div>
+
+            <!-- Tax Summary & Breakdown Panel -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Tax Report (SII Chile format) -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                        <h4 class="font-bold text-slate-900 text-sm flex items-center">
+                            <i class="fa-solid fa-building-columns text-blue-600 mr-2"></i> Resumen Tributario SII (IVA Débito)
+                        </h4>
+                        <span class="text-[10px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md">Tasa 19%</span>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                        <div class="flex justify-between py-2 border-b border-slate-50">
+                            <span class="text-slate-600">Total Ventas Neto Afectas:</span>
+                            <strong id="tax-total-neto" class="text-slate-900">$0</strong>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-50">
+                            <span class="text-slate-600">IVA Débito Fiscal (19%):</span>
+                            <strong id="tax-total-iva" class="text-amber-600">$0</strong>
+                        </div>
+                        <div class="flex justify-between py-2 bg-slate-50 px-3 rounded-xl">
+                            <span class="font-bold text-slate-800">Total Documentado (Bruto):</span>
+                            <strong id="tax-total-bruto" class="text-blue-600 text-sm">$0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expense & Cost Breakdown -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                        <h4 class="font-bold text-slate-900 text-sm flex items-center">
+                            <i class="fa-solid fa-scale-balanced text-blue-600 mr-2"></i> Estructura de Costos y Márgenes
+                        </h4>
+                        <span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md">Análisis Financiero</span>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                        <div class="flex justify-between py-2 border-b border-slate-50">
+                            <span class="text-slate-600">Ingresos Netos Operacionales:</span>
+                            <strong id="cost-neto-op" class="text-slate-900">$0</strong>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-50">
+                            <span class="text-slate-600">Costos Operativos (Repuestos + MO):</span>
+                            <strong id="cost-total-op" class="text-rose-600">$0</strong>
+                        </div>
+                        <div class="flex justify-between py-2 bg-emerald-50 px-3 rounded-xl">
+                            <span class="font-bold text-slate-800">Margen de Contribución:</span>
+                            <strong id="cost-margen-contribucion" class="text-emerald-700 text-sm">$0</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== MODAL: REGISTRAR PAGO / FACTURA ==================== -->
+    <div id="payment-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto" onclick="closePaymentModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 my-8 relative overflow-hidden flex flex-col" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 flex-shrink-0">
+                <h3 class="font-bold text-slate-900 text-base flex items-center">
+                    <i class="fa-solid fa-file-invoice text-blue-600 mr-2"></i> Registrar Pago o Facturación
+                </h3>
+                <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="payment-form" onsubmit="handlePaymentSubmit(event)" class="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-1">
+                <input type="hidden" id="pay-id">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Tipo de Documento *</label>
+                        <select id="doc-type" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Factura Electrónica">Factura Electrónica (Afecta)</option>
+                            <option value="Boleta de Venta">Boleta de Venta y Servicios</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">N° de Documento *</label>
+                        <input type="text" id="doc-number" required placeholder="Ej: 1042"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Cliente *</label>
+                        <input type="text" id="pay-client" required placeholder="Ej: Transportes del Sur SpA"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">RUT del Cliente *</label>
+                        <input type="text" id="pay-rut" required placeholder="76.543.210-k"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Vehículo / Patente / OT</label>
+                        <input type="text" id="pay-vehicle" placeholder="WXYZ-89 (OT-2026-102)"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Estado del Pago</label>
+                        <select id="pay-status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Pagado">Pagado</option>
+                            <option value="Pendiente">Pendiente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Tipo de impuesto</label>
+                    <select id="pay-tax-type" onchange="calculateTaxes()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="con_iva">Con IVA (19%)</option>
+                        <option value="sin_iva">Sin IVA</option>
+                    </select>
+                </div>
+
+                <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 space-y-3">
+                    <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wider"><i class="fa-solid fa-calculator mr-1"></i> Cálculo Tributario (Chile)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1" id="pay-neto-label">Monto Neto (CLP) *</label>
+                            <input type="number" id="pay-neto" required oninput="calculateTaxes()" placeholder="100000"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">IVA 19% (Automático)</label>
+                            <input type="text" id="pay-iva-display" disabled value="$0"
+                                class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-600 font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Total Bruto (CLP)</label>
+                            <input type="text" id="pay-bruto-display" disabled value="$0"
+                                class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs sm:text-sm text-blue-700 font-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider"><i class="fa-solid fa-paperclip mr-1 text-slate-600"></i> Documentos adjuntos</h4>
+                    <input type="file" id="pay-attachments" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx" class="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-blue-100 file:text-blue-700 file:font-semibold hover:file:bg-blue-200" onchange="handleAttachmentUpload(this.files)">
+                    <div id="attachment-list" class="text-[11px] text-slate-500 space-y-1"></div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider"><i class="fa-solid fa-coins mr-1 text-slate-600"></i> Costos Asociados (Para Rentabilidad)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Costo Repuestos (Neto)</label>
+                            <input type="number" id="pay-cost-parts" value="0" placeholder="45000"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Costo Mano de Obra</label>
+                            <input type="number" id="pay-cost-labor" value="0" placeholder="25000"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 flex-shrink-0">
+                    <button type="button" onclick="closePaymentModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md">Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="traceability-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto" onclick="closeTraceabilityModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 my-8 relative overflow-hidden flex flex-col" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 flex-shrink-0">
+                <h3 class="font-bold text-slate-900 text-base flex items-center">
+                    <i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i> Trazabilidad del pago
+                </h3>
+                <button onclick="closeTraceabilityModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="traceability-content" class="space-y-4 overflow-y-auto custom-scrollbar pr-1"></div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: REGISTRAR ABONO ==================== -->
+    <div id="abono-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto" onclick="closeAbonoModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 my-8 relative overflow-hidden flex flex-col" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 flex-shrink-0">
+                <h3 class="font-bold text-slate-900 text-base flex items-center">
+                    <i class="fa-solid fa-hand-holding-dollar text-blue-600 mr-2"></i> Registrar Abono / Anticipo
+                </h3>
+                <button onclick="closeAbonoModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="abono-form" onsubmit="handleAbonoSubmit(event)" class="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-1">
+                <input type="hidden" id="abono-id">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Fecha *</label>
+                    <input type="date" id="abono-date" required
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Cliente *</label>
+                        <input type="text" id="abono-client" required placeholder="Ej: Marcela Arancibia"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Vehículo / OT *</label>
+                        <input type="text" id="abono-vehicle" required placeholder="WXYZ-89 (OT-2026-105)"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Monto Abonado (CLP) *</label>
+                        <input type="number" id="abono-amount" required placeholder="50000"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Método de Pago *</label>
+                        <select id="abono-method" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Transferencia Bancaria">Transferencia Bancaria</option>
+                            <option value="Tarjeta de Débito / Crédito">Tarjeta (RedCompra / Transbank)</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="WebPay / PagoOnline">WebPay / Pago Online</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 flex-shrink-0">
+                    <button type="button" onclick="closeAbonoModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md">Guardar Abono</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const company = {
+            name: 'SERVICIO TÉCNICO JASG Spa',
+            rut: '78.013.172-1',
+            address: 'Av. Principal 1234, Santiago, Chile',
+            email: 'serviciotecjasgspa@gmail.com',
+            phone: '+56 9 1234 5678',
+            bank: 'Banco de Crédito e Inversiones',
+            account: '97500854'
+        };
+
+        function getInitialPayments() {
+            return [
+                {
+                    id: 1,
+                    docType: 'Factura Electrónica',
+                    docNumber: '1041',
+                    client: 'Transportes del Sur SpA',
+                    rut: '76.543.210-k',
+                    vehicle: 'ABCD-12 (OT-2026-098)',
+                    status: 'Pagado',
+                    neto: 250000,
+                    iva: 47500,
+                    bruto: 297500,
+                    costParts: 120000,
+                    costLabor: 60000,
+                    taxType: 'con_iva',
+                    attachments: [],
+                    log: [
+                        { action: 'Creado', date: new Date().toISOString(), user: 'Sistema', note: 'Registro inicial del pago' }
+                    ],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    docType: 'Boleta de Venta',
+                    docNumber: '8920',
+                    client: 'Roberto Sánchez',
+                    rut: '12.345.678-9',
+                    vehicle: 'JKLM-45 (OT-2026-099)',
+                    status: 'Pagado',
+                    neto: 90000,
+                    iva: 17100,
+                    bruto: 107100,
+                    costParts: 35000,
+                    costLabor: 30000,
+                    taxType: 'con_iva',
+                    attachments: [],
+                    log: [
+                        { action: 'Creado', date: new Date().toISOString(), user: 'Sistema', note: 'Registro inicial del pago' }
+                    ],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 3,
+                    docType: 'Factura Electrónica',
+                    docNumber: '1042',
+                    client: 'Constructora Biobío Limitada',
+                    rut: '78.123.456-3',
+                    vehicle: 'ZZ-99-88 (OT-2026-101)',
+                    status: 'Pendiente',
+                    neto: 480000,
+                    iva: 91200,
+                    bruto: 571200,
+                    costParts: 210000,
+                    costLabor: 120000,
+                    taxType: 'con_iva',
+                    attachments: [],
+                    log: [
+                        { action: 'Creado', date: new Date().toISOString(), user: 'Sistema', note: 'Registro inicial del pago' }
+                    ],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                }
+            ];
+        }
+
+        let payments = JSON.parse(localStorage.getItem('taller_payments')) || getInitialPayments();
+        let abonos = JSON.parse(localStorage.getItem('taller_abonos')) || [
+            {
+                id: 1,
+                date: new Date().toISOString().split('T')[0],
+                client: 'Camila Valenzuela',
+                vehicle: 'WXYZ-89 (OT-2026-103)',
+                amount: 60000,
+                method: 'Transferencia Bancaria'
+            },
+            {
+                id: 2,
+                date: new Date().toISOString().split('T')[0],
+                client: 'Esteban Morales',
+                vehicle: 'PR-55-22 (OT-2026-104)',
+                amount: 40000,
+                method: 'Tarjeta de Débito / Crédito'
+            }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderPayments();
+            renderAbonos();
+            updateFinancialKPIs();
+        });
+
+        function switchTab(tabName) {
+            document.getElementById('tab-pagos').classList.add('hidden');
+            document.getElementById('tab-abonos').classList.add('hidden');
+            document.getElementById('tab-rentabilidad').classList.add('hidden');
+
+            document.getElementById('tab-btn-pagos').className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex items-center space-x-2';
+            document.getElementById('tab-btn-abonos').className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex items-center space-x-2';
+            document.getElementById('tab-btn-rentabilidad').className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex items-center space-x-2';
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tabName}`).className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-blue-600 text-white shadow-sm flex items-center space-x-2';
+
+            if (tabName === 'rentabilidad') {
+                updateFinancialKPIs();
+            }
+        }
+
+        function formatCLP(amount) {
+            return '$' + Number(amount || 0).toLocaleString('es-CL');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            toastIcon.className = type === 'success' ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-triangle-exclamation text-amber-400';
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+        }
+
+        function calculateTaxes() {
+            const netoVal = parseFloat(document.getElementById('pay-neto').value) || 0;
+            const taxType = document.getElementById('pay-tax-type').value;
+            const ivaVal = taxType === 'con_iva' ? Math.round(netoVal * 0.19) : 0;
+            const brutoVal = taxType === 'con_iva' ? netoVal + ivaVal : netoVal;
+
+            document.getElementById('pay-neto-label').textContent = taxType === 'con_iva' ? 'Monto Neto (CLP) *' : 'Monto total (CLP) *';
+            document.getElementById('pay-iva-display').value = formatCLP(ivaVal);
+            document.getElementById('pay-bruto-display').value = formatCLP(brutoVal);
+        }
+
+        function openPaymentModal(payId = null) {
+            const modal = document.getElementById('payment-modal');
+            document.getElementById('payment-form').reset();
+            document.getElementById('pay-id').value = '';
+            document.getElementById('pay-tax-type').value = 'con_iva';
+            document.getElementById('pay-iva-display').value = '$0';
+            document.getElementById('pay-bruto-display').value = '$0';
+            document.getElementById('attachment-list').innerHTML = '';
+            const fileInput = document.getElementById('pay-attachments');
+            fileInput.value = '';
+
+            if (payId) {
+                const pay = payments.find(p => p.id === payId);
+                if (pay) {
+                    document.getElementById('pay-id').value = pay.id;
+                    document.getElementById('doc-type').value = pay.docType;
+                    document.getElementById('doc-number').value = pay.docNumber;
+                    document.getElementById('pay-client').value = pay.client;
+                    document.getElementById('pay-rut').value = pay.rut;
+                    document.getElementById('pay-vehicle').value = pay.vehicle;
+                    document.getElementById('pay-status').value = pay.status;
+                    document.getElementById('pay-tax-type').value = pay.taxType || 'con_iva';
+                    document.getElementById('pay-neto').value = pay.neto;
+                    document.getElementById('pay-cost-parts').value = pay.costParts;
+                    document.getElementById('pay-cost-labor').value = pay.costLabor;
+                    renderAttachmentList(pay.attachments || []);
+                    calculateTaxes();
+                }
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function handleAttachmentUpload(files) {
+            const activeList = document.getElementById('attachment-list');
+            const currentFiles = JSON.parse(localStorage.getItem('taller_payments_attachments_temp') || '[]');
+            const list = [...currentFiles];
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    list.push({
+                        name: file.name,
+                        type: file.type || 'application/octet-stream',
+                        size: file.size,
+                        data: event.target.result
+                    });
+                    localStorage.setItem('taller_payments_attachments_temp', JSON.stringify(list));
+                    renderAttachmentList(list);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderAttachmentList(files) {
+            const container = document.getElementById('attachment-list');
+            if (!container) return;
+            if (!files || files.length === 0) {
+                container.innerHTML = '<span class="italic">Sin documentos adjuntos.</span>';
+                return;
+            }
+            container.innerHTML = files.map((file, index) => `
+                <div class="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-2 py-1.5">
+                    <span class="truncate max-w-[200px]">${escapeHtml(file.name || `Documento ${index + 1}`)}</span>
+                    <button type="button" onclick="removeAttachment(${index})" class="text-rose-500 hover:text-rose-700 ml-2">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeAttachment(index) {
+            const current = JSON.parse(localStorage.getItem('taller_payments_attachments_temp') || '[]');
+            const updated = current.filter((_, i) => i !== index);
+            localStorage.setItem('taller_payments_attachments_temp', JSON.stringify(updated));
+            renderAttachmentList(updated);
+        }
+
+        function addLogEntry(payment, action, note) {
+            payment.log = payment.log || [];
+            payment.log.unshift({
+                action,
+                date: new Date().toISOString(),
+                user: 'Sistema',
+                note
+            });
+            payment.updatedAt = new Date().toISOString();
+        }
+
+        function handlePaymentSubmit(event) {
+            event.preventDefault();
+
+            const idInput = document.getElementById('pay-id').value;
+            const docType = document.getElementById('doc-type').value;
+            const docNumber = document.getElementById('doc-number').value.trim();
+            const client = document.getElementById('pay-client').value.trim();
+            const rut = document.getElementById('pay-rut').value.trim();
+            const vehicle = document.getElementById('pay-vehicle').value.trim();
+            const status = document.getElementById('pay-status').value;
+            const taxType = document.getElementById('pay-tax-type').value;
+            const neto = parseFloat(document.getElementById('pay-neto').value) || 0;
+            const costParts = parseFloat(document.getElementById('pay-cost-parts').value) || 0;
+            const costLabor = parseFloat(document.getElementById('pay-cost-labor').value) || 0;
+            const attachmentBuffer = JSON.parse(localStorage.getItem('taller_payments_attachments_temp') || '[]');
+            const iva = taxType === 'con_iva' ? Math.round(neto * 0.19) : 0;
+            const bruto = taxType === 'con_iva' ? neto + iva : neto;
+
+            if (idInput) {
+                const pay = payments.find(p => p.id == idInput);
+                if (pay) {
+                    pay.docType = docType;
+                    pay.docNumber = docNumber;
+                    pay.client = client;
+                    pay.rut = rut;
+                    pay.vehicle = vehicle;
+                    pay.status = status;
+                    pay.taxType = taxType;
+                    pay.neto = neto;
+                    pay.iva = iva;
+                    pay.bruto = bruto;
+                    pay.costParts = costParts;
+                    pay.costLabor = costLabor;
+                    pay.attachments = attachmentBuffer.length ? attachmentBuffer : (pay.attachments || []);
+                    addLogEntry(pay, 'Actualizado', 'Se actualizó el registro del pago y sus datos tributarios.');
+                }
+                showToast('Registro de pago actualizado con éxito');
+            } else {
+                const newPay = {
+                    id: Date.now(),
+                    docType,
+                    docNumber,
+                    client,
+                    rut,
+                    vehicle,
+                    status,
+                    taxType,
+                    neto,
+                    iva,
+                    bruto,
+                    costParts,
+                    costLabor,
+                    attachments: attachmentBuffer,
+                    log: [{
+                        action: 'Creado',
+                        date: new Date().toISOString(),
+                        user: 'Sistema',
+                        note: 'Se registró el pago con trazabilidad inicial.'
+                    }],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                payments.unshift(newPay);
+                showToast('Pago y documento tributario registrado con éxito');
+            }
+
+            localStorage.removeItem('taller_payments_attachments_temp');
+            saveAndRefreshPayments();
+            closePaymentModal();
+        }
+
+        function deletePayment(id) {
+            if (confirm('¿Estás seguro de eliminar este registro financiero?')) {
+                payments = payments.filter(p => p.id !== id);
+                saveAndRefreshPayments();
+                showToast('Registro eliminado', 'error');
+            }
+        }
+
+        function togglePaymentStatus(id) {
+            const pay = payments.find(p => p.id === id);
+            if (pay) {
+                pay.status = pay.status === 'Pagado' ? 'Pendiente' : 'Pagado';
+                addLogEntry(pay, 'Cambio de estado', `Se actualizó el estado a ${pay.status}.`);
+                saveAndRefreshPayments();
+                showToast(`Estado actualizado a: ${pay.status}`);
+            }
+        }
+
+        function saveAndRefreshPayments() {
+            localStorage.setItem('taller_payments', JSON.stringify(payments));
+            renderPayments();
+            updateFinancialKPIs();
+            updateTopHeaderStats();
+        }
+
+        function renderPayments() {
+            const tbody = document.getElementById('payments-table-body');
+            const searchQuery = document.getElementById('search-payment').value.toLowerCase();
+            const docTypeFilter = document.getElementById('filter-doc-type').value;
+            const statusFilter = document.getElementById('filter-pay-status').value;
+
+            let filtered = payments.filter(p => {
+                const matchesSearch = (p.client || '').toLowerCase().includes(searchQuery) ||
+                                      (p.rut || '').toLowerCase().includes(searchQuery) ||
+                                      (p.docNumber || '').toLowerCase().includes(searchQuery) ||
+                                      (p.vehicle || '').toLowerCase().includes(searchQuery);
+                const matchesDoc = docTypeFilter === 'all' ? true : p.docType === docTypeFilter;
+                const matchesStatus = statusFilter === 'all' ? true : p.status === statusFilter;
+                return matchesSearch && matchesDoc && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="py-12 text-center text-slate-400">
+                            <i class="fa-solid fa-receipt text-3xl mb-2 text-slate-300"></i>
+                            <p class="text-sm font-medium">No se encontraron pagos o facturas registradas</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(p => {
+                const taxLabel = p.taxType === 'sin_iva' ? 'Sin IVA' : 'Con IVA';
+                return `
+                    <tr class="hover:bg-slate-50 transition-all align-top">
+                        <td class="p-3.5">
+                            <span class="font-bold text-slate-900 block">${escapeHtml(p.docNumber)}</span>
+                            <span class="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded block mb-1">${p.docType}</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded ${p.taxType === 'sin_iva' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}">${taxLabel}</span>
+                        </td>
+                        <td class="p-3.5">
+                            <strong class="text-slate-900 block">${escapeHtml(p.client)}</strong>
+                            <span class="text-[11px] text-slate-500 font-mono">RUT: ${escapeHtml(p.rut)}</span>
+                        </td>
+                        <td class="p-3.5">
+                            <span class="font-medium text-slate-800">${escapeHtml(p.vehicle || 'N/D')}</span>
+                        </td>
+                        <td class="p-3.5 text-right font-mono">${formatCLP(p.neto)}</td>
+                        <td class="p-3.5 text-right font-mono text-amber-600">${formatCLP(p.iva)}</td>
+                        <td class="p-3.5 text-right font-mono font-bold text-blue-600">${formatCLP(p.bruto)}</td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="togglePaymentStatus(${p.id})" class="px-2.5 py-1 rounded-md text-[11px] font-bold ${p.status === 'Pagado' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
+                                ${p.status}
+                            </button>
+                        </td>
+                        <td class="p-3.5 text-center">
+                            <div class="flex items-center justify-center space-x-1">
+                                <button onclick="openTraceabilityModal(${p.id})" title="Trazabilidad" class="p-1.5 text-slate-400 hover:text-violet-600 hover:bg-slate-100 rounded-lg transition-all">
+                                    <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                                </button>
+                                <button onclick="generatePaymentPDF(${p.id})" title="Exportar PDF" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-all">
+                                    <i class="fa-solid fa-file-pdf text-xs"></i>
+                                </button>
+                                <button onclick="openPaymentModal(${p.id})" title="Editar" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-all">
+                                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                </button>
+                                <button onclick="deletePayment(${p.id})" title="Eliminar" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-100 rounded-lg transition-all">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openTraceabilityModal(paymentId) {
+            const pay = payments.find(item => item.id === paymentId);
+            if (!pay) return;
+            const content = document.getElementById('traceability-content');
+            const logs = (pay.log || []).map(entry => `
+                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-slate-800">${escapeHtml(entry.action)}</span>
+                        <span class="text-[11px] text-slate-500">${new Date(entry.date).toLocaleString('es-CL')}</span>
+                    </div>
+                    <div class="text-[12px] text-slate-600">${escapeHtml(entry.note || 'Sin observación')}</div>
+                    <div class="text-[11px] text-slate-500 mt-2">Usuario: ${escapeHtml(entry.user || 'Sistema')}</div>
+                </div>
+            `).join('');
+
+            const attachments = (pay.attachments || []).length ? pay.attachments.map(file => `
+                <a href="${file.data}" target="_blank" class="block text-xs text-blue-600 underline hover:text-blue-800">${escapeHtml(file.name)}</a>
+            `).join('') : '<p class="text-xs text-slate-500">Sin documentos adjuntos.</p>';
+
+            content.innerHTML = `
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                    <div class="text-xs uppercase tracking-wider text-blue-700 font-bold">Documento</div>
+                    <div class="mt-2 text-sm font-bold text-slate-900">${escapeHtml(pay.docNumber)} · ${escapeHtml(pay.client)}</div>
+                    <div class="text-xs text-slate-600 mt-1">${escapeHtml(pay.rut)} · ${escapeHtml(pay.vehicle || 'Sin vehículo')}</div>
+                </div>
+                <div>
+                    <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Registro de trazabilidad</div>
+                    ${logs || '<p class="text-sm text-slate-500">Sin eventos registrados.</p>'}
+                </div>
+                <div>
+                    <div class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Documentos adjuntos</div>
+                    ${attachments}
+                </div>
+            `;
+            document.getElementById('traceability-modal').classList.remove('hidden');
+        }
+
+        function closeTraceabilityModal() {
+            document.getElementById('traceability-modal').classList.add('hidden');
+        }
+
+        function generatePaymentPDF(paymentId) {
+            const pay = payments.find(item => item.id === paymentId);
+            if (!pay) return;
+
+            const printWindow = window.open('', '_blank');
+            const attachmentHtml = (pay.attachments || []).length
+                ? `<div><strong>Adjuntos:</strong> ${pay.attachments.map(f => `<span>${escapeHtml(f.name)}</span>`).join(', ')}</div>`
+                : '<div><strong>Adjuntos:</strong> Sin documentos</div>';
+
+            const logHtml = (pay.log || []).map(entry => `
+                <li>
+                    <strong>${escapeHtml(entry.action)}</strong> · ${new Date(entry.date).toLocaleString('es-CL')}<br>
+                    ${escapeHtml(entry.note || '')}
+                </li>
+            `).join('');
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Comprobante ${pay.docNumber}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; color: #0f172a; padding: 30px; }
+                        .header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #2563eb; padding-bottom:12px; margin-bottom:18px; }
+                        .title { font-size: 24px; font-weight: bold; color: #1d4ed8; }
+                        .company { font-size: 12px; line-height: 1.5; }
+                        .section { margin-top: 18px; }
+                        .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+                        .box { border:1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+                        h4 { margin: 0 0 8px; font-size: 13px; text-transform: uppercase; color: #475569; }
+                        table { width:100%; border-collapse: collapse; margin-top: 8px; }
+                        th, td { border: 1px solid #e2e8f0; padding: 8px; font-size: 12px; text-align:left; }
+                        @media print { body { margin: 0; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div>
+                            <div class="title">${escapeHtml(company.name)}</div>
+                            <div class="company">
+                                RUT: ${escapeHtml(company.rut)}<br>
+                                ${escapeHtml(company.address)}<br>
+                                ${escapeHtml(company.email)} · ${escapeHtml(company.phone)}<br>
+                                ${escapeHtml(company.bank)} · Cuenta: ${escapeHtml(company.account)}
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:12px; color:#64748b;">Comprobante de pago</div>
+                            <div style="font-size:22px; font-weight:bold;">${escapeHtml(pay.docNumber)}</div>
+                            <div style="font-size:12px; color:#64748b;">${new Date().toLocaleDateString('es-CL')}</div>
+                        </div>
+                    </div>
+
+                    <div class="section grid">
+                        <div class="box">
+                            <h4>Datos del cliente</h4>
+                            <div><strong>Cliente:</strong> ${escapeHtml(pay.client)}</div>
+                            <div><strong>RUT:</strong> ${escapeHtml(pay.rut)}</div>
+                            <div><strong>Vehículo:</strong> ${escapeHtml(pay.vehicle || 'N/D')}</div>
+                        </div>
+                        <div class="box">
+                            <h4>Resumen del pago</h4>
+                            <div><strong>Tipo:</strong> ${escapeHtml(pay.taxType === 'sin_iva' ? 'Sin IVA' : 'Con IVA')}</div>
+                            <div><strong>Estado:</strong> ${escapeHtml(pay.status)}</div>
+                            <div><strong>Total:</strong> ${formatCLP(pay.bruto)}</div>
+                        </div>
+                    </div>
+
+                    <div class="section box">
+                        <h4>Detalle financiero</h4>
+                        <table>
+                            <tr><th>Monto neto</th><td>${formatCLP(pay.neto)}</td></tr>
+                            <tr><th>IVA</th><td>${formatCLP(pay.iva)}</td></tr>
+                            <tr><th>Total bruto</th><td>${formatCLP(pay.bruto)}</td></tr>
+                            <tr><th>Costo repuestos</th><td>${formatCLP(pay.costParts || 0)}</td></tr>
+                            <tr><th>Costo mano de obra</th><td>${formatCLP(pay.costLabor || 0)}</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="section box">
+                        <h4>Adjuntos</h4>
+                        ${attachmentHtml}
+                    </div>
+
+                    <div class="section box">
+                        <h4>Trazabilidad</h4>
+                        <ul>${logHtml || '<li>Sin eventos registrados</li>'}</ul>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => printWindow.print(), 300);
+        }
+
+        // ==================== ABONOS LOGIC ====================
+        function openAbonoModal(abonoId = null) {
+            const modal = document.getElementById('abono-modal');
+            document.getElementById('abono-form').reset();
+            document.getElementById('abono-id').value = '';
+            document.getElementById('abono-date').value = new Date().toISOString().split('T')[0];
+
+            if (abonoId) {
+                const ab = abonos.find(a => a.id === abonoId);
+                if (ab) {
+                    document.getElementById('abono-id').value = ab.id;
+                    document.getElementById('abono-date').value = ab.date;
+                    document.getElementById('abono-client').value = ab.client;
+                    document.getElementById('abono-vehicle').value = ab.vehicle;
+                    document.getElementById('abono-amount').value = ab.amount;
+                    document.getElementById('abono-method').value = ab.method;
+                }
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeAbonoModal() {
+            document.getElementById('abono-modal').classList.add('hidden');
+        }
+
+        function handleAbonoSubmit(event) {
+            event.preventDefault();
+
+            const idInput = document.getElementById('abono-id').value;
+            const date = document.getElementById('abono-date').value;
+            const client = document.getElementById('abono-client').value.trim();
+            const vehicle = document.getElementById('abono-vehicle').value.trim();
+            const amount = parseFloat(document.getElementById('abono-amount').value) || 0;
+            const method = document.getElementById('abono-method').value;
+
+            if (idInput) {
+                const ab = abonos.find(a => a.id == idInput);
+                if (ab) {
+                    ab.date = date;
+                    ab.client = client;
+                    ab.vehicle = vehicle;
+                    ab.amount = amount;
+                    ab.method = method;
+                }
+                showToast('Abono actualizado con éxito');
+            } else {
+                const newAbono = {
+                    id: Date.now(),
+                    date,
+                    client,
+                    vehicle,
+                    amount,
+                    method
+                };
+                abonos.unshift(newAbono);
+                showToast('Abono / Anticipo registrado con éxito');
+            }
+
+            saveAndRefreshAbonos();
+            closeAbonoModal();
+        }
+
+        function deleteAbono(id) {
+            if (confirm('¿Estás seguro de eliminar este abono?')) {
+                abonos = abonos.filter(a => a.id !== id);
+                saveAndRefreshAbonos();
+                showToast('Abono eliminado', 'error');
+            }
+        }
+
+        function saveAndRefreshAbonos() {
+            localStorage.setItem('taller_abonos', JSON.stringify(abonos));
+            renderAbonos();
+        }
+
+        function renderAbonos() {
+            const tbody = document.getElementById('abonos-table-body');
+            const searchQuery = document.getElementById('search-abono').value.toLowerCase();
+
+            let filtered = abonos.filter(a =>
+                a.client.toLowerCase().includes(searchQuery) ||
+                a.vehicle.toLowerCase().includes(searchQuery)
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-12 text-center text-slate-400">
+                            <i class="fa-solid fa-hand-holding-dollar text-3xl mb-2 text-slate-300"></i>
+                            <p class="text-sm font-medium">No se encontraron abonos registrados</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(a => `
+                <tr class="hover:bg-slate-50 transition-all">
+                    <td class="p-3.5 font-medium text-slate-600">${a.date}</td>
+                    <td class="p-3.5 font-bold text-slate-900">${escapeHtml(a.client)}</td>
+                    <td class="p-3.5 font-medium text-slate-800">${escapeHtml(a.vehicle)}</td>
+                    <td class="p-3.5"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px]">${a.method}</span></td>
+                    <td class="p-3.5 text-right font-mono font-bold text-blue-600">${formatCLP(a.amount)}</td>
+                    <td class="p-3.5 text-center">
+                        <div class="flex items-center justify-center space-x-1">
+                            <button onclick="openAbonoModal(${a.id})" title="Editar" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-all">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                            <button onclick="deleteAbono(${a.id})" title="Eliminar" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-slate-100 rounded-lg transition-all">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateFinancialKPIs() {
+            let totalBruto = 0;
+            let totalNeto = 0;
+            let totalIva = 0;
+            let costoRepuestos = 0;
+            let costoManoObra = 0;
+
+            payments.forEach(p => {
+                if (p.status === 'Pagado') {
+                    totalBruto += p.bruto;
+                    totalNeto += p.neto;
+                    totalIva += p.iva;
+                    costoRepuestos += p.costParts || 0;
+                    costoManoObra += p.costLabor || 0;
+                }
+            });
+
+            const totalCostos = costoRepuestos + costoManoObra;
+            const utilidadNeta = totalNeto - totalCostos;
+            const margenPorcentaje = totalNeto > 0 ? ((utilidadNeta / totalNeto) * 100).toFixed(1) : 0;
+
+            document.getElementById('kpi-ingresos-brutos').textContent = formatCLP(totalBruto);
+            document.getElementById('kpi-costo-repuestos').textContent = formatCLP(costoRepuestos);
+            document.getElementById('kpi-mano-obra').textContent = formatCLP(costoManoObra);
+            document.getElementById('kpi-utilidad-neta').textContent = formatCLP(utilidadNeta);
+            document.getElementById('kpi-margen-porcentaje').textContent = `Margen: ${margenPorcentaje}%`;
+            document.getElementById('tax-total-neto').textContent = formatCLP(totalNeto);
+            document.getElementById('tax-total-iva').textContent = formatCLP(totalIva);
+            document.getElementById('tax-total-bruto').textContent = formatCLP(totalBruto);
+            document.getElementById('cost-neto-op').textContent = formatCLP(totalNeto);
+            document.getElementById('cost-total-op').textContent = formatCLP(totalCostos);
+            document.getElementById('cost-margen-contribucion').textContent = formatCLP(utilidadNeta);
+            updateTopHeaderStats();
+        }
+
+        function updateTopHeaderStats() {
+            let brutoAll = 0;
+            let ivaAll = 0;
+            let netUtilAll = 0;
+
+            payments.forEach(p => {
+                brutoAll += p.bruto;
+                ivaAll += p.iva;
+                netUtilAll += (p.neto - (p.costParts || 0) - (p.costLabor || 0));
+            });
+
+            document.getElementById('top-stat-bruto').textContent = formatCLP(brutoAll);
+            document.getElementById('top-stat-iva').textContent = formatCLP(ivaAll);
+            document.getElementById('top-stat-utilidad').textContent = formatCLP(netUtilAll);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>

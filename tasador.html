@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JASG Automotriz - Sistema Profesional de Tasación y Compra</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="jasg-brand.js?v=2"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Estilos específicos para impresión / PDF Ejecutivo */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: #0f172a !important; }
+            @page { size: letter; margin: 1cm; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen" x-data="tasadorApp()" x-init="init()">
+    <div class="flex min-h-screen">
+        <aside class="w-64 shrink-0 bg-slate-900 text-white border-r border-slate-700/80 shadow-2xl no-print">
+            <div class="px-5 py-6 border-b border-slate-700/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-lg border border-white/20 overflow-hidden shrink-0">
+                        <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                        <i data-jasg-brand-fallback class="fa-solid fa-car-side text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black tracking-tight">JASG</div>
+                        <div class="text-[10px] text-slate-300 uppercase tracking-[0.2em]">Módulos</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="p-4 space-y-2">
+                <a href="index.html" title="Cotizador" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-file-invoice"></i> Cotizador</a>
+                <a href="planificador.html" title="Planificador" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-list-check"></i> Planificador</a>
+                <a href="inventario.html" title="Inventario" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+                <a href="agendamientos.html" title="Agendamientos" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-calendar-days"></i> Agendamientos</a>
+                <a href="ordenes-trabajo.html" title="Órdenes" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-clipboard-list"></i> Órdenes</a>
+                <a href="finanzas.html" title="Finanzas" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-200 hover:bg-slate-800 transition-all"><i class="fa-solid fa-wallet"></i> Finanzas</a>
+                <a href="tasador.html" title="Tasador" aria-current="page" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-all"><i class="fa-solid fa-car-side"></i> Tasador</a>
+            </nav>
+        </aside>
+        <div class="flex-1 min-w-0 flex flex-col">
+
+    <!-- Header JASG Automotriz (Oculto en PDF) -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 bg-white p-1 rounded-xl border border-slate-200 shadow-md flex items-center justify-center overflow-hidden">
+                    <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                    <i data-jasg-brand-fallback class="fa-solid fa-car-side text-blue-600 text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                        JASG Automotriz <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">TasadorPro v4.0</span>
+                    </h1>
+                    <p class="text-xs text-slate-500">Sistema de Inspección, Tasación y Compra de Vehículos</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-3 mt-2 sm:mt-0 no-print">
+                <button @click="showHistoryModal = true" class="bg-white hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium px-3.5 py-2 rounded-xl border border-slate-200 transition flex items-center gap-2">
+                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Historial (<span x-text="savedAppraisals.length"></span>)
+                </button>
+                <button @click="saveCurrentAppraisal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg shadow transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    Guardar Tasación
+                </button>
+                <button @click="showVerdictModal = true" class="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl shadow transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Veredicto e Informe
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal (Oculto al imprimir) -->
+    <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6 flex-grow w-full no-print">
+
+        <!-- Columna Izquierda: Ficha del Vehículo y Analítica en Vivo -->
+        <div class="lg:col-span-1 space-y-6">
+
+            <!-- Ficha del Vehículo -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h2 class="font-semibold text-slate-800 text-sm flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Ficha del Vehículo
+                    </h2>
+                    <span class="text-[10px] text-slate-400 font-mono" x-show="car.folio" x-text="'#' + car.folio"></span>
+                </div>
+
+                <!-- Marca -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Marca</label>
+                    <select x-model="car.brand" @change="updateModels()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione marca...</option>
+                        <template x-for="brand in Object.keys(brandsAndModels)">
+                            <option :value="brand" x-text="brand"></option>
+                        </template>
+                        <option value="Otra">Otra Marca...</option>
+                    </select>
+                </div>
+
+                <!-- Input Marca Manual si es "Otra" -->
+                <div x-show="car.brand === 'Otra'">
+                    <input type="text" x-model="car.customBrand" placeholder="Escriba la marca..." class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Modelo -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Modelo</label>
+                    <select x-model="car.model" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500" :disabled="!car.brand">
+                        <option value="">Seleccione modelo...</option>
+                        <template x-for="model in availableModels">
+                            <option :value="model" x-text="model"></option>
+                        </template>
+                        <option value="Otro">Otro Modelo...</option>
+                    </select>
+                </div>
+
+                <!-- Input Modelo Manual si es "Otro" -->
+                <div x-show="car.model === 'Otro'">
+                    <input type="text" x-model="car.customModel" placeholder="Escriba el modelo..." class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Versión / Motor -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Versión / Motor</label>
+                    <input type="text" x-model="car.version" placeholder="Ej: 2.0 LE CVT 4x2" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Año -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Año</label>
+                    <input type="number" x-model="car.year" placeholder="Ej: 2022" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Kilometraje -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kilometraje (km)</label>
+                    <input type="number" x-model="car.km" placeholder="Ej: 45000" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Patente / VIN -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Patente / VIN</label>
+                    <input type="text" x-model="car.plate" placeholder="ABCD-12 O VIN..." class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 uppercase focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Color -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Color</label>
+                    <input type="text" x-model="car.color" placeholder="Ej: Blanco Perla" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Propietario / Cliente -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Propietario / Cliente</label>
+                    <input type="text" x-model="car.client" placeholder="Nombre o empresa" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Tasador / Perito -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tasador / Inspector</label>
+                    <input type="text" x-model="car.inspector" placeholder="Nombre del perito" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Valor Comercial Base -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Comercial Base ($)</label>
+                    <input type="number" x-model="car.commercialValue" placeholder="Ej: 18000000" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <!-- Panel de Analítica en Vivo -->
+            <div class="bg-slate-900 text-white rounded-xl shadow-sm p-5 space-y-4 border border-slate-800">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Evaluación JASG</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                          :class="{
+                              'bg-emerald-500 text-white': calculateCondition() >= 80,
+                              'bg-amber-500 text-slate-900': calculateCondition() >= 50 && calculateCondition() < 80,
+                              'bg-red-500 text-white': calculateCondition() < 50
+                          }"
+                          x-text="getRecommendationText()">
+                    </span>
+                </div>
+                <div>
+                    <div class="text-3xl font-extrabold tracking-tight" x-text="calculateCondition() + '%'"></div>
+                    <p class="text-xs text-slate-400 mt-1">Puntaje de Condición General</p>
+                </div>
+
+                <!-- Barra de Progreso Condición -->
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div class="h-full transition-all duration-500"
+                         :style="'width: ' + calculateCondition() + '%'"
+                         :class="{
+                             'bg-emerald-500': calculateCondition() >= 80,
+                             'bg-amber-500': calculateCondition() >= 50 && calculateCondition() < 80,
+                             'bg-red-500': calculateCondition() < 50
+                         }">
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-800 space-y-2 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Total Deducciones Est.:</span>
+                        <span class="font-bold text-red-400" x-text="formatMoney(calculateRepairCost())"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Valor Sugerido Final:</span>
+                        <span class="font-bold text-emerald-400" x-text="formatMoney(calculateSuggestedOffer())"></span>
+                    </div>
+                </div>
+
+                <div class="text-xs text-slate-400 pt-1" x-text="totalEvaluated + ' de ' + totalItemsCount + ' ítems evaluados.'"></div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Sistema de Pestañas y Categorías de Inspección -->
+        <div class="lg:col-span-3 space-y-6">
+
+            <!-- Pestañas de Navegación -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-2 flex flex-wrap gap-2">
+                <template x-for="(cat, index) in categories" :key="index">
+                    <button @click="activeTab = index"
+                            class="flex-1 min-w-[140px] px-3 py-2.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-2"
+                            :class="activeTab === index ? 'bg-blue-600 text-white shadow' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'">
+                        <span x-text="cat.name"></span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px]"
+                              :class="activeTab === index ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-700'"
+                              x-text="getSectionEvaluatedCount(index)"></span>
+                    </button>
+                </template>
+            </div>
+
+            <!-- Contenido de la Categoría Activa -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+
+                <!-- Cabecera de la Categoría -->
+                <div class="flex flex-wrap justify-between items-center border-b border-slate-100 pb-4 gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <span x-text="categories[activeTab].name"></span>
+                        </h2>
+                        <p class="text-xs text-slate-500" x-text="categories[activeTab].description"></p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button @click="markAllInSection(activeTab, 'Bueno')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-medium px-3 py-1.5 rounded-lg transition">Marcar Todo Bueno</button>
+                        <button @click="clearSection(activeTab)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-1.5 rounded-lg transition">Limpiar</button>
+                        <button @click="openMaintainer(activeTab)" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            Mantendor de Ítems
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de Ítems de la Categoría -->
+                <div class="space-y-4">
+                    <template x-for="(item, itemIndex) in categories[activeTab].items" :key="itemIndex">
+                        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-white transition space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold text-sm text-slate-800" x-text="item.label"></span>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase"
+                                          :class="{
+                                              'bg-red-100 text-red-700': item.importance === 'Alta',
+                                              'bg-amber-100 text-amber-700': item.importance === 'Media',
+                                              'bg-blue-100 text-blue-700': item.importance === 'Baja'
+                                          }"
+                                          x-text="'Importancia: ' + item.importance">
+                                    </span>
+                                </div>
+
+                                <!-- Botones de Estado -->
+                                <div class="flex items-center gap-1.5">
+                                    <button @click="item.status = 'Bueno'"
+                                            class="px-3 py-1 rounded-lg text-xs font-semibold border transition"
+                                            :class="item.status === 'Bueno' ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'">
+                                        Bueno
+                                    </button>
+                                    <button @click="item.status = 'Regular'"
+                                            class="px-3 py-1 rounded-lg text-xs font-semibold border transition"
+                                            :class="item.status === 'Regular' ? 'bg-amber-500 text-white border-amber-500 shadow-sm' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'">
+                                        Regular
+                                    </button>
+                                    <button @click="item.status = 'Malo'"
+                                            class="px-3 py-1 rounded-lg text-xs font-semibold border transition"
+                                            :class="item.status === 'Malo' ? 'bg-red-600 text-white border-red-600 shadow-sm' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'">
+                                        Malo
+                                    </button>
+                                    <button @click="item.status = 'N/A'"
+                                            class="px-3 py-1 rounded-lg text-xs font-semibold border transition"
+                                            :class="item.status === 'N/A' ? 'bg-slate-700 text-white border-slate-700 shadow-sm' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'">
+                                        N/A
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Deducción y Observaciones individuales -->
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                                <div class="sm:col-span-1" x-show="item.status === 'Regular' || item.status === 'Malo'">
+                                    <input type="number" x-model="item.deduction" placeholder="Deducción $..." class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs text-red-700 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div :class="(item.status === 'Regular' || item.status === 'Malo') ? 'sm:col-span-3' : 'sm:col-span-4'">
+                                    <input type="text" x-model="item.note" placeholder="Agregar observaciones, ejemplo: rayón en puerta trasera, fuga leve..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Sección de Adjuntar Imágenes en esta categoría -->
+                <div class="border-t border-slate-200 pt-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Evidencia Fotográfica de la Sección
+                        </h3>
+                        <label class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow cursor-pointer transition flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Subir Imagen
+                            <input type="file" accept="image/*" class="hidden" @change="uploadImageForSection($event, activeTab)">
+                        </label>
+                    </div>
+
+                    <!-- Galería de Fotos de la Sección -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <template x-for="(img, imgIdx) in categories[activeTab].images" :key="imgIdx">
+                            <div class="relative bg-slate-100 rounded-lg border border-slate-200 overflow-hidden group">
+                                <img :src="img.data" class="w-full h-28 object-cover">
+                                <button @click="removeImage(activeTab, imgIdx)" class="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 shadow hover:bg-red-700 transition">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                                <div class="p-1.5 bg-white text-[10px] text-slate-600 truncate" x-text="img.note || 'Sin nota'"></div>
+                            </div>
+                        </template>
+                        <template x-if="categories[activeTab].images.length === 0">
+                            <div class="col-span-full text-center py-6 border-2 border-dashed border-slate-200 rounded-lg text-xs text-slate-400">
+                                No hay imágenes adjuntas en esta sección.
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- INFORME PDF EJECUTIVO PROFESIONAL (Estilo Documento Formal JASG - Solo visible al imprimir) -->
+    <div class="print-only bg-white text-slate-900 p-8 max-w-4xl mx-auto space-y-6">
+
+        <!-- Membrete Profesional JASG -->
+        <div class="flex justify-between items-center border-b-2 border-slate-900 pb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-14 h-14 bg-white border border-slate-200 rounded-lg p-1 flex items-center justify-center overflow-hidden">
+                    <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                    <span data-jasg-brand-fallback class="text-blue-700 font-black text-lg tracking-wider">JASG</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight text-slate-900">JASG AUTOMOTRIZ</h1>
+                    <p class="text-xs text-slate-600">Informe Técnico Oficial de Tasación e Inspección Vehicular</p>
+                </div>
+            </div>
+            <div class="text-right text-xs space-y-0.5">
+                <p class="font-bold text-red-600 font-mono text-sm" x-text="'FOLIO #' + (car.folio || '0000')"></p>
+                <p class="text-slate-500" x-text="new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })"></p>
+            </div>
+        </div>
+
+        <!-- Información General del Vehículo y Tasador -->
+        <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs">
+            <div class="space-y-1">
+                <p class="font-bold text-slate-800 border-b border-slate-200 pb-1 mb-2 uppercase tracking-wider text-[10px]">Información del Vehículo</p>
+                <p><strong class="text-slate-600">Vehículo:</strong> <span class="font-semibold text-slate-900" x-text="(car.brand === 'Otra' ? car.customBrand : car.brand) + ' ' + (car.model === 'Otro' ? car.customModel : car.model)"></span></p>
+                <p><strong class="text-slate-600">Versión:</strong> <span x-text="car.version || 'S/A'"></span></p>
+                <p><strong class="text-slate-600">Año / Color:</strong> <span x-text="(car.year || 'S/A') + ' | ' + (car.color || 'S/A')"></span></p>
+                <p><strong class="text-slate-600">Kilometraje:</strong> <span x-text="car.km ? car.km + ' km' : 'S/A'"></span></p>
+                <p><strong class="text-slate-600">Patente / VIN:</strong> <span class="uppercase font-mono font-bold" x-text="car.plate || 'S/A'"></span></p>
+            </div>
+            <div class="space-y-1">
+                <p class="font-bold text-slate-800 border-b border-slate-200 pb-1 mb-2 uppercase tracking-wider text-[10px]">Evaluación y Tasador</p>
+                <p><strong class="text-slate-600">Tasador Autorizado:</strong> <span class="font-semibold" x-text="car.inspector || 'JASG Automotriz'"></span></p>
+                <p><strong class="text-slate-600">Propietario / Cliente:</strong> <span x-text="car.client || 'Particular'"></span></p>
+                <p><strong class="text-slate-600">Valor Comercial Base:</strong> <span class="font-semibold" x-text="formatMoney(car.commercialValue)"></span></p>
+                <p><strong class="text-slate-600">Total Deducciones Est.:</strong> <span class="font-bold text-red-600" x-text="formatMoney(calculateRepairCost())"></span></p>
+            </div>
+        </div>
+
+        <!-- Valor Comercial Sugerido Final -->
+        <div class="bg-slate-900 text-white p-5 rounded-xl flex justify-between items-center shadow">
+            <div>
+                <span class="text-xs uppercase tracking-wider text-slate-400 font-bold block">VALOR COMERCIAL SUGERIDO FINAL</span>
+                <p class="text-xs text-slate-300">Calculado sobre base comercial menos deducciones de inspección técnica</p>
+            </div>
+            <div class="text-2xl font-black text-emerald-400" x-text="formatMoney(calculateSuggestedOffer())"></div>
+        </div>
+
+        <!-- Detalle de Anomalías y Deducciones -->
+        <div class="space-y-3 pt-2">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-1">Detalle de Anomalías y Deducciones en Checklist</h3>
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="bg-slate-100 text-slate-700">
+                        <th class="p-1.5 border border-slate-300">Categoría</th>
+                        <th class="p-1.5 border border-slate-300">Ítem Inspeccionado</th>
+                        <th class="p-1.5 border border-slate-300 w-20 text-center">Estado</th>
+                        <th class="p-1.5 border border-slate-300 w-28 text-right">Deducción Est.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="anomaly in getAnomalies()">
+                        <tr>
+                            <td class="p-1.5 border border-slate-300 font-medium text-slate-700" x-text="anomaly.section"></td>
+                            <td class="p-1.5 border border-slate-300" x-text="anomaly.label"></td>
+                            <td class="p-1.5 border border-slate-300 text-center font-bold"
+                                :class="anomaly.status === 'Malo' ? 'text-red-600' : 'text-amber-600'"
+                                x-text="anomaly.status.toUpperCase()"></td>
+                            <td class="p-1.5 border border-slate-300 text-right font-bold text-red-600" x-text="formatMoney(anomaly.deduction)"></td>
+                        </tr>
+                    </template>
+                    <template x-if="getAnomalies().length === 0">
+                        <tr>
+                            <td colspan="4" class="p-3 text-center text-slate-500 italic border border-slate-300">Sin anomalías ni deducciones registradas. Vehículo en excelente estado.</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Observaciones Generales y Galería en PDF -->
+        <div class="space-y-3 pt-2">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-1">Registro Fotográfico del Peritaje</h4>
+            <div class="grid grid-cols-3 gap-3">
+                <template x-for="cat in categories">
+                    <template x-for="img in cat.images">
+                        <div class="border border-slate-200 p-1.5 rounded bg-slate-50">
+                            <img :src="img.data" class="w-full h-28 object-cover rounded">
+                            <p class="text-[9px] text-slate-600 truncate mt-1 font-medium" x-text="cat.name + (img.note ? ' - ' + img.note : '')"></p>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+
+        <!-- Firmas Oficiales JASG -->
+        <div class="pt-16 grid grid-cols-2 gap-12 text-center text-xs">
+            <div class="border-t border-slate-400 pt-2">
+                <p class="font-bold text-slate-800" x-text="car.inspector || 'Perito / Tasador Autorizado'"></p>
+                <p class="text-slate-500">JASG Automotriz</p>
+            </div>
+            <div class="border-t border-slate-400 pt-2">
+                <p class="font-bold text-slate-800" x-text="car.client || 'Propietario / Cliente'"></p>
+                <p class="text-slate-500">Conforme Inspección Vehicular</p>
+            </div>
+        </div>
+
+        <!-- Pie de página informe -->
+        <div class="text-center text-[10px] text-slate-400 pt-6 border-t border-slate-200">
+            JASG Automotriz • Documento generado digitalmente por TasadorPro v4.0 • Validez oficial sujeta a revisión mecánica final.
+        </div>
+    </div>
+
+    <!-- Modal de Veredicto / Informe Resumen -->
+    <div x-show="showVerdictModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">Veredicto e Informe JASG</h3>
+                    <p class="text-xs text-slate-500" x-text="(car.brand || 'Vehículo') + ' ' + (car.model || '') + ' (' + (car.year || 'S/A') + ')'"></p>
+                </div>
+                <button @click="showVerdictModal = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
+                    <span class="text-xs text-slate-500 block">Condición General</span>
+                    <span class="text-2xl font-extrabold text-slate-800" x-text="calculateCondition() + '%'"></span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
+                    <span class="text-xs text-slate-500 block">Deducciones Est.</span>
+                    <span class="text-2xl font-extrabold text-red-600" x-text="formatMoney(calculateRepairCost())"></span>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl text-center">
+                    <span class="text-xs text-slate-500 block">Valor Sugerido</span>
+                    <span class="text-2xl font-extrabold text-emerald-600" x-text="formatMoney(calculateSuggestedOffer())"></span>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-sm font-bold text-slate-800">Resumen de Anomalías y Deducciones:</h4>
+                <div class="space-y-2 max-h-48 overflow-y-auto pr-2">
+                    <template x-for="anomaly in getAnomalies()">
+                        <div class="bg-red-50 border border-red-200 p-3 rounded-lg text-xs space-y-1">
+                            <div class="flex justify-between font-semibold text-red-800">
+                                <span x-text="anomaly.section + ' > ' + anomaly.label"></span>
+                                <span class="uppercase" x-text="anomaly.status + ' (' + formatMoney(anomaly.deduction) + ')'"></span>
+                            </div>
+                            <p class="text-slate-600" x-text="anomaly.note ? 'Nota: ' + anomaly.note : 'Sin observaciones escritas.'"></p>
+                        </div>
+                    </template>
+                    <template x-if="getAnomalies().length === 0">
+                        <div class="text-center py-6 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-xs font-medium">
+                            ¡Excelente! No se han detectado ítems en estado Regular o Malo.
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button @click="showVerdictModal = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition">Cerrar</button>
+                <button @click="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Imprimir Informe Ejecutivo PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Historial de Tasaciones Guardadas -->
+    <div x-show="showHistoryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Historial de Tasaciones JASG (<span x-text="savedAppraisals.length"></span>)
+                </h3>
+                <button @click="showHistoryModal = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Listado de Tasaciones Guardadas -->
+            <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                <template x-for="(appr, idx) in savedAppraisals" :key="appr.folio">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 hover:border-slate-300 transition">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-mono font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-200" x-text="'#' + appr.folio"></span>
+                                <span class="font-bold text-sm text-slate-800" x-text="(appr.car.brand === 'Otra' ? appr.car.customBrand : appr.car.brand) + ' ' + (appr.car.model === 'Otro' ? appr.car.customModel : appr.car.model) + ' (' + (appr.car.year || 'S/A') + ')'"></span>
+                            </div>
+                            <p class="text-xs text-slate-500" x-text="'Patente: ' + (appr.car.plate || 'S/A') + ' • Cliente: ' + (appr.car.client || 'Particular') + ' • Fecha: ' + appr.date"></p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="loadAppraisal(appr)" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">Cargar</button>
+                            <button @click="deleteAppraisal(idx)" class="bg-red-50 hover:bg-red-100 text-red-600 p-1.5 rounded-lg border border-red-200 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+                <template x-if="savedAppraisals.length === 0">
+                    <div class="text-center py-12 text-slate-400 text-xs border-2 border-dashed border-slate-200 rounded-xl">
+                        No hay tasaciones guardadas en el historial. Haz clic en "Guardar Tasación" para registrar una nueva.
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Mantendor de Ítems CRUD -->
+    <div x-show="showMaintainerModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-800">Mantendor de Ítems: <span class="text-blue-600" x-text="categories[activeTab]?.name"></span></h3>
+                <button @click="showMaintainerModal = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Formulario Agregar / Editar Ítem -->
+            <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider" x-text="editingItemIndex === null ? 'Agregar Nuevo Ítem' : 'Editar Ítem'"></h4>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre del Ítem</label>
+                    <input type="text" x-model="newItemForm.label" placeholder="Ej: Estado de frenos ABS" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Importancia</label>
+                    <select x-model="newItemForm.importance" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Alta">Alta</option>
+                        <option value="Media">Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button @click="cancelEditItem()" x-show="editingItemIndex !== null" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Cancelar</button>
+                    <button @click="saveMaintainerItem()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow transition" x-text="editingItemIndex === null ? 'Agregar Ítem' : 'Guardar Cambios'"></button>
+                </div>
+            </div>
+
+            <!-- Lista de Ítems Existentes en la Sección -->
+            <div class="space-y-2 max-h-48 overflow-y-auto">
+                <template x-for="(item, idx) in categories[activeTab]?.items" :key="idx">
+                    <div class="flex items-center justify-between p-2.5 bg-white border border-slate-200 rounded-lg text-xs">
+                        <div>
+                            <span class="font-semibold text-slate-800" x-text="item.label"></span>
+                            <span class="ml-2 text-[10px] px-1.5 py-0.5 rounded font-bold"
+                                  :class="{
+                                      'bg-red-100 text-red-700': item.importance === 'Alta',
+                                      'bg-amber-100 text-amber-700': item.importance === 'Media',
+                                      'bg-blue-100 text-blue-700': item.importance === 'Baja'
+                                  }" x-text="item.importance"></span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button @click="editMaintainerItem(idx)" class="text-slate-500 hover:text-slate-800 p-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </button>
+                            <button @click="deleteMaintainerItem(idx)" class="text-red-500 hover:text-red-700 p-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer JASG -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-center text-xs text-slate-500 no-print">
+        JASG Automotriz &copy; 2026 - Sistema Profesional de Compra y Tasación de Vehículos • Todos los derechos reservados
+    </footer>
+
+    <!-- Lógica Alpine.js -->
+    <script>
+        const brandsAndModels = {
+            "Chevrolet": ["Sail", "Tracker", "Groove", "Captiva", "Silverado", "Colorado", "Onix", "Spark", "N400"],
+            "Toyota": ["Hilux", "RAV4", "Corolla", "Yaris", "Land Cruiser", "Fortuner", "Agya", "Rush", "Prius"],
+            "Suzuki": ["Swift", "Baleno", "Vitara", "Grand Vitara", "S-Cross", "Alto", "Eeco", "Spresso"],
+            "Kia": ["Morning", "Rio", "Soluto", "Cerato", "Sportage", "Sorento", "Seltos", "Carnival", "Bongo"],
+            "Hyundai": ["Accent", "Elantra", "Tucson", "Santa Fe", "Creta", "Grand i10", "Porter", "Venue"],
+            "Nissan": ["Versa", "Sentra", "Kicks", "X-Trail", "Navara", "Qashqai", "Pathfinder", "March"],
+            "Chery": ["Tiggo 2", "Tiggo 3", "Tiggo 4 Pro", "Tiggo 7 Pro", "Tiggo 8 Pro", "Arrizo"],
+            "MG": ["MG 3", "MG 5", "ZS", "RX5", "RX3", "HS", "GL6"],
+            "Haval": ["H6", "Jolion", "H3", "H9", "Dargo"],
+            "Peugeot": ["208", "308", "2008", "3008", "5008", "Partner", "Expert"],
+            "Volkswagen": ["Gol", "Polo", "Virtus", "T-Cross", "Nivus", "Taos", "Tiguan", "Amarok"],
+            "Ford": ["Ranger", "EcoSport", "Explorer", "Escape", "Territory", "F-150", "Focus"],
+            "Mazda": ["Mazda 3", "Mazda 6", "CX-3", "CX-30", "CX-5", "CX-9", "BT-50"],
+            "Subaru": ["Impreza", "XV / Crosstrek", "Forester", "Outback", "Legacy", "WRX"],
+            "Changan": ["CS15", "CS35 Plus", "CS55 Plus", "UNI-T", "UNI-K", "Hunter"],
+            "Geely": ["Coolray", "Azkarra", "Emgrand", "Monjaro"],
+            "JAC": ["JS2", "JS3", "JS4", "T6", "T8", "T8 Pro"],
+            "Renault": ["Kwid", "Stepway", "Duster", "Captur", "Alaskan"],
+            "Fiat": ["Cronos", "Pulse", "Fastback", "Strada", "Fiorino", "Ducato"],
+            "BMW": ["Serie 1", "Serie 3", "X1", "X3", "X5", "i3", "i4"],
+            "Mercedes-Benz": ["Clase A", "Clase C", "GLA", "GLB", "GLC", "Sprinter"],
+            "Audi": ["A3", "A4", "Q3", "Q5", "Q7"]
+        };
+
+        function tasadorApp() {
+            return {
+                brandsAndModels: brandsAndModels,
+                availableModels: [],
+                activeTab: 0,
+                showVerdictModal: false,
+                showMaintainerModal: false,
+                showHistoryModal: false,
+                editingItemIndex: null,
+                newItemForm: { label: '', importance: 'Alta' },
+                savedAppraisals: [],
+
+                car: {
+                    folio: Math.floor(1000 + Math.random() * 9000),
+                    brand: '',
+                    customBrand: '',
+                    model: '',
+                    customModel: '',
+                    version: '',
+                    year: '',
+                    km: '',
+                    plate: '',
+                    color: '',
+                    client: '',
+                    inspector: '',
+                    commercialValue: ''
+                },
+
+                categories: [
+                    {
+                        name: "Documentación y Legal",
+                        description: "Revisión de padrón, multas, revisión técnica y permisos.",
+                        images: [],
+                        items: [
+                            { label: "Permiso de Circulación al Día", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Revisión Técnica y de Gases Vigente", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Certificado de Multas Impagas (Registro Civil)", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Certificado de Anotaciones Vigentes", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Coincidencia de Números de Chasis y VIN", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Llaves de Repuesto Originales", importance: "Media", status: "", deduction: "", note: "" }
+                        ]
+                    },
+                    {
+                        name: "Exterior y Carrocería",
+                        description: "Estado de pintura, paneles, parabrisas y luces.",
+                        images: [],
+                        items: [
+                            { label: "Pintura y Ausencia de Rayones Graves", importance: "Media", status: "", deduction: "", note: "" },
+                            { label: "Alineación y Cuadratura de Puertas / Capot", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Ausencia de Indicios de Choque Estructural", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Parabrisas sin trizaduras", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Funcionamiento de Ópticos, focos y señalizadores", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Estado de Espejos Retrovisores", importance: "Baja", status: "", deduction: "", note: "" }
+                        ]
+                    },
+                    {
+                        name: "Interior y Confort",
+                        description: "Tapicería, aire acondicionado, tablero y mandos.",
+                        images: [],
+                        items: [
+                            { label: "Estado de Tapicería y Asientos", importance: "Media", status: "", deduction: "", note: "" },
+                            { label: "Funcionamiento de Aire Acondicionado / Climatizador", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Alzavidrios y Espejos Eléctricos", importance: "Media", status: "", deduction: "", note: "" },
+                            { label: "Radio, Pantalla Multimedia y Bluetooth", importance: "Baja", status: "", deduction: "", note: "" },
+                            { label: "Airbags y Testigos del Tablero al Encender", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Cinturones de Seguridad y Anclajes", importance: "Alta", status: "", deduction: "", note: "" }
+                        ]
+                    },
+                    {
+                        name: "Motor y Mecánica",
+                        description: "Sonido de motor, fugas, niveles de fluidos y correa.",
+                        images: [],
+                        items: [
+                            { label: "Arranque en Frío Suave y Sin Humo Anormal", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Ausencia de Fugas de Aceite o Refrigerante", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Nivel y Color de Aceite de Motor", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Estado de Correas y Tensores", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Temperatura de Operación Estable", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Ausencia de Ruidos Metálicos o Válvulas", importance: "Alta", status: "", deduction: "", note: "" }
+                        ]
+                    },
+                    {
+                        name: "Suspensión y Neumáticos",
+                        description: "Frenos, amortiguadores, llantas y dibujo de neumáticos.",
+                        images: [],
+                        items: [
+                            { label: "Profundidad de Dibujo en Neumáticos (Min 3mm)", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Estado y Desgaste de Pastillas / Discos de Freno", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Amortiguadores (Sin Rebote Excesivo)", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Llantas sin golpes o deformaciones graves", importance: "Media", status: "", deduction: "", note: "" },
+                            { label: "Rueda de Repuesto, Gata y Llave de Rueda", importance: "Media", status: "", deduction: "", note: "" }
+                        ]
+                    },
+                    {
+                        name: "Prueba de Manejo",
+                        description: "Comportamiento en ruta, transmisión y frenado dinámico.",
+                        images: [],
+                        items: [
+                            { label: "Caja de Cambios / Transmisión Suave", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Embrague (Patinaje o Recorrido)", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Comportamiento de Frenado en Ruta", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Estabilidad y Alineación en Movimiento", importance: "Alta", status: "", deduction: "", note: "" },
+                            { label: "Ausencia de Ruidos en Tren Delantero", importance: "Media", status: "", deduction: "", note: "" }
+                        ]
+                    }
+                ],
+
+                init() {
+                    const savedHistory = localStorage.getItem('jasg_automotriz_history_v4');
+                    if (savedHistory) {
+                        try {
+                            this.savedAppraisals = JSON.parse(savedHistory);
+                        } catch (e) {
+                            console.error('Error al cargar historial', e);
+                        }
+                    }
+
+                    const activeDraft = localStorage.getItem('jasg_automotriz_draft_v4');
+                    if (activeDraft) {
+                        try {
+                            const parsed = JSON.parse(activeDraft);
+                            this.car = parsed.car || this.car;
+                            if (parsed.categories) {
+                                this.categories = parsed.categories;
+                            }
+                            if (this.car.brand && this.brandsAndModels[this.car.brand]) {
+                                this.availableModels = this.brandsAndModels[this.car.brand];
+                            }
+                        } catch (e) {
+                            console.error('Error al cargar borrador', e);
+                        }
+                    }
+
+                    this.$watch('car', () => this.saveDraft(), { deep: true });
+                    this.$watch('categories', () => this.saveDraft(), { deep: true });
+                },
+
+                updateModels() {
+                    if (this.brandsAndModels[this.car.brand]) {
+                        this.availableModels = this.brandsAndModels[this.car.brand];
+                    } else {
+                        this.availableModels = [];
+                    }
+                    this.car.model = '';
+                },
+
+                saveDraft() {
+                    localStorage.setItem('jasg_automotriz_draft_v4', JSON.stringify({
+                        car: this.car,
+                        categories: this.categories
+                    }));
+                },
+
+                saveCurrentAppraisal() {
+                    if (!this.car.brand && !this.car.customBrand) {
+                        alert('Debe al menos indicar la marca del vehículo antes de guardar.');
+                        return;
+                    }
+
+                    const appraisalEntry = {
+                        folio: this.car.folio,
+                        date: new Date().toLocaleDateString('es-CL', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                        car: JSON.parse(JSON.stringify(this.car)),
+                        categories: JSON.parse(JSON.stringify(this.categories))
+                    };
+
+                    const existingIndex = this.savedAppraisals.findIndex(a => a.folio === this.car.folio);
+                    if (existingIndex >= 0) {
+                        this.savedAppraisals[existingIndex] = appraisalEntry;
+                    } else {
+                        this.savedAppraisals.unshift(appraisalEntry);
+                    }
+
+                    localStorage.setItem('jasg_automotriz_history_v4', JSON.stringify(this.savedAppraisals));
+                    alert('¡Tasación guardada con éxito en el historial de JASG Automotriz (Folio #' + this.car.folio + ')!');
+                },
+
+                loadAppraisal(appr) {
+                    this.car = JSON.parse(JSON.stringify(appr.car));
+                    this.categories = JSON.parse(JSON.stringify(appr.categories));
+                    if (this.car.brand && this.brandsAndModels[this.car.brand]) {
+                        this.availableModels = this.brandsAndModels[this.car.brand];
+                    }
+                    this.showHistoryModal = false;
+                },
+
+                deleteAppraisal(idx) {
+                    if (confirm('¿Está seguro de eliminar esta tasación del historial?')) {
+                        this.savedAppraisals.splice(idx, 1);
+                        localStorage.setItem('jasg_automotriz_history_v4', JSON.stringify(this.savedAppraisals));
+                    }
+                },
+
+                get totalItemsCount() {
+                    return this.categories.reduce((acc, cat) => acc + cat.items.length, 0);
+                },
+
+                get totalEvaluated() {
+                    return this.categories.reduce((acc, cat) => {
+                        return acc + cat.items.filter(i => i.status !== '').length;
+                    }, 0);
+                },
+
+                getSectionEvaluatedCount(secIdx) {
+                    const cat = this.categories[secIdx];
+                    const evaluated = cat.items.filter(i => i.status !== '').length;
+                    return evaluated + '/' + cat.items.length;
+                },
+
+                markAllInSection(secIdx, status) {
+                    this.categories[secIdx].items.forEach(item => {
+                        item.status = status;
+                        if (status === 'Bueno') item.deduction = '';
+                    });
+                },
+
+                clearSection(secIdx) {
+                    this.categories[secIdx].items.forEach(item => {
+                        item.status = '';
+                        item.deduction = '';
+                        item.note = '';
+                    });
+                },
+
+                uploadImageForSection(event, secIdx) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const note = prompt('Nota o descripción de la foto (opcional):', '') || '';
+                        this.categories[secIdx].images.push({
+                            data: e.target.result,
+                            note: note
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                    event.target.value = '';
+                },
+
+                removeImage(secIdx, imgIdx) {
+                    this.categories[secIdx].images.splice(imgIdx, 1);
+                },
+
+                calculateCondition() {
+                    let totalScore = 0;
+                    let maxScore = 0;
+
+                    const weights = { 'Alta': 3, 'Media': 2, 'Baja': 1 };
+                    const statusMultiplier = { 'Bueno': 1, 'Regular': 0.5, 'Malo': 0, 'N/A': null };
+
+                    this.categories.forEach(cat => {
+                        cat.items.forEach(item => {
+                            if (item.status && statusMultiplier[item.status] !== null) {
+                                const w = weights[item.importance] || 2;
+                                maxScore += w;
+                                totalScore += w * statusMultiplier[item.status];
+                            }
+                        });
+                    });
+
+                    if (maxScore === 0) return 100;
+                    return Math.round((totalScore / maxScore) * 100);
+                },
+
+                calculateRepairCost() {
+                    let cost = 0;
+                    const defaultDeductions = { 'Alta': 120000, 'Media': 60000, 'Baja': 25000 };
+
+                    this.categories.forEach(cat => {
+                        cat.items.forEach(item => {
+                            if (item.status === 'Regular' || item.status === 'Malo') {
+                                const customDed = parseFloat(item.deduction);
+                                if (!isNaN(customDed) && customDed > 0) {
+                                    cost += customDed;
+                                } else {
+                                    const base = defaultDeductions[item.importance] || 60000;
+                                    cost += (item.status === 'Malo' ? base * 1.5 : base);
+                                }
+                            }
+                        });
+                    });
+                    return Math.round(cost);
+                },
+
+                calculateSuggestedOffer() {
+                    const commercial = parseFloat(this.car.commercialValue) || 0;
+                    if (commercial === 0) return 0;
+                    const deductions = this.calculateRepairCost();
+                    const suggested = commercial - deductions;
+                    return suggested > 0 ? suggested : 0;
+                },
+
+                getRecommendationText() {
+                    const cond = this.calculateCondition();
+                    if (cond >= 80) return "Comprar Recomendado";
+                    if (cond >= 50) return "Negociar Precio";
+                    return "Rechazar Vehículo";
+                },
+
+                getAnomalies() {
+                    let anomalies = [];
+                    const defaultDeductions = { 'Alta': 120000, 'Media': 60000, 'Baja': 25000 };
+
+                    this.categories.forEach(cat => {
+                        cat.items.forEach(item => {
+                            if (item.status === 'Regular' || item.status === 'Malo') {
+                                const customDed = parseFloat(item.deduction);
+                                const ded = (!isNaN(customDed) && customDed > 0) ? customDed : (item.status === 'Malo' ? (defaultDeductions[item.importance] || 60000) * 1.5 : (defaultDeductions[item.importance] || 60000));
+                                anomalies.push({
+                                    section: cat.name,
+                                    label: item.label,
+                                    status: item.status,
+                                    deduction: ded,
+                                    note: item.note
+                                });
+                            }
+                        });
+                    });
+                    return anomalies;
+                },
+
+                formatMoney(amount) {
+                    if (!amount) return '$0';
+                    return '$ ' + Math.round(amount).toLocaleString('es-CL');
+                },
+
+                openMaintainer(secIdx) {
+                    this.activeTab = secIdx;
+                    this.editingItemIndex = null;
+                    this.newItemForm = { label: '', importance: 'Alta' };
+                    this.showMaintainerModal = true;
+                },
+
+                saveMaintainerItem() {
+                    if (!this.newItemForm.label.trim()) {
+                        alert('Debe ingresar el nombre del ítem.');
+                        return;
+                    }
+
+                    if (this.editingItemIndex === null) {
+                        this.categories[this.activeTab].items.push({
+                            label: this.newItemForm.label,
+                            importance: this.newItemForm.importance,
+                            status: '',
+                            deduction: '',
+                            note: ''
+                        });
+                    } else {
+                        const item = this.categories[this.activeTab].items[this.editingItemIndex];
+                        item.label = this.newItemForm.label;
+                        item.importance = this.newItemForm.importance;
+                        this.editingItemIndex = null;
+                    }
+
+                    this.newItemForm = { label: '', importance: 'Alta' };
+                },
+
+                editMaintainerItem(idx) {
+                    this.editingItemIndex = idx;
+                    const item = this.categories[this.activeTab].items[idx];
+                    this.newItemForm = { label: item.label, importance: item.importance };
+                },
+
+                cancelEditItem() {
+                    this.editingItemIndex = null;
+                    this.newItemForm = { label: '', importance: 'Alta' };
+                },
+
+                deleteMaintainerItem(idx) {
+                    if (confirm('¿Está seguro de eliminar este ítem de la categoría?')) {
+                        this.categories[this.activeTab].items.splice(idx, 1);
+                        if (this.editingItemIndex === idx) {
+                            this.cancelEditItem();
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+        </div>
+    </div>
+</body>
+</html>

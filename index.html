@@ -39,8 +39,11 @@
 
     <style>
         [x-cloak] { display: none !important; }
+        .print-only { display: none; }
         @media print {
             .no-print { display: none !important; }
+            .app-shell { display: block !important; min-height: 0 !important; }
+
             .print-only { display: block !important; }
             body { 
                 background: white !important; 
@@ -62,6 +65,13 @@
                 max-width: 100% !important;
                 width: 100% !important;
             }
+            .print-logo {
+                width: 28mm !important;
+                height: 28mm !important;
+            }
+            .print-logo i {
+                font-size: 40pt !important;
+            }
             
             /* REGLAS ANTICORTE DE HOJA PROFESIONALES */
             .avoid-break {
@@ -77,6 +87,63 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen pb-12" x-data="quoteApp()" x-cloak>
 
+    <div class="flex flex-col md:flex-row min-h-screen app-shell">
+        <aside class="w-full md:w-72 shrink-0 bg-slate-900 text-white border-r border-slate-700/80 shadow-2xl no-print">
+            <div class="px-5 py-6 border-b border-slate-700/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 border border-white/20 overflow-hidden">
+                        <template x-if="company.customIcon">
+                            <img :src="company.customIcon" class="w-full h-full object-contain bg-white p-1">
+                        </template>
+                        <template x-if="!company.customIcon">
+                            <i class="fa-solid fa-car text-4xl"></i>
+                        </template>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black tracking-tight">JASG</div>
+                        <div class="text-[10px] text-slate-300 uppercase tracking-[0.2em]">Módulos</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="p-4 grid grid-cols-2 gap-2 md:block md:space-y-2">
+                <button type="button" @click="activeModule = 'cotizador'; activeTab = 'editor'" :class="activeModule === 'cotizador' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-slate-800/70 text-slate-200 hover:bg-slate-800'" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left transition-all">
+                    <i class="fa-solid fa-file-invoice text-lg"></i>
+                    <span>Cotizador</span>
+                </button>
+                <a href="planificador.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/70 text-slate-200 hover:bg-slate-800 transition-all">
+                    <i class="fa-solid fa-list-check text-lg"></i>
+                    <span>Planificador</span>
+                </a>
+
+                <a href="inventario.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/70 text-slate-200 hover:bg-slate-800 transition-all">
+                    <i class="fa-solid fa-boxes-stacked text-lg"></i>
+                    <span>Inventario</span>
+                </a>
+
+                <div class="md:mt-4 pt-4 border-t border-slate-700/70 grid grid-cols-1 gap-2">
+                    <a href="agendamientos.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/60 text-slate-200 hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-calendar-days text-lg"></i>
+                        <span>Agendamientos</span>
+                    </a>
+                    <a href="ordenes-trabajo.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/60 text-slate-200 hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-clipboard-list text-lg"></i>
+                        <span>Órdenes</span>
+                    </a>
+                    <a href="tasador.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/60 text-slate-200 hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-car-side text-lg"></i>
+                        <span>Tasador</span>
+                    </a>
+                    <a href="finanzas.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/60 text-slate-200 hover:bg-slate-800 transition-all">
+                        <i class="fa-solid fa-wallet text-lg"></i>
+                        <span>Finanzas</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+
     <!-- Notification Toast -->
     <div x-show="toast.show" 
          x-transition:enter="transition ease-out duration-300"
@@ -91,30 +158,30 @@
     </div>
 
     <!-- Navbar / Header (No Print) -->
-    <header class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white shadow-xl no-print sticky top-0 z-40 border-b border-blue-900/50">
+    <header x-show="activeModule === 'cotizador'" class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white shadow-xl no-print sticky top-0 z-40 border-b border-blue-900/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
+            <div class="flex flex-wrap items-center justify-between gap-3 min-h-20 py-2">
                 
                 <!-- Logo & Brand Info -->
-                <div class="flex items-center space-x-3.5">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center border border-white/20 shrink-0 transform hover:scale-105 transition overflow-hidden">
+                <div class="flex items-center space-x-3.5 min-w-0 flex-1">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center border border-white/20 shrink-0 transform hover:scale-105 transition overflow-hidden">
                         <template x-if="company.customIcon">
                             <img :src="company.customIcon" class="w-full h-full object-cover">
                         </template>
                         <template x-if="!company.customIcon">
-                            <i class="fa-solid fa-car text-white text-2xl drop-shadow"></i>
+                            <i class="fa-solid fa-car text-white text-5xl drop-shadow"></i>
                         </template>
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <div class="flex items-center space-x-2">
-                            <h1 class="text-lg sm:text-xl font-black tracking-tight text-white leading-tight" x-text="company.name">SERVICIO TÉCNICO JASG Spa</h1>
+                            <h1 class="text-lg sm:text-xl font-black tracking-tight text-white leading-tight truncate max-w-[min(30vw,360px)]" x-text="company.name">SERVICIO TÉCNICO JASG Spa</h1>
                             <span class="bg-blue-500/30 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">PRO</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Navigation Tabs -->
-                <nav class="hidden md:flex items-center space-x-1.5 bg-slate-900/60 p-1.5 rounded-xl border border-slate-700/50">
+                <nav x-show="activeModule === 'cotizador'" class="hidden lg:flex items-center space-x-1.5 bg-slate-900/60 p-1.5 rounded-xl border border-slate-700/50 shrink-0">
                     <button @click="activeTab = 'editor'" :class="{'bg-blue-600 text-white font-bold shadow-md': activeTab === 'editor', 'text-slate-300 hover:text-white hover:bg-slate-800/80': activeTab !== 'editor'}" class="px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
                         <i class="fa-solid fa-file-pen text-sm"></i>
                         <span>Cotizador</span>
@@ -133,8 +200,10 @@
                     </button>
                 </nav>
 
+
+
                 <!-- Quick Actions -->
-                <div class="flex items-center space-x-2">
+                <div x-show="activeModule === 'cotizador'" class="flex items-center space-x-2 shrink-0">
                     <button @click="resetQuote()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-slate-700 flex items-center space-x-1.5 shadow-sm" title="Nueva Cotización">
                         <i class="fa-solid fa-circle-plus text-emerald-400 text-sm"></i>
                         <span class="hidden sm:inline">Nueva</span>
@@ -148,7 +217,7 @@
         </div>
 
         <!-- Mobile Navigation Bar -->
-        <div class="md:hidden bg-slate-900 border-t border-slate-800 grid grid-cols-4 p-1 text-xs">
+        <div x-show="activeModule === 'cotizador'" class="md:hidden bg-slate-900 border-t border-slate-800 grid grid-cols-4 p-1 text-xs">
             <button @click="activeTab = 'editor'" :class="{'text-blue-400 font-bold bg-slate-800/80': activeTab === 'editor', 'text-slate-400': activeTab !== 'editor'}" class="flex flex-col items-center py-2 rounded-lg">
                 <i class="fa-solid fa-file-pen text-base mb-0.5"></i>
                 <span>Cotizador</span>
@@ -169,7 +238,7 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-6">
+    <main x-show="activeModule === 'cotizador'" class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-6">
 
         <!-- Modal Buscar Cliente Frecuente -->
         <div x-show="showClientSearch" 
@@ -326,7 +395,7 @@
         </div>
 
         <!-- TAB 1: EDITOR / CREAR COTIZACIÓN -->
-        <div x-show="activeTab === 'editor'" class="space-y-6">
+        <div x-show="activeTab === 'editor'" x-cloak class="space-y-6">
 
             <!-- Correlativo Indicator Banner -->
             <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white p-4 rounded-2xl shadow-lg flex flex-wrap items-center justify-between gap-3 border border-blue-400/20">
@@ -796,7 +865,7 @@
         </div>
 
         <!-- TAB 2: VISTA PREVIA Y DOCUMENTO PARA IMPRIMIR O ENVIAR -->
-        <div x-show="activeTab === 'preview'" class="space-y-6">
+        <div x-show="activeTab === 'preview'" x-cloak class="space-y-6">
 
             <!-- Control Bar (No Print) -->
             <div class="bg-white p-4 rounded-2xl shadow-md border border-slate-200/80 flex flex-wrap items-center justify-between gap-3 no-print">
@@ -844,12 +913,12 @@
                 <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-6 rounded-2xl mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 shadow-md avoid-break">
                     <!-- Brand & Logo -->
                     <div class="flex items-center space-x-4">
-                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-white/20 shadow-md overflow-hidden">
+                        <div class="print-logo w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-white/20 shadow-md overflow-hidden">
                             <template x-if="company.customIcon">
                                 <img :src="company.customIcon" class="w-full h-full object-cover">
                             </template>
                             <template x-if="!company.customIcon">
-                                <i class="fa-solid fa-car text-white text-2xl"></i>
+                                <i class="fa-solid fa-car text-white text-4xl"></i>
                             </template>
                         </div>
                         <div>
@@ -1016,7 +1085,7 @@
         </div>
 
         <!-- TAB 3: HISTORIAL DE COTIZACIONES -->
-        <div x-show="activeTab === 'history'" class="space-y-6">
+        <div x-show="activeTab === 'history'" x-cloak class="space-y-6">
             <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b pb-4 border-slate-100">
                     <div class="flex items-center space-x-3">
@@ -1085,8 +1154,8 @@
             </div>
         </div>
 
-        <!-- TAB 4: AJUSTES / CONFIGURACIÓN DEL TALLER -->
-        <div x-show="activeTab === 'settings'" class="space-y-6">
+        <!-- TAB 5: AJUSTES / CONFIGURACIÓN DEL TALLER -->
+        <div x-show="activeTab === 'settings'" x-cloak class="space-y-6">
             <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-6 max-w-2xl mx-auto">
                 <div class="flex items-center space-x-3 mb-5 border-b pb-4 border-slate-100">
                     <div class="bg-slate-900 text-white p-2.5 rounded-xl shadow-md">
@@ -1103,7 +1172,7 @@
                     <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                         <label class="block font-bold text-slate-700">Ícono o Logotipo del Taller (Para el PDF y la Aplicación)</label>
                         <div class="flex items-center space-x-4">
-                            <div class="w-16 h-16 bg-white border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+                            <div class="w-20 h-20 bg-white border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
                                 <template x-if="company.customIcon">
                                     <img :src="company.customIcon" class="w-full h-full object-cover">
                                 </template>
@@ -1113,7 +1182,7 @@
                             </div>
                             <div class="flex-1 space-y-2">
                                 <input type="file" accept="image/*" @change="handleCompanyIconUpload($event)" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
-                                <button type="button" x-show="company.customIcon" @click="company.customIcon = ''" class="text-rose-600 hover:text-rose-800 font-semibold text-[11px]">
+                                <button type="button" x-show="company.customIcon" @click="company.customIcon = ''; saveStoredData()" class="text-rose-600 hover:text-rose-800 font-semibold text-[11px]">
                                     Eliminar logotipo actual
                                 </button>
                             </div>
@@ -1177,9 +1246,15 @@
 
     </main>
 
+
+
+    </div>
+    </div>
+
     <script>
         function quoteApp() {
             return {
+                activeModule: 'cotizador',
                 activeTab: 'editor',
                 currency: '$',
                 taxRate: 19,
@@ -1323,12 +1398,20 @@
                     this.loadStoredData();
                 },
 
+                getNextCounterFromNumber(rawNumber) {
+                    if (!rawNumber || typeof rawNumber !== 'string') return 1;
+                    const match = rawNumber.match(/(\d+)/);
+                    const parsed = match ? Number(match[1]) : 1;
+                    return Number.isFinite(parsed) ? parsed : 1;
+                },
+
                 handleCompanyIconUpload(event) {
                     const files = event.target.files;
                     if (files && files[0]) {
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             this.company.customIcon = e.target.result;
+                            this.saveStoredData();
                             this.showToast('Logotipo actualizado con éxito', 'fa-circle-check text-emerald-400');
                         };
                         reader.readAsDataURL(files[0]);
@@ -1532,6 +1615,7 @@
                         this.items = [];
                         this.images = [];
                         this.quoteMeta.discountPercent = 0;
+                        this.saveStoredData();
                         this.showToast('Nueva cotización iniciada', 'fa-file-circle-plus text-blue-400');
                     }
                 },
@@ -1705,6 +1789,7 @@
                     if (confirm('¿Deseas reiniciar el contador correlativo a COT-0001?')) {
                         this.quoteCounter = 1;
                         this.quoteMeta.number = 'COT-0001';
+                        this.saveStoredData();
                         this.showToast('Contador reiniciado a COT-0001');
                     }
                 },
@@ -1719,6 +1804,7 @@
                         localStorage.setItem('jasg_company', JSON.stringify(this.company));
                         localStorage.setItem('jasg_saved_quotes', JSON.stringify(this.savedQuotes));
                         localStorage.setItem('jasg_custom_catalog', JSON.stringify(this.catalog.filter(c => c.isCustom)));
+                        localStorage.setItem('jasg_quote_counter', String(this.quoteCounter));
                     } catch (e) {
                         console.error('Error guardando en localStorage', e);
                     }
@@ -1737,12 +1823,34 @@
                             const parsedCustom = JSON.parse(customCat);
                             this.catalog = [...this.catalog.filter(c => !c.isCustom), ...parsedCustom];
                         }
+
+                        const storedCounter = localStorage.getItem('jasg_quote_counter');
+                        if (storedCounter) {
+                            const parsedCounter = Number(storedCounter);
+                            if (!Number.isNaN(parsedCounter) && parsedCounter > 0) {
+                                this.quoteCounter = parsedCounter;
+                            }
+                        } else {
+                            const maxSavedCounter = this.savedQuotes.reduce((max, quote) => {
+                                const next = this.getNextCounterFromNumber(quote.number);
+                                return Math.max(max, next);
+                            }, 0);
+
+                            if (maxSavedCounter > 0) {
+                                this.quoteCounter = maxSavedCounter;
+                            }
+                        }
+
+                        this.quoteMeta.number = 'COT-' + String(this.quoteCounter).padStart(4, '0');
                     } catch (e) {
                         console.error('Error cargando localStorage', e);
                     }
-                }
+                },
+
+
             }
         }
+
     </script>
 </body>
 </html>
