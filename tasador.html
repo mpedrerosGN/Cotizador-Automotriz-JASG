@@ -285,23 +285,23 @@
 
                                 <!-- Botones de Estado -->
                                 <div class="flex items-center gap-1.5">
-                                    <button @click="item.status = 'Bueno'"
-                                            class="px-3 py-1 rounded-lg text-xs font-semibold border transition"
+                                        <button @click="item.status = 'Bueno'"
+                                            class="px-2 sm:px-3 py-1 rounded-lg text-xs font-semibold border transition"
                                             :class="item.status === 'Bueno' ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'">
                                         Bueno
                                     </button>
-                                    <button @click="item.status = 'Regular'"
-                                            class="px-3 py-1 rounded-lg text-xs font-semibold border transition"
+                                        <button @click="item.status = 'Regular'"
+                                            class="px-2 sm:px-3 py-1 rounded-lg text-xs font-semibold border transition"
                                             :class="item.status === 'Regular' ? 'bg-amber-500 text-white border-amber-500 shadow-sm' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'">
                                         Regular
                                     </button>
-                                    <button @click="item.status = 'Malo'"
-                                            class="px-3 py-1 rounded-lg text-xs font-semibold border transition"
+                                        <button @click="item.status = 'Malo'"
+                                            class="px-2 sm:px-3 py-1 rounded-lg text-xs font-semibold border transition"
                                             :class="item.status === 'Malo' ? 'bg-red-600 text-white border-red-600 shadow-sm' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'">
                                         Malo
                                     </button>
-                                    <button @click="item.status = 'N/A'"
-                                            class="px-3 py-1 rounded-lg text-xs font-semibold border transition"
+                                        <button @click="item.status = 'N/A'"
+                                            class="px-2 sm:px-3 py-1 rounded-lg text-xs font-semibold border transition"
                                             :class="item.status === 'N/A' ? 'bg-slate-700 text-white border-slate-700 shadow-sm' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'">
                                         N/A
                                     </button>
