@@ -87,16 +87,16 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen pb-12" x-data="quoteApp()" x-cloak>
 
-    <div class="flex flex-col md:flex-row min-h-screen app-shell">
-        <aside class="w-full md:w-72 shrink-0 bg-slate-900 text-white border-r border-slate-700/80 shadow-2xl no-print">
-            <div class="px-5 py-6 border-b border-slate-700/70">
+    <div class="flex min-h-screen flex-col lg:flex-row app-shell">
+        <aside class="w-full lg:w-64 lg:shrink-0 bg-slate-900 text-white border-b lg:border-b-0 lg:border-r border-slate-700/80 shadow-2xl no-print">
+            <div class="px-4 py-3 lg:px-5 lg:py-6 border-b border-slate-700/70">
                 <div class="flex items-center gap-3">
-                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 border border-white/20 overflow-hidden">
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
                         <template x-if="company.customIcon">
-                            <img :src="company.customIcon" class="w-full h-full object-contain bg-white p-1">
+                            <img :src="company.customIcon" class="w-full h-full object-contain">
                         </template>
                         <template x-if="!company.customIcon">
-                            <i class="fa-solid fa-car text-4xl"></i>
+                            <i class="fa-solid fa-car text-blue-600 text-xl"></i>
                         </template>
                     </div>
                     <div>
@@ -106,39 +106,16 @@
                 </div>
             </div>
 
-            <nav class="p-4 grid grid-cols-2 gap-2 md:block md:space-y-2">
-                <button type="button" @click="activeModule = 'cotizador'; activeTab = 'editor'" :class="activeModule === 'cotizador' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-slate-800/70 text-slate-200 hover:bg-slate-800'" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left transition-all">
-                    <i class="fa-solid fa-file-invoice text-lg"></i>
-                    <span>Cotizador</span>
+            <nav class="flex flex-wrap gap-2 p-2 lg:block lg:space-y-2 lg:p-4">
+                <button type="button" @click="activeModule = 'cotizador'; activeTab = 'editor'" :class="activeModule === 'cotizador' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'bg-slate-800/70 text-slate-200 hover:bg-slate-800'" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl">
+                    <i class="fa-solid fa-file-invoice"></i><span>Cotizador</span>
                 </button>
-                <a href="planificador.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/70 text-slate-200 hover:bg-slate-800 transition-all">
-                    <i class="fa-solid fa-list-check text-lg"></i>
-                    <span>Planificador</span>
-                </a>
-
-                <a href="inventario.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/70 text-slate-200 hover:bg-slate-800 transition-all">
-                    <i class="fa-solid fa-boxes-stacked text-lg"></i>
-                    <span>Inventario</span>
-                </a>
-
-                <div class="md:mt-4 pt-4 border-t border-slate-700/70 grid grid-cols-1 gap-2">
-                    <a href="agendamientos.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/60 text-slate-200 hover:bg-slate-800 transition-all">
-                        <i class="fa-solid fa-calendar-days text-lg"></i>
-                        <span>Agendamientos</span>
-                    </a>
-                    <a href="ordenes-trabajo.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/60 text-slate-200 hover:bg-slate-800 transition-all">
-                        <i class="fa-solid fa-clipboard-list text-lg"></i>
-                        <span>Órdenes</span>
-                    </a>
-                    <a href="tasador.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/60 text-slate-200 hover:bg-slate-800 transition-all">
-                        <i class="fa-solid fa-car-side text-lg"></i>
-                        <span>Tasador</span>
-                    </a>
-                    <a href="finanzas.html" class="w-full flex items-center justify-center md:justify-start gap-2 md:gap-3 px-2 md:px-4 py-3 rounded-2xl font-bold text-center md:text-left bg-slate-800/60 text-slate-200 hover:bg-slate-800 transition-all">
-                        <i class="fa-solid fa-wallet text-lg"></i>
-                        <span>Finanzas</span>
-                    </a>
-                </div>
+                <a href="planificador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-list-check"></i> Planificador</a>
+                <a href="agendamientos.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-calendar-days"></i> Agendamientos</a>
+                <a href="ordenes-trabajo.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-clipboard-list"></i> Órdenes</a>
+                <a href="inventario.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+                <a href="tasador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-car-side"></i> Tasador</a>
+                <a href="finanzas.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-wallet"></i> Finanzas</a>
             </nav>
         </aside>
 
@@ -158,43 +135,43 @@
     </div>
 
     <!-- Navbar / Header (No Print) -->
-    <header x-show="activeModule === 'cotizador'" class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white shadow-xl no-print sticky top-0 z-40 border-b border-blue-900/50">
+    <header x-show="activeModule === 'cotizador'" class="bg-white text-slate-800 shadow-sm no-print sticky top-0 z-40 border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-wrap items-center justify-between gap-3 min-h-20 py-2">
+            <div class="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-center justify-between gap-3 py-3">
                 
                 <!-- Logo & Brand Info -->
-                <div class="flex items-center space-x-3.5 min-w-0 flex-1">
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-500/30 flex items-center justify-center border border-white/20 shrink-0 transform hover:scale-105 transition overflow-hidden">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-11 h-11 bg-white p-1 rounded-xl border border-slate-200 shadow-md flex items-center justify-center shrink-0 overflow-hidden">
                         <template x-if="company.customIcon">
-                            <img :src="company.customIcon" class="w-full h-full object-cover">
+                            <img :src="company.customIcon" class="w-full h-full object-contain">
                         </template>
                         <template x-if="!company.customIcon">
-                            <i class="fa-solid fa-car text-white text-5xl drop-shadow"></i>
+                            <i class="fa-solid fa-car text-blue-600 text-lg"></i>
                         </template>
                     </div>
                     <div class="min-w-0">
-                        <div class="flex items-center space-x-2">
-                            <h1 class="text-lg sm:text-xl font-black tracking-tight text-white leading-tight truncate max-w-[min(30vw,360px)]" x-text="company.name">SERVICIO TÉCNICO JASG Spa</h1>
-                            <span class="bg-blue-500/30 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-400/30">PRO</span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h1 class="text-lg font-bold text-slate-900 leading-tight" x-text="company.name">SERVICIO TÉCNICO JASG Spa</h1>
+                            <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">PRO</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Navigation Tabs -->
-                <nav x-show="activeModule === 'cotizador'" class="hidden lg:flex items-center space-x-1.5 bg-slate-900/60 p-1.5 rounded-xl border border-slate-700/50 shrink-0">
-                    <button @click="activeTab = 'editor'" :class="{'bg-blue-600 text-white font-bold shadow-md': activeTab === 'editor', 'text-slate-300 hover:text-white hover:bg-slate-800/80': activeTab !== 'editor'}" class="px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
+                <nav x-show="activeModule === 'cotizador'" class="hidden lg:flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
+                    <button @click="activeTab = 'editor'" :class="{'bg-blue-600 text-white font-bold shadow-md': activeTab === 'editor', 'text-slate-600 hover:text-slate-900 hover:bg-white': activeTab !== 'editor'}" class="px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
                         <i class="fa-solid fa-file-pen text-sm"></i>
                         <span>Cotizador</span>
                     </button>
-                    <button @click="activeTab = 'preview'" :class="{'bg-blue-600 text-white font-bold shadow-md': activeTab === 'preview', 'text-slate-300 hover:text-white hover:bg-slate-800/80': activeTab !== 'preview'}" class="px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
+                    <button @click="activeTab = 'preview'" :class="{'bg-blue-600 text-white font-bold shadow-md': activeTab === 'preview', 'text-slate-600 hover:text-slate-900 hover:bg-white': activeTab !== 'preview'}" class="px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
                         <i class="fa-solid fa-file-invoice text-emerald-400 text-sm"></i>
                         <span>Vista Previa</span>
                     </button>
-                    <button @click="activeTab = 'history'" :class="{'bg-blue-600 text-white font-bold shadow-md': activeTab === 'history', 'text-slate-300 hover:text-white hover:bg-slate-800/80': activeTab !== 'history'}" class="px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
+                    <button @click="activeTab = 'history'" :class="{'bg-blue-600 text-white font-bold shadow-md': activeTab === 'history', 'text-slate-600 hover:text-slate-900 hover:bg-white': activeTab !== 'history'}" class="px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
                         <i class="fa-solid fa-clock-rotate-left text-amber-400 text-sm"></i>
                         <span>Historial (<span x-text="savedQuotes.length"></span>)</span>
                     </button>
-                    <button @click="activeTab = 'settings'" :class="{'bg-blue-600 text-white font-bold shadow-md': activeTab === 'settings', 'text-slate-300 hover:text-white hover:bg-slate-800/80': activeTab !== 'settings'}" class="px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
+                    <button @click="activeTab = 'settings'" :class="{'bg-blue-600 text-white font-bold shadow-md': activeTab === 'settings', 'text-slate-600 hover:text-slate-900 hover:bg-white': activeTab !== 'settings'}" class="px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2">
                         <i class="fa-solid fa-sliders text-cyan-400 text-sm"></i>
                         <span>Ajustes</span>
                     </button>
@@ -203,12 +180,12 @@
 
 
                 <!-- Quick Actions -->
-                <div x-show="activeModule === 'cotizador'" class="flex items-center space-x-2 shrink-0">
-                    <button @click="resetQuote()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-slate-700 flex items-center space-x-1.5 shadow-sm" title="Nueva Cotización">
+                <div x-show="activeModule === 'cotizador'" class="flex items-center justify-end gap-2 shrink-0">
+                    <button @click="resetQuote()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-slate-200 flex items-center space-x-1.5 shadow-sm" title="Nueva Cotización">
                         <i class="fa-solid fa-circle-plus text-emerald-400 text-sm"></i>
                         <span class="hidden sm:inline">Nueva</span>
                     </button>
-                    <button @click="saveCurrentQuote()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/30 transition flex items-center space-x-1.5 border border-emerald-400/30">
+                    <button @click="saveCurrentQuote()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center space-x-1.5">
                         <i class="fa-solid fa-floppy-disk text-sm"></i>
                         <span class="hidden sm:inline">Guardar</span>
                     </button>
@@ -217,7 +194,7 @@
         </div>
 
         <!-- Mobile Navigation Bar -->
-        <div x-show="activeModule === 'cotizador'" class="md:hidden bg-slate-900 border-t border-slate-800 grid grid-cols-4 p-1 text-xs">
+        <div x-show="activeModule === 'cotizador'" class="lg:hidden bg-slate-100 border-t border-slate-200 grid grid-cols-4 p-1 text-xs">
             <button @click="activeTab = 'editor'" :class="{'text-blue-400 font-bold bg-slate-800/80': activeTab === 'editor', 'text-slate-400': activeTab !== 'editor'}" class="flex flex-col items-center py-2 rounded-lg">
                 <i class="fa-solid fa-file-pen text-base mb-0.5"></i>
                 <span>Cotizador</span>
