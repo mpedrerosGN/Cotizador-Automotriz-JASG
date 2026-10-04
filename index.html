@@ -72,6 +72,31 @@
             .print-logo i {
                 font-size: 40pt !important;
             }
+            .terms-page {
+                page-break-before: always !important;
+                break-before: page !important;
+                page-break-inside: auto !important;
+                break-inside: auto !important;
+            }
+            .terms-columns {
+                columns: 2;
+                column-gap: 8mm;
+                font-size: 7.5pt !important;
+                line-height: 1.28 !important;
+            }
+            .terms-columns h3 {
+                break-after: avoid;
+                page-break-after: avoid;
+                font-size: 8pt !important;
+                margin: 2.2mm 0 1mm !important;
+            }
+            .terms-columns p, .terms-columns li {
+                margin: 0 0 1.2mm !important;
+            }
+            .terms-columns ul {
+                margin: 0 0 1.5mm !important;
+                padding-left: 4mm !important;
+            }
             
             /* REGLAS ANTICORTE DE HOJA PROFESIONALES */
             .avoid-break {
@@ -838,6 +863,86 @@
                 </div>
 
             </div>
+
+            <article class="print-only printable-card terms-page bg-white text-slate-800 max-w-4xl mx-auto font-sans">
+                <header class="border-b-2 border-slate-900 pb-3 mb-3">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-[9pt] font-bold uppercase tracking-wider text-blue-700" x-text="company.name">JASG AUTOMOTRIZ</p>
+                            <h2 class="text-[15pt] font-black text-slate-900">TÉRMINOS Y CONDICIONES GENERALES</h2>
+                            <p class="text-[9pt] font-semibold text-slate-700">JASG AUTOMOTRIZ – DESABOLLADURA Y PINTURA</p>
+                        </div>
+                        <div class="shrink-0 text-right text-[8pt] text-slate-600">
+                            <p class="font-bold" x-text="quoteMeta.number"></p>
+                            <p x-text="quoteMeta.date"></p>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="terms-columns text-slate-800">
+                    <section>
+                        <h3>TIEMPOS ESTIMADOS DE TRABAJO</h3>
+                        <ul>
+                            <li>Leve: 5 a 7 días hábiles.</li>
+                            <li>Medio: 10 a 12 días hábiles.</li>
+                            <li>Alto: 15 a 20 días hábiles.</li>
+                            <li>Extremo / Pintura completa: 20 a 30 días hábiles.</li>
+                        </ul>
+                        <p>Los plazos indicados son referenciales y pueden variar debido a daños ocultos, disponibilidad de repuestos u otros factores ajenos al control del taller. Cualquier cambio relevante será informado oportunamente al cliente.</p>
+                    </section>
+
+                    <section>
+                        <h3>CONDICIONES DE PAGO</h3>
+                        <p>Reserva de agenda: 10% del presupuesto correspondiente a desabolladura y pintura.</p>
+                        <p>Este abono no es reembolsable, pero podrá ser re-agendado previa coordinación y aviso anticipado por parte del cliente.</p>
+                        <ul>
+                            <li>Ingreso del vehículo: Pago del 50% del saldo restante, considerando la reserva efectuada, cuando corresponda.</li>
+                            <li>Entrega del vehículo: Pago del 50% final.</li>
+                            <li>Repuestos y trabajos de airbags: Deberán ser pagados en un 100% por adelantado antes de iniciar los trabajos.</li>
+                            <li>Costos de envío: Dependiendo del proveedor y del origen de los repuestos, podrán aplicarse costos adicionales por transporte, los cuales serán informados previamente al cliente.</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>INGRESO DEL VEHÍCULO</h3>
+                        <p>El ingreso del vehículo deberá ser coordinado previamente con JASG Automotriz, quedando sujeto a la disponibilidad de agenda y espacio en el taller.</p>
+                    </section>
+
+                    <section>
+                        <h3>REPUESTOS</h3>
+                        <p>Se recomienda el uso de repuestos originales.</p>
+                        <p>Los repuestos alternativos pueden presentar diferencias de ajuste, terminación, compatibilidad o eventuales fallas eléctricas.</p>
+                        <p>JASG Automotriz no se responsabiliza por fallas ni costos de ajuste derivados del uso de repuestos alternativos, provenientes de desarmaduría o entregados directamente por el cliente.</p>
+                        <p>Las tapas de remolque, molduras y embellecedores no están incluidos en los parachoques y se consideran elementos independientes, por lo que se venden por separado.</p>
+                    </section>
+
+                    <section>
+                        <h3>DAÑOS OCULTOS Y AJUSTES</h3>
+                        <p>Durante el proceso de desarme pueden detectarse daños que no sean visibles inicialmente. Esto puede implicar reparaciones adicionales, cambio de piezas y modificaciones o ajustes en el presupuesto original.</p>
+                        <p>Todo costo adicional será informado al cliente y requerirá su autorización antes de realizar los trabajos correspondientes.</p>
+                    </section>
+
+                    <section>
+                        <h3>GARANTÍAS</h3>
+                        <p>Solo los trabajos de pintura cuentan con una garantía de 1 año, previa revisión y evaluación del vehículo en el taller.</p>
+                        <p>No se garantiza la durabilidad de parachoques reparados ni de piezas plásticas, debido a que estos componentes, una vez reparados, pueden volver a dañarse producto de impactos, deformaciones u otras circunstancias posteriores.</p>
+                        <p>Los repuestos provenientes de desarmaduría o proporcionados directamente por el cliente no cuentan con garantía por parte de JASG Automotriz.</p>
+                        <p>JASG Automotriz no se responsabiliza por daños, ruidos, fallas mecánicas, eléctricas o electrónicas preexistentes, aun cuando estos se manifiesten con posterioridad a la reparación, debido a que los trabajos realizados corresponden exclusivamente a aquellos previamente cotizados y aceptados por el cliente.</p>
+                        <p>No se garantiza una igualdad exacta de color, brillo o textura entre las piezas reparadas y las piezas originales cuando el cliente no incluye procesos de difuminado. Incluso realizando difuminados, pueden existir diferencias debido al estado de deterioro del vehículo, envejecimiento, exposición solar y procesos propios de fábrica.</p>
+                        <p>En vehículos con más de 8 a 10 años de antigüedad o que presenten reparaciones anteriores, el resultado final puede verse condicionado por el estado general del vehículo.</p>
+                        <p>JASG Automotriz no se responsabiliza por daños derivados del uso indebido del vehículo, impactos posteriores, lavado industrial, utilización de productos químicos abrasivos o manipulaciones externas.</p>
+                        <p>Los vehículos que no sean retirados dentro de los 5 días hábiles posteriores a la notificación de término de los trabajos podrán generar un cargo por concepto de estadía de $10.000 diarios.</p>
+                        <p>El cliente autoriza a JASG Automotriz a realizar las pruebas de conducción que sean necesarias, dentro y fuera del taller, para efectos de verificación técnica del vehículo.</p>
+                        <p>El cliente autoriza el registro fotográfico y/o audiovisual del vehículo con fines técnicos, de respaldo y/o comerciales, siempre que la placa patente del vehículo no sea visible.</p>
+                        <p>En daños de carácter medio, alto o estructural, especialmente cuando exista intervención de chasis, JASG Automotriz no puede garantizar una cuadratura del 100% del vehículo. En estos casos, se establece como referencia un rango técnico estimado de restauración de entre 85% y 90%, dependiendo del estado previo del vehículo y de la magnitud del daño.</p>
+                    </section>
+
+                    <section>
+                        <h3>OBJETOS DE VALOR</h3>
+                        <p>JASG Automotriz recomienda a sus clientes retirar todos los objetos de valor y pertenencias personales del interior del vehículo antes de su ingreso al taller.</p>
+                    </section>
+                </div>
+            </article>
 
         </div>
 
