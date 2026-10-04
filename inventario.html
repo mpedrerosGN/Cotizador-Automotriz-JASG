@@ -80,12 +80,17 @@
                             <p class="text-xs text-slate-500 hidden sm:block">Control y Trazabilidad de Inventario</p>
                         </div>
                     </div>
-                    <div class="flex w-full sm:w-auto bg-slate-100 p-1 rounded-xl">
-                        <button onclick="switchTab('inventory')" id="btn-tab-inventory" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm">
-                            <i class="fa-solid fa-box mr-1.5"></i> Inventario
-                        </button>
-                        <button onclick="switchTab('movements')" id="btn-tab-movements" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900">
-                            <i class="fa-solid fa-right-left mr-1.5"></i> Historial / Trazabilidad
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                        <div class="flex w-full sm:w-auto bg-slate-100 p-1 rounded-xl">
+                            <button onclick="switchTab('inventory')" id="btn-tab-inventory" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm">
+                                <i class="fa-solid fa-box mr-1.5"></i> Inventario
+                            </button>
+                            <button onclick="switchTab('movements')" id="btn-tab-movements" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900">
+                                <i class="fa-solid fa-right-left mr-1.5"></i> Historial / Trazabilidad
+                            </button>
+                        </div>
+                        <button onclick="startNewInventoryItem()" class="w-full sm:w-auto justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Nuevo Artículo
                         </button>
                     </div>
                 </div>
@@ -532,6 +537,16 @@
             document.getElementById('form-title-text').textContent = 'Nuevo Artículo';
             document.getElementById('submit-btn-text').textContent = 'Guardar Artículo';
             clearPhoto();
+        }
+
+        function startNewInventoryItem() {
+            const isEditing = Boolean(document.getElementById('item-id').value);
+            const hasDraft = ['item-name', 'item-sku', 'item-stock', 'item-minstock', 'item-location', 'item-cost', 'item-supplier']
+                .some(id => document.getElementById(id).value.trim());
+            if ((isEditing || hasDraft) && !confirm('¿Descartar los cambios del formulario y comenzar un artículo nuevo?')) return;
+            resetItemForm();
+            document.getElementById('item-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('item-name').focus({ preventScroll: true });
         }
 
         function editItem(id) {

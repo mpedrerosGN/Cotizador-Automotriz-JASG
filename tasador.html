@@ -68,6 +68,10 @@
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-2 w-full sm:flex sm:w-auto sm:gap-3 no-print">
+                <button @click="startNewAppraisal()" class="w-full justify-center bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold px-2 sm:px-3.5 py-2 rounded-xl border border-slate-200 transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-blue-600"></i>
+                    Nueva Tasación
+                </button>
                 <button @click="showHistoryModal = true" class="w-full justify-center bg-white hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-medium px-2 sm:px-3.5 py-2 rounded-xl border border-slate-200 transition flex items-center gap-2">
                     <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Historial (<span x-text="savedAppraisals.length"></span>)
@@ -796,6 +800,55 @@
 
                     this.$watch('car', () => this.saveDraft(), { deep: true });
                     this.$watch('categories', () => this.saveDraft(), { deep: true });
+                },
+
+                startNewAppraisal() {
+                    const vehicleFields = ['brand', 'customBrand', 'model', 'customModel', 'version', 'year', 'km', 'plate', 'color', 'client', 'inspector', 'commercialValue'];
+                    const hasChanges = this.totalEvaluated > 0 || this.categories.some(category => category.images.length > 0) || vehicleFields.some(field => String(this.car[field] || '').trim());
+
+                    if (hasChanges) {
+                        const shouldSave = confirm('¿Guardar la tasación actual en el historial antes de comenzar una nueva?');
+                        if (shouldSave) {
+                            if (!this.car.brand && !this.car.customBrand) {
+                                alert('Indica la marca del vehículo para guardar la tasación actual.');
+                                return;
+                            }
+                            this.saveCurrentAppraisal();
+                        } else if (!confirm('¿Descartar los cambios actuales y comenzar una tasación nueva?')) {
+                            return;
+                        }
+                    }
+
+                    const existingFolios = new Set(this.savedAppraisals.map(appraisal => String(appraisal.folio)));
+                    let folio;
+                    do {
+                        folio = Math.floor(1000 + Math.random() * 9000);
+                    } while (existingFolios.has(String(folio)));
+
+                    this.car = {
+                        folio,
+                        brand: '',
+                        customBrand: '',
+                        model: '',
+                        customModel: '',
+                        version: '',
+                        year: '',
+                        km: '',
+                        plate: '',
+                        color: '',
+                        client: '',
+                        inspector: '',
+                        commercialValue: ''
+                    };
+                    this.availableModels = [];
+                    this.categories = this.categories.map(category => ({
+                        ...category,
+                        images: [],
+                        items: category.items.map(item => ({ ...item, status: '', deduction: '', note: '' }))
+                    }));
+                    this.activeTab = 0;
+                    this.saveDraft();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
 
                 updateModels() {
