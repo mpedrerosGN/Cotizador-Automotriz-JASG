@@ -983,7 +983,7 @@
                     </button>
 
                     <!-- Print / Save PDF -->
-                    <button @click="window.print()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center space-x-2">
+                    <button @click="preparePrint()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition flex items-center space-x-2">
                         <i class="fa-solid fa-print text-sm"></i>
                         <span>Imprimir / Guardar PDF</span>
                     </button>
@@ -1528,6 +1528,13 @@
                     setTimeout(() => {
                         this.toast.show = false;
                     }, 3000);
+                },
+
+                preparePrint() {
+                    const termsPage = document.querySelector('.terms-page');
+                    const appShell = document.querySelector('.app-shell');
+                    if (termsPage && appShell) appShell.appendChild(termsPage);
+                    window.print();
                 },
 
                 formatMoney(val) {
