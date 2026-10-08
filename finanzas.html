@@ -253,6 +253,24 @@
                 </div>
             </div>
 
+            <!-- GASTOS DIARIOS Y TRAZABILIDAD -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 mb-4">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-receipt text-rose-500 mr-2"></i>Gastos Diarios</h4>
+                        <p class="text-xs text-slate-500 mt-1">Registra compras y egresos del taller para mantener su trazabilidad.</p>
+                    </div>
+                    <button onclick="openExpenseModal()" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl text-xs transition-all shadow-md flex items-center justify-center gap-2"><i class="fa-solid fa-plus"></i>Registrar gasto</button>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full min-w-[650px] text-left border-collapse">
+                        <thead class="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200"><tr><th class="p-2">Fecha</th><th class="p-2">Categoría</th><th class="p-2">Descripción</th><th class="p-2">Medio de pago</th><th class="p-2 text-right">Monto</th><th class="p-2 text-center">Acción</th></tr></thead>
+                        <tbody id="expenses-table-body" class="divide-y divide-slate-100 text-xs"></tbody>
+                    </table>
+                </div>
+                <div id="expenses-empty" class="hidden text-center py-5 text-xs text-slate-400">Aún no hay gastos diarios registrados.</div>
+            </div>
+
             <!-- Tax Summary & Breakdown Panel -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Tax Report (SII Chile format) -->
@@ -298,6 +316,10 @@
                             <span class="text-slate-600">Costos Operativos (Repuestos + MO):</span>
                             <strong id="cost-total-op" class="text-rose-600">$0</strong>
                         </div>
+                        <div class="flex justify-between py-2 border-b border-slate-50">
+                            <span class="text-slate-600">Gastos diarios registrados:</span>
+                            <strong id="cost-gastos-diarios" class="text-rose-600">$0</strong>
+                        </div>
                         <div class="flex justify-between py-2 bg-emerald-50 px-3 rounded-xl">
                             <span class="font-bold text-slate-800">Margen de Contribución:</span>
                             <strong id="cost-margen-contribucion" class="text-emerald-700 text-sm">$0</strong>
@@ -308,6 +330,18 @@
         </div>
 
     </main>
+
+    <div id="expense-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4" onclick="closeExpenseModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4"><h3 class="font-bold text-slate-900"><i class="fa-solid fa-receipt text-rose-500 mr-2"></i>Registrar gasto diario</h3><button type="button" onclick="closeExpenseModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark"></i></button></div>
+            <form onsubmit="handleExpenseSubmit(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="block text-xs font-semibold mb-1">Fecha *</label><input id="expense-date" type="date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"></div><div><label class="block text-xs font-semibold mb-1">Categoría *</label><select id="expense-category" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"><option>Insumos</option><option>Combustible</option><option>Herramientas</option><option>Servicios básicos</option><option>Transporte</option><option>Otros</option></select></div></div>
+                <div><label class="block text-xs font-semibold mb-1">Descripción *</label><input id="expense-description" required placeholder="Ej: Compra de limpiacontactos" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="block text-xs font-semibold mb-1">Monto (CLP) *</label><input id="expense-amount" type="number" min="1" required placeholder="15000" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"></div><div><label class="block text-xs font-semibold mb-1">Medio de pago</label><select id="expense-method" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Otro</option></select></div></div>
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100"><button type="button" onclick="closeExpenseModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Cancelar</button><button class="px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-semibold">Guardar gasto</button></div>
+            </form>
+        </div>
+    </div>
 
     <!-- ==================== MODAL: REGISTRAR PAGO / FACTURA ==================== -->
     <div id="payment-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto" onclick="closePaymentModal()">
@@ -597,10 +631,12 @@
                 method: 'Tarjeta de Débito / Crédito'
             }
         ];
+        let expenses = JSON.parse(localStorage.getItem('jasg_daily_expenses')) || [];
 
         window.addEventListener('DOMContentLoaded', () => {
             renderPayments();
             renderAbonos();
+            renderExpenses();
             updateFinancialKPIs();
         });
 
@@ -623,6 +659,43 @@
 
         function formatCLP(amount) {
             return '$' + Number(amount || 0).toLocaleString('es-CL');
+        }
+
+        function openExpenseModal() {
+            document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('expense-modal').classList.remove('hidden');
+        }
+
+        function closeExpenseModal() { document.getElementById('expense-modal').classList.add('hidden'); }
+
+        function handleExpenseSubmit(event) {
+            event.preventDefault();
+            expenses.unshift({
+                id: Date.now(), date: document.getElementById('expense-date').value,
+                category: document.getElementById('expense-category').value,
+                description: document.getElementById('expense-description').value.trim(),
+                amount: Number(document.getElementById('expense-amount').value) || 0,
+                method: document.getElementById('expense-method').value,
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('jasg_daily_expenses', JSON.stringify(expenses));
+            renderExpenses(); updateFinancialKPIs(); closeExpenseModal(); event.target.reset();
+            showToast('Gasto registrado correctamente');
+        }
+
+        function renderExpenses() {
+            const tbody = document.getElementById('expenses-table-body');
+            const empty = document.getElementById('expenses-empty');
+            if (!tbody) return;
+            empty.classList.toggle('hidden', expenses.length > 0);
+            tbody.innerHTML = expenses.map(expense => `<tr><td class="p-2 text-slate-500">${escapeHtml(expense.date)}</td><td class="p-2"><span class="bg-rose-50 text-rose-700 px-2 py-1 rounded-md font-semibold">${escapeHtml(expense.category)}</span></td><td class="p-2 font-medium text-slate-700">${escapeHtml(expense.description)}</td><td class="p-2 text-slate-500">${escapeHtml(expense.method)}</td><td class="p-2 text-right font-bold text-rose-600">${formatCLP(expense.amount)}</td><td class="p-2 text-center"><button onclick="deleteExpense(${expense.id})" class="text-slate-400 hover:text-rose-600" title="Eliminar gasto"><i class="fa-solid fa-trash-can"></i></button></td></tr>`).join('');
+        }
+
+        function deleteExpense(id) {
+            if (!confirm('¿Eliminar este gasto del registro?')) return;
+            expenses = expenses.filter(expense => expense.id !== id);
+            localStorage.setItem('jasg_daily_expenses', JSON.stringify(expenses));
+            renderExpenses(); updateFinancialKPIs(); showToast('Gasto eliminado');
         }
 
         function showToast(message, type = 'success') {
@@ -1181,7 +1254,8 @@
             });
 
             const totalCostos = costoRepuestos + costoManoObra;
-            const utilidadNeta = totalNeto - totalCostos;
+            const totalGastos = expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
+            const utilidadNeta = totalNeto - totalCostos - totalGastos;
             const margenPorcentaje = totalNeto > 0 ? ((utilidadNeta / totalNeto) * 100).toFixed(1) : 0;
 
             document.getElementById('kpi-ingresos-brutos').textContent = formatCLP(totalBruto);
@@ -1193,7 +1267,8 @@
             document.getElementById('tax-total-iva').textContent = formatCLP(totalIva);
             document.getElementById('tax-total-bruto').textContent = formatCLP(totalBruto);
             document.getElementById('cost-neto-op').textContent = formatCLP(totalNeto);
-            document.getElementById('cost-total-op').textContent = formatCLP(totalCostos);
+            document.getElementById('cost-total-op').textContent = formatCLP(totalCostos + totalGastos);
+            document.getElementById('cost-gastos-diarios').textContent = formatCLP(totalGastos);
             document.getElementById('cost-margen-contribucion').textContent = formatCLP(utilidadNeta);
             updateTopHeaderStats();
         }
@@ -1208,6 +1283,8 @@
                 ivaAll += p.iva;
                 netUtilAll += (p.neto - (p.costParts || 0) - (p.costLabor || 0));
             });
+
+            netUtilAll -= expenses.reduce((sum, expense) => sum + (Number(expense.amount) || 0), 0);
 
             document.getElementById('top-stat-bruto').textContent = formatCLP(brutoAll);
             document.getElementById('top-stat-iva').textContent = formatCLP(ivaAll);
