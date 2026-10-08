@@ -145,6 +145,13 @@
                 <i class="fa-solid fa-sliders text-xs"></i>
                 <span>Configuración</span>
             </button>
+
+            <button @click="vistaActual = 'estadisticas'" 
+                    :class="vistaActual === 'estadisticas' ? 'bg-gold-gradient text-jasg-black font-semibold shadow-xs' : 'text-slate-300 hover:text-white font-medium'"
+                    class="px-4 py-1.5 rounded-lg text-xs transition flex items-center gap-2">
+                <i class="fa-solid fa-chart-line text-xs"></i>
+                <span>Estadísticas</span>
+            </button>
         </div>
 
         <!-- Fullscreen Button -->
@@ -635,7 +642,58 @@
     </div>
 
     <!-- ================================================================================= -->
-    <!-- VISTA 4: CONFIGURACIÓN DE TALLER & MARCA -->
+    <!-- VISTA 4: ESTADÍSTICAS Y TRAZABILIDAD -->
+    <div x-show="vistaActual === 'estadisticas'" class="flex-1 p-8 max-w-7xl mx-auto w-full space-y-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-jasg-black font-outfit tracking-tight">Estadísticas y rendimiento</h2>
+                <p class="text-base text-slate-500 mt-1">Resumen operativo y trazabilidad de movimientos del taller.</p>
+            </div>
+            <button @click="limpiarBitacora()" class="px-4 py-2 rounded-xl border border-red-200 text-red-600 font-semibold text-sm hover:bg-red-50">Limpiar bitácora</button>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm"><p class="text-sm text-slate-500">Tareas activas</p><p class="text-3xl font-bold mt-1" x-text="tareas.length"></p></div>
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm"><p class="text-sm text-slate-500">Completadas</p><p class="text-3xl font-bold mt-1 text-emerald-600" x-text="tareasCompletadas()"></p></div>
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm"><p class="text-sm text-slate-500">Atrasadas</p><p class="text-3xl font-bold mt-1 text-red-600" x-text="tareasAtrasadas()"></p></div>
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm"><p class="text-sm text-slate-500">Mecánicos</p><p class="text-3xl font-bold mt-1" x-text="mecanicos.length"></p></div>
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm"><p class="text-sm text-slate-500">Movimientos</p><p class="text-3xl font-bold mt-1 text-amber-600" x-text="bitacora.length"></p></div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="text-xl font-bold mb-4">Rendimiento por mecánico</h3>
+                <div class="space-y-3">
+                    <template x-for="mecanico in mecanicos" :key="mecanico.id">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <div><p class="font-semibold" x-text="mecanico.nombre"></p><p class="text-sm text-slate-500" x-text="mecanico.especialidad"></p></div>
+                            <span class="text-lg font-bold text-amber-600" x-text="tareasPorMecanico(mecanico.nombre)"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 class="text-xl font-bold mb-4">Tareas por categoría</h3>
+                <div class="space-y-3">
+                    <template x-for="(categoria, indice) in categorias" :key="categoria.id">
+                        <div class="flex items-center gap-3"><span class="w-4 h-4 rounded-full" :class="claseCategoria(categoria.color)"></span><span class="font-medium flex-1" x-text="categoria.nombre"></span><strong class="text-lg" x-text="tareasPorEstado(indice + 1).length"></strong></div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="text-xl font-bold mb-4">Bitácora de movimientos</h3>
+            <div class="max-h-96 overflow-y-auto space-y-2">
+                <template x-for="movimiento in bitacora.slice().reverse()" :key="movimiento.id">
+                    <div class="flex items-start gap-3 border-b border-slate-100 py-3"><i class="fa-solid fa-clock-rotate-left text-amber-500 mt-1"></i><div><p class="font-semibold text-slate-800" x-text="movimiento.accion"></p><p class="text-sm text-slate-500" x-text="`${movimiento.fecha} · ${movimiento.detalle}`"></p></div></div>
+                </template>
+                <p x-show="bitacora.length === 0" class="text-slate-500">Aún no hay movimientos registrados.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA 5: CONFIGURACIÓN DE TALLER & MARCA -->
     <!-- ================================================================================= -->
     <div x-show="vistaActual === 'config'" class="flex-1 p-8 max-w-3xl mx-auto w-full space-y-6">
         <div class="bg-white p-8 rounded-2xl shadow-xs border border-slate-200">
@@ -836,6 +894,7 @@
                     { id: 2, nombre: 'EN REPARACIÓN / MONTAJE', color: 'gold' },
                     { id: 3, nombre: 'PRUEBAS / LISTO PARA ENTREGA', color: 'emerald' }
                 ],
+                bitacora: [],
 
                 configuracion: {
                     nombreTaller: 'JASG AUTOMOTRIZ',
@@ -917,6 +976,11 @@
                     if (categoriasGuardadas) {
                         try { this.categorias = JSON.parse(categoriasGuardadas); } catch(e) {}
                     }
+                    const bitacoraGuardada = localStorage.getItem('jasg_monitor_bitacora_v1');
+                    if (bitacoraGuardada) {
+                        try { this.bitacora = JSON.parse(bitacoraGuardada); } catch(e) {}
+                    }
+                    this.registrarMovimiento('Sistema iniciado', 'Monitor cargado correctamente');
 
                     this.actualizarRelojChile();
                     setInterval(() => this.actualizarRelojChile(), 1000);
@@ -991,16 +1055,42 @@
                         color: 'blue'
                     });
                     this.guardarCategorias();
+                    this.registrarMovimiento('Categoría creada', this.categorias[this.categorias.length - 1].nombre);
                 },
 
                 eliminarCategoria(indice) {
                     if (this.categorias.length <= 1) return;
+                    const nombre = this.categorias[indice].nombre;
                     this.categorias.splice(indice, 1);
                     this.guardarCategorias();
+                    this.registrarMovimiento('Categoría eliminada', nombre);
                 },
 
                 guardarCategorias() {
                     localStorage.setItem('jasg_monitor_categorias_v1', JSON.stringify(this.categorias));
+                },
+
+                registrarMovimiento(accion, detalle) {
+                    this.bitacora.push({ id: Date.now() + Math.random(), fecha: new Date().toLocaleString('es-CL'), accion, detalle });
+                    this.bitacora = this.bitacora.slice(-300);
+                    localStorage.setItem('jasg_monitor_bitacora_v1', JSON.stringify(this.bitacora));
+                },
+
+                limpiarBitacora() {
+                    this.bitacora = [];
+                    localStorage.removeItem('jasg_monitor_bitacora_v1');
+                },
+
+                tareasCompletadas() {
+                    return this.tareas.filter(t => t.estado === this.categorias.length).length;
+                },
+
+                tareasAtrasadas() {
+                    return this.tareas.filter(t => t.segundosRestantes < 0 && t.estado !== this.categorias.length).length;
+                },
+
+                tareasPorMecanico(nombre) {
+                    return this.tareas.filter(t => t.mecanico === nombre).length;
                 },
 
                 claseCategoria(color) {
@@ -1047,12 +1137,18 @@
 
                 avanzarEstado(id) {
                     const t = this.tareas.find(item => item.id === id);
-                    if (t && t.estado < 3) t.estado++;
+                    if (t && t.estado < this.categorias.length) {
+                        t.estado++;
+                        this.registrarMovimiento('Tarea avanzada', `OT #${t.ot} pasó a ${this.categorias[t.estado - 1]?.nombre || 'nueva categoría'}`);
+                    }
                 },
 
                 retrocederEstado(id) {
                     const t = this.tareas.find(item => item.id === id);
-                    if (t && t.estado > 1) t.estado--;
+                    if (t && t.estado > 1) {
+                        t.estado--;
+                        this.registrarMovimiento('Tarea retrocedida', `OT #${t.ot} volvió a ${this.categorias[t.estado - 1]?.nombre || 'categoría anterior'}`);
+                    }
                 },
 
                 cambiarEstado(id, nuevoEstado) {
@@ -1066,10 +1162,14 @@
                 },
 
                 finalizarTarea(id) {
+                    const tarea = this.tareas.find(item => item.id === id);
+                    if (tarea) this.registrarMovimiento('OT finalizada', `OT #${tarea.ot} · ${tarea.vehiculo}`);
                     this.eliminarTarea(id);
                 },
 
                 eliminarTarea(id) {
+                    const tarea = this.tareas.find(item => item.id === id);
+                    if (tarea) this.registrarMovimiento('Tarea eliminada', `OT #${tarea.ot} · ${tarea.vehiculo}`);
                     this.tareas = this.tareas.filter(t => t.id !== id);
                 },
 
@@ -1089,6 +1189,7 @@
 
                     this.nuevaTarea = { mecanico: '', vehiculo: '', patente: '', descripcion: '', minutosEstimados: 45, estado: 1 };
                     this.abrirModalNuevaTarea = false;
+                    this.registrarMovimiento('Tarea creada', `OT #${otNueva} · ${this.tareas[this.tareas.length - 1].vehiculo}`);
                 },
 
                 contarTareasMecanico(nombreMecanico) {
@@ -1104,15 +1205,19 @@
                     });
                     this.nuevoMecanico = { nombre: '', especialidad: '' };
                     this.abrirModalNuevoMecanico = false;
+                    this.registrarMovimiento('Mecánico creado', this.mecanicos[this.mecanicos.length - 1].nombre);
                 },
 
                 eliminarMecanico(id) {
+                    const mecanico = this.mecanicos.find(item => item.id === id);
                     this.mecanicos = this.mecanicos.filter(m => m.id !== id);
+                    if (mecanico) this.registrarMovimiento('Mecánico eliminado', mecanico.nombre);
                 },
 
                 guardarConfiguracion() {
                     localStorage.setItem('jasg_automotriz_config_v3', JSON.stringify(this.configuracion));
                     this.guardarCategorias();
+                    this.registrarMovimiento('Configuración actualizada', 'Identidad, logo o categorías del Monitor');
                     this.vistaActual = 'tv';
                 },
 
