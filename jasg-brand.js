@@ -4,7 +4,7 @@
     function renderSharedLogo() {
         let company = {};
         try {
-            company = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            company = window.JASG?.readStorage(storageKey, {}) || {};
         } catch (error) {
             console.error('No se pudo cargar el logo de JASG', error);
         }
