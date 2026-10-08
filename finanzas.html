@@ -120,7 +120,7 @@
                 <i class="fa-solid fa-chart-pie"></i>
                 <span>Rentabilidad y Costos</span>
             </button>
-            <button onclick="openDailyExpenses()" id="tab-btn-gastos" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-rose-600 hover:bg-rose-50 border border-rose-200 flex items-center space-x-2">
+            <button onclick="switchTab('gastos')" id="tab-btn-gastos" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-rose-600 hover:bg-rose-50 border border-rose-200 flex items-center space-x-2">
                 <i class="fa-solid fa-receipt"></i>
                 <span>Gastos Diarios</span>
             </button>
@@ -258,7 +258,7 @@
             </div>
 
             <!-- GASTOS DIARIOS Y TRAZABILIDAD -->
-            <div id="daily-expenses-panel" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <div id="daily-expenses-panel" class="hidden bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 mb-4">
                     <div>
                         <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-receipt text-rose-500 mr-2"></i>Gastos Diarios</h4>
@@ -330,6 +330,18 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: GASTOS DIARIOS Y MANTENEDOR -->
+        <div id="tab-gastos" class="flex-1 overflow-y-auto custom-scrollbar pr-1 hidden space-y-5">
+            <div class="bg-white border border-rose-200 rounded-2xl p-5 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-rose-100 mb-4">
+                    <div><h3 class="font-bold text-slate-900 flex items-center"><i class="fa-solid fa-receipt text-rose-500 mr-2"></i>Gastos Diarios</h3><p class="text-xs text-slate-500 mt-1">Registra y consulta todos los egresos del taller.</p></div>
+                    <button onclick="openExpenseModal()" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl text-xs shadow-md flex items-center gap-2"><i class="fa-solid fa-plus"></i>Registrar gasto</button>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar"><table class="w-full min-w-[650px] text-left border-collapse"><thead class="text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200"><tr><th class="p-2">Fecha</th><th class="p-2">Categoría</th><th class="p-2">Descripción</th><th class="p-2">Medio de pago</th><th class="p-2 text-right">Monto</th><th class="p-2 text-center">Acción</th></tr></thead><tbody id="expenses-maintainer-table-body" class="divide-y divide-slate-100 text-xs"></tbody></table></div>
+                <div id="expenses-maintainer-empty" class="hidden text-center py-8 text-xs text-slate-400">Aún no hay gastos registrados.</div>
             </div>
         </div>
 
@@ -660,10 +672,12 @@
             document.getElementById('tab-pagos').classList.add('hidden');
             document.getElementById('tab-abonos').classList.add('hidden');
             document.getElementById('tab-rentabilidad').classList.add('hidden');
+            document.getElementById('tab-gastos').classList.add('hidden');
 
             document.getElementById('tab-btn-pagos').className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex items-center space-x-2';
             document.getElementById('tab-btn-abonos').className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex items-center space-x-2';
             document.getElementById('tab-btn-rentabilidad').className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex items-center space-x-2';
+            document.getElementById('tab-btn-gastos').className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-rose-600 hover:bg-rose-50 border border-rose-200 flex items-center space-x-2';
 
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             document.getElementById(`tab-btn-${tabName}`).className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-blue-600 text-white shadow-sm flex items-center space-x-2';
@@ -751,9 +765,14 @@
         function renderExpenses() {
             const tbody = document.getElementById('expenses-table-body');
             const empty = document.getElementById('expenses-empty');
-            if (!tbody) return;
+            const maintainerBody = document.getElementById('expenses-maintainer-table-body');
+            const maintainerEmpty = document.getElementById('expenses-maintainer-empty');
+            if (!tbody || !maintainerBody) return;
             empty.classList.toggle('hidden', expenses.length > 0);
-            tbody.innerHTML = expenses.map(expense => `<tr><td class="p-2 text-slate-500">${escapeHtml(expense.date)}</td><td class="p-2"><span class="bg-rose-50 text-rose-700 px-2 py-1 rounded-md font-semibold">${escapeHtml(expense.category)}</span></td><td class="p-2 font-medium text-slate-700">${escapeHtml(expense.description)}</td><td class="p-2 text-slate-500">${escapeHtml(expense.method)}</td><td class="p-2 text-right font-bold text-rose-600">${formatCLP(expense.amount)}</td><td class="p-2 text-center"><button onclick="deleteExpense(${expense.id})" class="text-slate-400 hover:text-rose-600" title="Eliminar gasto"><i class="fa-solid fa-trash-can"></i></button></td></tr>`).join('');
+            maintainerEmpty.classList.toggle('hidden', expenses.length > 0);
+            const rows = expenses.map(expense => `<tr><td class="p-2 text-slate-500">${escapeHtml(expense.date)}</td><td class="p-2"><span class="bg-rose-50 text-rose-700 px-2 py-1 rounded-md font-semibold">${escapeHtml(expense.category)}</span></td><td class="p-2 font-medium text-slate-700">${escapeHtml(expense.description)}</td><td class="p-2 text-slate-500">${escapeHtml(expense.method)}</td><td class="p-2 text-right font-bold text-rose-600">${formatCLP(expense.amount)}</td><td class="p-2 text-center"><button onclick="deleteExpense(${expense.id})" class="text-slate-400 hover:text-rose-600" title="Eliminar gasto"><i class="fa-solid fa-trash-can"></i></button></td></tr>`).join('');
+            tbody.innerHTML = rows;
+            maintainerBody.innerHTML = rows;
         }
 
         function deleteExpense(id) {
