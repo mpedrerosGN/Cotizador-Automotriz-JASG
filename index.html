@@ -81,22 +81,36 @@
             }
             .terms-columns {
                 columns: 2;
-                column-gap: 8mm;
-                font-size: 7.5pt !important;
-                line-height: 1.28 !important;
+                column-gap: 12mm;
+                font-size: 8.5pt !important;
+                line-height: 1.45 !important;
+            }
+            .terms-columns section {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 5mm !important;
+                padding-bottom: 3mm !important;
+                border-bottom: 1px solid #cbd5e1 !important;
             }
             .terms-columns h3 {
                 break-after: avoid;
                 page-break-after: avoid;
-                font-size: 8pt !important;
-                margin: 2.2mm 0 1mm !important;
+                font-size: 10pt !important;
+                line-height: 1.2 !important;
+                font-weight: 900 !important;
+                letter-spacing: 0.04em !important;
+                color: #0f172a !important;
+                background: #fef3c7 !important;
+                border-left: 3px solid #d4a72c !important;
+                padding: 1.5mm 2mm !important;
+                margin: 0 0 2.5mm !important;
             }
             .terms-columns p, .terms-columns li {
-                margin: 0 0 1.2mm !important;
+                margin: 0 0 2mm !important;
             }
             .terms-columns ul {
-                margin: 0 0 1.5mm !important;
-                padding-left: 4mm !important;
+                margin: 0 0 2.5mm !important;
+                padding-left: 5mm !important;
             }
 
             @page {
@@ -142,6 +156,12 @@
                 vertical-align: top !important;
             }
 
+            .printable-card:not(.terms-page) h4,
+            .printable-card:not(.terms-page) h5 {
+                font-weight: 900 !important;
+                letter-spacing: 0.04em !important;
+            }
+
             .printable-card:not(.terms-page) .bg-blue-50\/60,
             .printable-card:not(.terms-page) .bg-amber-50\/60 {
                 border: 1px solid #cbd5e1 !important;
@@ -170,7 +190,7 @@
             .terms-page .terms-columns {
                 background: #f8fafc !important;
                 border: 1px solid #cbd5e1 !important;
-                padding: 5mm !important;
+                padding: 7mm !important;
                 border-radius: 3mm !important;
             }
             
