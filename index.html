@@ -74,6 +74,16 @@
         .jasg-preview-card .text-emerald-400 {
             color: #d4a72c !important;
         }
+
+        /* Restauración explícita de botones originales del editor */
+        .cotizador-editor .bg-blue-600 { background-color: #2563eb !important; }
+        .cotizador-editor .hover\:bg-blue-700:hover { background-color: #1d4ed8 !important; }
+        .cotizador-editor .bg-emerald-600 { background-color: #059669 !important; }
+        .cotizador-editor .hover\:bg-emerald-500:hover { background-color: #10b981 !important; }
+        .cotizador-editor .text-blue-600 { color: #2563eb !important; }
+        .cotizador-editor .text-blue-700 { color: #1d4ed8 !important; }
+        .app-shell aside nav button.bg-blue-600,
+        .app-shell header nav button.bg-blue-600 { background-color: #2563eb !important; }
         .print-only { display: none; }
         @media print {
             .no-print { display: none !important; }
@@ -564,7 +574,7 @@
         </div>
 
         <!-- TAB 1: EDITOR / CREAR COTIZACIÓN -->
-        <div x-show="activeTab === 'editor'" x-cloak class="space-y-6">
+        <div x-show="activeTab === 'editor'" x-cloak class="cotizador-editor space-y-6">
 
             <!-- Correlativo Indicator Banner -->
             <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white p-4 rounded-2xl shadow-lg flex flex-wrap items-center justify-between gap-3 border border-blue-400/20">
