@@ -46,6 +46,9 @@
         .jasg-cotizador .bg-blue-700,
         .jasg-cotizador .bg-indigo-600,
         .jasg-cotizador .bg-indigo-700 { background-color: #171717 !important; }
+        .jasg-cotizador [class~="from-blue-600"][class~="to-indigo-600"] {
+            background: linear-gradient(135deg, #111111 0%, #262626 58%, #9a761b 100%) !important;
+        }
         .jasg-cotizador .text-blue-600,
         .jasg-cotizador .text-blue-700,
         .jasg-cotizador .text-blue-800,
@@ -58,11 +61,9 @@
         .jasg-cotizador .bg-blue-50,
         .jasg-cotizador .bg-blue-50\/60,
         .jasg-cotizador .bg-indigo-50 { background-color: #f8fafc !important; }
-        .jasg-cotizador [class~="from-blue-600"] {
-            --tw-gradient-from: #171717 var(--tw-gradient-from-position) !important;
-            --tw-gradient-to: rgb(23 23 23 / 0) var(--tw-gradient-to-position) !important;
+        .jasg-cotizador [class~="from-blue-500"][class~="to-indigo-600"] {
+            background: linear-gradient(135deg, #f5f5f4 0%, #ffffff 52%, #d4a72c 100%) !important;
         }
-        .jasg-cotizador [class~="to-indigo-600"] { --tw-gradient-to: #9a761b var(--tw-gradient-to-position) !important; }
         .jasg-cotizador .bg-emerald-600,
         .jasg-cotizador .bg-emerald-500 { background-color: #b68b20 !important; }
         .jasg-cotizador .text-emerald-600,
@@ -73,6 +74,10 @@
         .jasg-cotizador .border-emerald-400 { border-color: #d4a72c !important; }
         .jasg-cotizador .shadow-blue-600\/30,
         .jasg-cotizador .shadow-emerald-600\/20 { --tw-shadow-color: rgb(154 118 27 / 0.28) !important; }
+        .jasg-cotizador .bg-slate-100 { background-color: #f1f3f5 !important; }
+        .jasg-cotizador .border-slate-200 { border-color: #d9dde2 !important; }
+        .jasg-cotizador .focus\:ring-blue-500:focus { --tw-ring-color: rgb(212 167 44 / 0.45) !important; }
+        .jasg-cotizador .hover\:bg-blue-700:hover { background-color: #9a761b !important; }
 
         /* Identidad visual JASG para la vista previa */
         .jasg-preview-card {
