@@ -162,18 +162,18 @@
     <div x-show="vistaActual === 'tv'" class="flex-1 flex flex-col h-full min-h-screen bg-slate-100 relative">
         
         <!-- HEADER PRINCIPAL MONITOR TV -->
-        <header class="bg-white border-b-2 border-jasg-gold/40 px-8 py-4 shadow-md flex items-center justify-between relative z-20 min-h-[150px]">
+        <header class="bg-white border-b-2 border-jasg-gold/40 px-8 py-6 shadow-md flex items-center justify-between relative z-20 min-h-[190px]">
             
             <!-- Logo Shield & Título -->
             <div class="flex items-center space-x-5">
-                <div class="h-24 w-24 rounded-2xl bg-jasg-black border-2 border-jasg-gold text-amber-400 flex items-center justify-center font-medium shadow-md overflow-hidden shrink-0">
+                <div class="h-32 w-32 rounded-2xl bg-jasg-black border-2 border-jasg-gold text-amber-400 flex items-center justify-center font-medium shadow-md overflow-hidden shrink-0">
                     <template x-if="configuracion.logoUrl">
                         <img :src="configuracion.logoUrl" class="h-full w-full object-cover">
                     </template>
                     <template x-if="!configuracion.logoUrl">
                         <!-- Shield Logo Representation -->
                         <div class="flex flex-col items-center justify-center">
-                            <svg class="w-12 h-12 fill-amber-400" viewBox="0 0 24 24">
+                            <svg class="w-16 h-16 fill-amber-400" viewBox="0 0 24 24">
                                 <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4zm0 2.18l7 3.12v4.7c0 4.52-3.13 8.75-7 9.82-3.87-1.07-7-5.3-7-9.82V7.3l7-3.12z"/>
                             </svg>
                             <span class="text-xs font-bold text-amber-300 font-outfit tracking-tighter mt-0.5">JASG</span>
@@ -194,7 +194,7 @@
                     </div>
 
                     <!-- Hora Chile -->
-                    <div class="text-6xl lg:text-8xl font-bold tracking-tight text-jasg-black font-outfit">
+                    <div class="text-7xl lg:text-9xl font-bold tracking-tight text-jasg-black font-outfit">
                         <span x-text="horaChile">10:10:42</span>
                     </div>
                 </div>
@@ -229,8 +229,8 @@
             </div>
         </header>
 
-        <!-- COLUMNAS DEL MONITOR -->
-        <main class="flex-1 p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch overflow-y-auto">
+        <!-- COLUMNAS DEL MONITOR LEGACY -->
+        <main x-show="false" class="flex-1 p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch overflow-y-auto">
             
             <!-- ETAPA 1: EN DIAGNÓSTICO / MANTENIMIENTO -->
             <div class="bg-slate-200/70 rounded-2xl p-4 flex flex-col border border-slate-300">
@@ -404,6 +404,47 @@
         </main>
 
         <!-- FOOTER CORPORATIVO CON DIRECCIÓN Y TELÉFONO -->
+        <!-- COLUMNAS CONFIGURABLES DEL MONITOR -->
+        <main class="flex-1 p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch overflow-y-auto">
+            <template x-for="(categoria, indice) in categorias" :key="categoria.id">
+                <section class="bg-slate-200/70 rounded-2xl p-5 flex flex-col border border-slate-300 min-h-[420px]">
+                    <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-300">
+                        <h2 class="text-base lg:text-lg font-bold text-jasg-black uppercase tracking-wide flex items-center gap-3 font-outfit">
+                            <span class="w-4 h-4 rounded-full" :class="claseCategoria(categoria.color)"></span>
+                            <span x-text="`${indice + 1}. ${categoria.nombre}`"></span>
+                        </h2>
+                        <span class="bg-jasg-black text-amber-300 text-sm font-bold px-3 py-1 rounded-lg" x-text="tareasPorEstado(indice + 1).length"></span>
+                    </div>
+                    <div class="space-y-4 flex-1 overflow-y-auto pr-1">
+                        <template x-for="tarea in tareasPorEstado(indice + 1)" :key="tarea.id">
+                            <article class="bg-white rounded-xl p-5 shadow-jasg border-l-4 border-jasg-gold flex flex-col gap-4">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="bg-jasg-black text-amber-400 font-outfit font-bold text-lg px-3 py-1 rounded border border-jasg-gold" x-text="tarea.patente"></span>
+                                        <span class="text-sm font-medium text-slate-500" x-text="'OT #' + tarea.ot"></span>
+                                    </div>
+                                    <span class="text-sm font-bold px-3 py-1 rounded-lg border" :class="obtenerClaseTiempo(tarea.segundosRestantes)" x-text="formatearTiempoRestante(tarea.segundosRestantes)"></span>
+                                </div>
+                                <h3 class="font-bold text-slate-900 text-xl leading-snug font-outfit" x-text="tarea.vehiculo"></h3>
+                                <p class="text-base text-slate-600 leading-relaxed" x-text="tarea.descripcion"></p>
+                                <div class="flex items-center justify-between pt-3 border-t border-slate-100">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-lg bg-jasg-black text-amber-400 flex items-center justify-center font-bold text-sm border border-jasg-gold/40" x-text="obtenerIniciales(tarea.mecanico)"></div>
+                                        <span x-text="tarea.mecanico" class="font-semibold text-slate-700 text-sm"></span>
+                                    </div>
+                                    <button x-show="indice < categorias.length - 1" @click="avanzarEstado(tarea.id)" class="text-sm font-bold text-jasg-black bg-amber-50 border border-amber-300 px-4 py-2 rounded-lg flex items-center gap-2">Avanzar <i class="fa-solid fa-arrow-right"></i></button>
+                                    <button x-show="indice === categorias.length - 1" @click="finalizarTarea(tarea.id)" class="text-sm font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-4 py-2 rounded-lg">Finalizar OT</button>
+                                </div>
+                            </article>
+                        </template>
+                        <div x-show="tareasPorEstado(indice + 1).length === 0" class="h-48 flex items-center justify-center text-slate-500 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-base font-medium">
+                            Sin tareas en esta categoría
+                        </div>
+                    </div>
+                </section>
+            </template>
+        </main>
+
         <footer class="bg-jasg-black text-white border-t-2 border-jasg-gold py-3 px-8 z-10 shadow-lg">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-medium">
                 
@@ -638,6 +679,35 @@
                     <input type="number" min="10" max="300" x-model.number="configuracion.intervaloRecarga" class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-amber-500 focus:outline-none font-semibold">
                 </div>
 
+                <div class="pt-5 border-t border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-jasg-black font-outfit">Mantenedor de categorías</h3>
+                            <p class="text-sm text-slate-500">Agrega, renombra o elimina columnas del Monitor TV.</p>
+                        </div>
+                        <button type="button" @click="agregarCategoria()" class="bg-gold-gradient text-jasg-black px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Agregar categoría
+                        </button>
+                    </div>
+                    <div class="space-y-2">
+                        <template x-for="(categoria, indice) in categorias" :key="categoria.id">
+                            <div class="grid grid-cols-[1fr_150px_auto] gap-2 items-center bg-slate-50 border border-slate-200 rounded-xl p-2">
+                                <input type="text" x-model="categoria.nombre" class="border border-slate-300 rounded-lg p-2.5 text-sm font-semibold">
+                                <select x-model="categoria.color" class="border border-slate-300 rounded-lg p-2.5 text-sm">
+                                    <option value="slate">Gris</option>
+                                    <option value="gold">Dorado</option>
+                                    <option value="emerald">Verde</option>
+                                    <option value="blue">Azul</option>
+                                    <option value="rose">Rojo</option>
+                                </select>
+                                <button type="button" @click="eliminarCategoria(indice)" class="text-red-600 hover:text-red-800 p-2.5" title="Eliminar categoría">
+                                    <i class="fa-solid fa-trash-can text-lg"></i>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
                 <div class="pt-4 border-t border-slate-100 flex justify-end">
                     <button type="submit" class="bg-gold-gradient hover:opacity-95 text-jasg-black font-semibold px-6 py-2.5 rounded-xl text-xs shadow-gold-sm transition uppercase tracking-wider">
                         Guardar Cambios
@@ -761,6 +831,12 @@
                 abrirModalNuevaTarea: false,
                 abrirModalNuevoMecanico: false,
 
+                categorias: [
+                    { id: 1, nombre: 'EN DIAGNÓSTICO / MANTENIMIENTO', color: 'slate' },
+                    { id: 2, nombre: 'EN REPARACIÓN / MONTAJE', color: 'gold' },
+                    { id: 3, nombre: 'PRUEBAS / LISTO PARA ENTREGA', color: 'emerald' }
+                ],
+
                 configuracion: {
                     nombreTaller: 'JASG AUTOMOTRIZ',
                     subtituloTaller: 'DESABOLLADURA Y PINTURA • COMPRA Y VENTA • MECÁNICA EN GENERAL',
@@ -837,6 +913,10 @@
                     if (configGuardada) {
                         try { this.configuracion = JSON.parse(configGuardada); } catch(e){}
                     }
+                    const categoriasGuardadas = localStorage.getItem('jasg_monitor_categorias_v1');
+                    if (categoriasGuardadas) {
+                        try { this.categorias = JSON.parse(categoriasGuardadas); } catch(e) {}
+                    }
 
                     this.actualizarRelojChile();
                     setInterval(() => this.actualizarRelojChile(), 1000);
@@ -902,6 +982,35 @@
 
                 tareasPorEstado(estadoNum) {
                     return this.tareas.filter(t => t.estado === estadoNum);
+                },
+
+                agregarCategoria() {
+                    this.categorias.push({
+                        id: Date.now(),
+                        nombre: `NUEVA CATEGORÍA ${this.categorias.length + 1}`,
+                        color: 'blue'
+                    });
+                    this.guardarCategorias();
+                },
+
+                eliminarCategoria(indice) {
+                    if (this.categorias.length <= 1) return;
+                    this.categorias.splice(indice, 1);
+                    this.guardarCategorias();
+                },
+
+                guardarCategorias() {
+                    localStorage.setItem('jasg_monitor_categorias_v1', JSON.stringify(this.categorias));
+                },
+
+                claseCategoria(color) {
+                    return {
+                        slate: 'bg-slate-700',
+                        gold: 'bg-amber-500',
+                        emerald: 'bg-emerald-600',
+                        blue: 'bg-blue-600',
+                        rose: 'bg-rose-600'
+                    }[color] || 'bg-slate-700';
                 },
 
                 tareasFiltradas() {
@@ -1003,6 +1112,7 @@
 
                 guardarConfiguracion() {
                     localStorage.setItem('jasg_automotriz_config_v3', JSON.stringify(this.configuracion));
+                    this.guardarCategorias();
                     this.vistaActual = 'tv';
                 },
 
