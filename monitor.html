@@ -215,12 +215,12 @@
 
             <!-- BOTONES DERECHOS -->
             <div class="ml-auto flex items-center space-x-3">
-                <button @click="abrirModalNuevaTarea = true" class="bg-gold-gradient hover:opacity-95 text-jasg-black font-semibold px-5 py-2.5 rounded-xl shadow-gold-sm transition flex items-center gap-2 text-xs uppercase tracking-wider">
+                <button x-show="!modoTvPura" @click="abrirModalNuevaTarea = true" class="bg-gold-gradient hover:opacity-95 text-jasg-black font-semibold px-5 py-2.5 rounded-xl shadow-gold-sm transition flex items-center gap-2 text-xs uppercase tracking-wider">
                     <i class="fa-solid fa-plus text-sm"></i>
                     <span>Asignar Tarea</span>
                 </button>
 
-                <div class="flex items-center space-x-2">
+                <div x-show="!modoTvPura" class="flex items-center space-x-2">
                     <div class="relative bg-slate-100 p-2.5 rounded-xl border border-slate-300">
                         <i class="fa-regular fa-bell text-slate-700 text-lg"></i>
                         <span class="absolute -top-1 -right-1 bg-amber-500 text-jasg-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">3</span>
