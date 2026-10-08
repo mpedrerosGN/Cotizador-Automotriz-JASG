@@ -358,7 +358,7 @@
                     <input id="expense-description" required placeholder="Descripción del gasto" class="w-full mt-2 px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm">
                     <p class="text-[11px] text-slate-400 mt-1">Usa + para mantener tus conceptos frecuentes.</p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="block text-xs font-semibold mb-1">Monto (CLP) *</label><input id="expense-amount" type="number" min="1" required placeholder="15000" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"></div><div><label class="block text-xs font-semibold mb-1">Medio de pago</label><select id="expense-method" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Otro</option></select></div></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="block text-xs font-semibold mb-1">Monto (CLP) *</label><input id="expense-amount" type="text" inputmode="numeric" required placeholder="15.000" oninput="formatExpenseAmount(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"></div><div><label class="block text-xs font-semibold mb-1">Medio de pago</label><select id="expense-method" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Otro</option></select></div></div>
                 <div class="flex justify-end gap-2 pt-3 border-t border-slate-100"><button type="button" onclick="closeExpenseModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Cancelar</button><button class="px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-semibold">Guardar gasto</button></div>
             </form>
         </div>
@@ -704,6 +704,21 @@
 
         function closeExpenseModal() { document.getElementById('expense-modal').classList.add('hidden'); }
 
+        function formatExpenseAmount(input) {
+            const digits = String(input.value || '').replace(/\D/g, '');
+            input.value = digits ? Number(digits).toLocaleString('es-CL') : '';
+        }
+
+        function parseExpenseAmount(value) {
+            return Number(String(value || '').replace(/\./g, '').replace(/\s/g, '')) || 0;
+        }
+
+        function showExpenseDetail(id) {
+            const expense = expenses.find(item => item.id === id);
+            if (!expense) return;
+            alert(`Detalle del gasto\n\nFecha: ${expense.date}\nCategoría: ${expense.category}\nDescripción: ${expense.description}\nMedio de pago: ${expense.method}\nMonto: ${formatCLP(expense.amount)}`);
+        }
+
         function renderExpenseCatalog() {
             const select = document.getElementById('expense-description-select');
             if (!select) return;
@@ -753,7 +768,7 @@
                 id: Date.now(), date: document.getElementById('expense-date').value,
                 category: document.getElementById('expense-category').value,
                 description: document.getElementById('expense-description').value.trim(),
-                amount: Number(document.getElementById('expense-amount').value) || 0,
+                amount: parseExpenseAmount(document.getElementById('expense-amount').value),
                 method: document.getElementById('expense-method').value,
                 createdAt: new Date().toISOString()
             });
@@ -770,7 +785,7 @@
             if (!tbody || !maintainerBody) return;
             empty.classList.toggle('hidden', expenses.length > 0);
             maintainerEmpty.classList.toggle('hidden', expenses.length > 0);
-            const rows = expenses.map(expense => `<tr><td class="p-2 text-slate-500">${escapeHtml(expense.date)}</td><td class="p-2"><span class="bg-rose-50 text-rose-700 px-2 py-1 rounded-md font-semibold">${escapeHtml(expense.category)}</span></td><td class="p-2 font-medium text-slate-700">${escapeHtml(expense.description)}</td><td class="p-2 text-slate-500">${escapeHtml(expense.method)}</td><td class="p-2 text-right font-bold text-rose-600">${formatCLP(expense.amount)}</td><td class="p-2 text-center"><button onclick="deleteExpense(${expense.id})" class="text-slate-400 hover:text-rose-600" title="Eliminar gasto"><i class="fa-solid fa-trash-can"></i></button></td></tr>`).join('');
+            const rows = expenses.map(expense => `<tr onclick="showExpenseDetail(${expense.id})" class="cursor-pointer hover:bg-rose-50/50" title="Ver detalle del gasto"><td class="p-2 text-slate-500">${escapeHtml(expense.date)}</td><td class="p-2"><span class="bg-rose-50 text-rose-700 px-2 py-1 rounded-md font-semibold">${escapeHtml(expense.category)}</span></td><td class="p-2 font-medium text-slate-700">${escapeHtml(expense.description)}</td><td class="p-2 text-slate-500">${escapeHtml(expense.method)}</td><td class="p-2 text-right font-bold text-rose-600">${formatCLP(expense.amount)}</td><td class="p-2 text-center"><button onclick="event.stopPropagation(); deleteExpense(${expense.id})" class="text-slate-400 hover:text-rose-600" title="Eliminar gasto"><i class="fa-solid fa-trash-can"></i></button></td></tr>`).join('');
             tbody.innerHTML = rows;
             maintainerBody.innerHTML = rows;
         }
