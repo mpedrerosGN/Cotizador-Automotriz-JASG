@@ -162,45 +162,29 @@
     <div x-show="vistaActual === 'tv'" class="flex-1 flex flex-col h-full min-h-screen bg-slate-100 relative">
         
         <!-- HEADER PRINCIPAL MONITOR TV -->
-        <header class="bg-white border-b-2 border-jasg-gold/40 px-8 py-3.5 shadow-md flex items-center justify-between relative z-20">
+        <header class="bg-white border-b-2 border-jasg-gold/40 px-8 py-4 shadow-md flex items-center justify-between relative z-20 min-h-[150px]">
             
             <!-- Logo Shield & Título -->
             <div class="flex items-center space-x-5">
-                <div class="h-16 w-16 rounded-2xl bg-jasg-black border-2 border-jasg-gold text-amber-400 flex items-center justify-center font-medium shadow-md overflow-hidden shrink-0">
+                <div class="h-24 w-24 rounded-2xl bg-jasg-black border-2 border-jasg-gold text-amber-400 flex items-center justify-center font-medium shadow-md overflow-hidden shrink-0">
                     <template x-if="configuracion.logoUrl">
                         <img :src="configuracion.logoUrl" class="h-full w-full object-cover">
                     </template>
                     <template x-if="!configuracion.logoUrl">
                         <!-- Shield Logo Representation -->
                         <div class="flex flex-col items-center justify-center">
-                            <svg class="w-8 h-8 fill-amber-400" viewBox="0 0 24 24">
+                            <svg class="w-12 h-12 fill-amber-400" viewBox="0 0 24 24">
                                 <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4zm0 2.18l7 3.12v4.7c0 4.52-3.13 8.75-7 9.82-3.87-1.07-7-5.3-7-9.82V7.3l7-3.12z"/>
                             </svg>
-                            <span class="text-[9px] font-bold text-amber-300 font-outfit tracking-tighter mt-0.5">JASG</span>
+                            <span class="text-xs font-bold text-amber-300 font-outfit tracking-tighter mt-0.5">JASG</span>
                         </div>
                     </template>
                 </div>
 
-                <div>
-                    <!-- Title: Estado de Vehículos — JASG Automotriz -->
-                    <h1 class="text-2xl lg:text-3xl font-medium text-jasg-black font-outfit tracking-tight leading-none flex items-center gap-2">
-                        <span>Estado de Vehículos —</span>
-                        <span class="font-bold text-jasg-gold uppercase tracking-wider" x-text="configuracion.nombreTaller">JASG AUTOMOTRIZ</span>
-                    </h1>
-                    
-                    <!-- Subtitle Services Banner -->
-                    <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-600 mt-2 tracking-wide uppercase">
-                        <span class="text-jasg-gold font-bold">DESABOLLADURA Y PINTURA</span>
-                        <span class="text-amber-500">•</span>
-                        <span>COMPRA Y VENTA</span>
-                        <span class="text-amber-500">•</span>
-                        <span class="text-slate-800">MECÁNICA EN GENERAL</span>
-                    </div>
-                </div>
             </div>
 
             <!-- RELOJ CHILE FORMATO 24 HRS CON ACCENT ORO/NEGRO -->
-            <div class="flex flex-col items-center justify-center">
+            <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center">
                 <div class="flex items-center space-x-4">
                     <!-- Calendario Badge -->
                     <div class="flex flex-col items-center justify-center bg-jasg-black text-amber-400 border border-jasg-gold rounded-xl px-4 py-1.5 shadow-sm min-w-[95px]">
@@ -223,7 +207,7 @@
             </div>
 
             <!-- BOTONES DERECHOS -->
-            <div class="flex items-center space-x-3">
+            <div class="ml-auto flex items-center space-x-3">
                 <button @click="abrirModalNuevaTarea = true" class="bg-gold-gradient hover:opacity-95 text-jasg-black font-semibold px-5 py-2.5 rounded-xl shadow-gold-sm transition flex items-center gap-2 text-xs uppercase tracking-wider">
                     <i class="fa-solid fa-plus text-sm"></i>
                     <span>Asignar Tarea</span>
