@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor TV â€” JASG Automotriz</title>
+    <title>Monitor TV — JASG Automotriz</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -95,7 +95,7 @@
       x-data="tallerSystem()"
       x-init="initSystem()">
 
-    <!-- TOP CONTROL NAVBAR (NavegaciÃ³n Administrativa) -->
+    <!-- TOP CONTROL NAVBAR (Navegación Administrativa) -->
     <nav class="bg-jasg-black border-b border-jasg-gold/30 px-6 py-2.5 flex items-center justify-between shadow-lg relative z-30" x-show="!modoTvPura">
         <!-- Brand Header -->
         <div class="flex items-center space-x-3.5">
@@ -112,7 +112,7 @@
             </div>
             <div>
                 <h1 class="text-sm font-bold text-white tracking-wider uppercase font-outfit" x-text="configuracion.nombreTaller">JASG AUTOMOTRIZ</h1>
-                <p class="text-[10px] font-medium text-amber-400 tracking-widest uppercase">MecÃ¡nica â€¢ Desabolladura â€¢ Pintura</p>
+                <p class="text-[10px] font-medium text-amber-400 tracking-widest uppercase">Mecánica • Desabolladura • Pintura</p>
             </div>
         </div>
 
@@ -129,21 +129,21 @@
                     :class="vistaActual === 'tareas' ? 'bg-gold-gradient text-jasg-black font-semibold shadow-xs' : 'text-slate-300 hover:text-white font-medium'"
                     class="px-4 py-1.5 rounded-lg text-xs transition flex items-center gap-2">
                 <i class="fa-solid fa-clipboard-list text-xs"></i>
-                <span>GestiÃ³n OTs</span>
+                <span>Gestión OTs</span>
             </button>
 
             <button @click="vistaActual = 'mecanicos'" 
                     :class="vistaActual === 'mecanicos' ? 'bg-gold-gradient text-jasg-black font-semibold shadow-xs' : 'text-slate-300 hover:text-white font-medium'"
                     class="px-4 py-1.5 rounded-lg text-xs transition flex items-center gap-2">
                 <i class="fa-solid fa-user-gear text-xs"></i>
-                <span>MecÃ¡nicos</span>
+                <span>Mecánicos</span>
             </button>
 
             <button @click="vistaActual = 'config'" 
                     :class="vistaActual === 'config' ? 'bg-gold-gradient text-jasg-black font-semibold shadow-xs' : 'text-slate-300 hover:text-white font-medium'"
                     class="px-4 py-1.5 rounded-lg text-xs transition flex items-center gap-2">
                 <i class="fa-solid fa-sliders text-xs"></i>
-                <span>ConfiguraciÃ³n</span>
+                <span>Configuración</span>
             </button>
         </div>
 
@@ -157,14 +157,14 @@
     </nav>
 
     <!-- ================================================================================= -->
-    <!-- VISTA 1: MONITOR TV (NUEVA COLORIMETRÃA JASG AUTOMOTRIZ - NEGRO & ORO CORPORATIVO) -->
+    <!-- VISTA 1: MONITOR TV (NUEVA COLORIMETRÍA JASG AUTOMOTRIZ - NEGRO & ORO CORPORATIVO) -->
     <!-- ================================================================================= -->
     <div x-show="vistaActual === 'tv'" class="flex-1 flex flex-col h-full min-h-screen bg-slate-100 relative">
         
         <!-- HEADER PRINCIPAL MONITOR TV -->
         <header class="bg-white border-b-2 border-jasg-gold/40 px-8 py-3.5 shadow-md flex items-center justify-between relative z-20">
             
-            <!-- Logo Shield & TÃ­tulo -->
+            <!-- Logo Shield & Título -->
             <div class="flex items-center space-x-5">
                 <div class="h-16 w-16 rounded-2xl bg-jasg-black border-2 border-jasg-gold text-amber-400 flex items-center justify-center font-medium shadow-md overflow-hidden shrink-0">
                     <template x-if="configuracion.logoUrl">
@@ -182,19 +182,19 @@
                 </div>
 
                 <div>
-                    <!-- Title: Estado de VehÃ­culos â€” JASG Automotriz -->
+                    <!-- Title: Estado de Vehículos — JASG Automotriz -->
                     <h1 class="text-2xl lg:text-3xl font-medium text-jasg-black font-outfit tracking-tight leading-none flex items-center gap-2">
-                        <span>Estado de VehÃ­culos â€”</span>
+                        <span>Estado de Vehículos —</span>
                         <span class="font-bold text-jasg-gold uppercase tracking-wider" x-text="configuracion.nombreTaller">JASG AUTOMOTRIZ</span>
                     </h1>
                     
                     <!-- Subtitle Services Banner -->
                     <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-600 mt-2 tracking-wide uppercase">
                         <span class="text-jasg-gold font-bold">DESABOLLADURA Y PINTURA</span>
-                        <span class="text-amber-500">â€¢</span>
+                        <span class="text-amber-500">•</span>
                         <span>COMPRA Y VENTA</span>
-                        <span class="text-amber-500">â€¢</span>
-                        <span class="text-slate-800">MECÃNICA EN GENERAL</span>
+                        <span class="text-amber-500">•</span>
+                        <span class="text-slate-800">MECÁNICA EN GENERAL</span>
                     </div>
                 </div>
             </div>
@@ -210,7 +210,7 @@
                     </div>
 
                     <!-- Hora Chile -->
-                    <div class="text-5xl lg:text-6xl font-bold tracking-tight text-jasg-black font-outfit">
+                    <div class="text-6xl lg:text-8xl font-bold tracking-tight text-jasg-black font-outfit">
                         <span x-text="horaChile">10:10:42</span>
                     </div>
                 </div>
@@ -248,12 +248,12 @@
         <!-- COLUMNAS DEL MONITOR -->
         <main class="flex-1 p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch overflow-y-auto">
             
-            <!-- ETAPA 1: EN DIAGNÃ“STICO / MANTENIMIENTO -->
+            <!-- ETAPA 1: EN DIAGNÓSTICO / MANTENIMIENTO -->
             <div class="bg-slate-200/70 rounded-2xl p-4 flex flex-col border border-slate-300">
                 <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-300">
                     <h2 class="text-xs lg:text-sm font-semibold text-jasg-black uppercase tracking-wider flex items-center gap-2 font-outfit">
                         <span class="w-3 h-3 rounded-full bg-slate-700"></span>
-                        <span>1. EN DIAGNÃ“STICO / MANTENIMIENTO</span>
+                        <span>1. EN DIAGNÓSTICO / MANTENIMIENTO</span>
                     </h2>
                     <span class="bg-slate-800 text-amber-300 text-xs font-bold px-2.5 py-0.5 rounded-lg shadow-2xs font-outfit" 
                           x-text="tareasPorEstado(1).length">0</span>
@@ -304,12 +304,12 @@
                 </div>
             </div>
 
-            <!-- ETAPA 2: EN REPARACIÃ“N / MONTAJE -->
+            <!-- ETAPA 2: EN REPARACIÓN / MONTAJE -->
             <div class="bg-slate-200/70 rounded-2xl p-4 flex flex-col border border-slate-300">
                 <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-300">
                     <h2 class="text-xs lg:text-sm font-semibold text-jasg-black uppercase tracking-wider flex items-center gap-2 font-outfit">
                         <span class="w-3 h-3 rounded-full bg-jasg-gold"></span>
-                        <span>2. EN REPARACIÃ“N / MONTAJE</span>
+                        <span>2. EN REPARACIÓN / MONTAJE</span>
                     </h2>
                     <span class="bg-gold-gradient text-jasg-black text-xs font-bold px-2.5 py-0.5 rounded-lg shadow-2xs font-outfit" 
                           x-text="tareasPorEstado(2).length">0</span>
@@ -411,7 +411,7 @@
                     <template x-if="tareasPorEstado(3).length === 0">
                         <div class="h-48 flex flex-col items-center justify-center text-slate-400 border border-dashed border-slate-300 rounded-xl bg-slate-50">
                             <i class="fa-solid fa-car-side text-3xl mb-2 text-slate-300"></i>
-                            <span class="text-xs font-medium">Sin vehÃ­culos listos</span>
+                            <span class="text-xs font-medium">Sin vehículos listos</span>
                         </div>
                     </template>
                 </div>
@@ -419,11 +419,11 @@
 
         </main>
 
-        <!-- FOOTER CORPORATIVO CON DIRECCIÃ“N Y TELÃ‰FONO -->
+        <!-- FOOTER CORPORATIVO CON DIRECCIÓN Y TELÉFONO -->
         <footer class="bg-jasg-black text-white border-t-2 border-jasg-gold py-3 px-8 z-10 shadow-lg">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-medium">
                 
-                <!-- CÃ¡psulas Legend -->
+                <!-- Cápsulas Legend -->
                 <div class="flex flex-wrap items-center justify-center gap-2">
                     <div class="inline-flex items-center bg-slate-900 border border-slate-700 rounded-full px-3 py-1 text-slate-200">
                         <span class="w-4 h-4 rounded-full bg-slate-700 text-white font-bold text-[9px] flex items-center justify-center mr-1.5 font-outfit">1</span>
@@ -432,12 +432,12 @@
 
                     <div class="inline-flex items-center bg-slate-900 border border-slate-700 rounded-full px-3 py-1 text-slate-200">
                         <span class="w-4 h-4 rounded-full bg-amber-500 text-jasg-black font-bold text-[9px] flex items-center justify-center mr-1.5 font-outfit">2</span>
-                        <span class="text-[11px]"><strong class="font-semibold text-amber-300">En DiagnÃ³stico:</strong> InspecciÃ³n</span>
+                        <span class="text-[11px]"><strong class="font-semibold text-amber-300">En Diagnóstico:</strong> Inspección</span>
                     </div>
 
                     <div class="inline-flex items-center bg-slate-900 border border-slate-700 rounded-full px-3 py-1 text-slate-200">
                         <span class="w-4 h-4 rounded-full bg-amber-400 text-jasg-black font-bold text-[9px] flex items-center justify-center mr-1.5 font-outfit">3</span>
-                        <span class="text-[11px]"><strong class="font-semibold text-amber-300">En ReparaciÃ³n:</strong> Trabajo</span>
+                        <span class="text-[11px]"><strong class="font-semibold text-amber-300">En Reparación:</strong> Trabajo</span>
                     </div>
 
                     <div class="inline-flex items-center bg-slate-900 border border-slate-700 rounded-full px-3 py-1 text-slate-200">
@@ -450,7 +450,7 @@
                 <div class="flex items-center gap-6 text-amber-400 font-outfit text-xs border-t md:border-t-0 border-slate-800 pt-2 md:pt-0">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-location-dot text-amber-300"></i>
-                        <span class="text-slate-200 font-medium">Los Ãlamos 2330 - Palomares</span>
+                        <span class="text-slate-200 font-medium">Los Álamos 2330 - Palomares</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-phone text-amber-300"></i>
@@ -463,20 +463,20 @@
     </div>
 
     <!-- ================================================================================= -->
-    <!-- VISTA 2: GESTIÃ“N DE TAREAS Y OTs -->
+    <!-- VISTA 2: GESTIÓN DE TAREAS Y OTs -->
     <!-- ================================================================================= -->
     <div x-show="vistaActual === 'tareas'" class="flex-1 p-8 max-w-7xl mx-auto w-full space-y-6">
         
         <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-bold text-jasg-black font-outfit tracking-tight">GestiÃ³n de Ã“rdenes de Trabajo</h2>
-                <p class="text-xs text-slate-500 font-medium mt-1">Control de tiempos, mecÃ¡nicos y flujo del taller JASG Automotriz.</p>
+                <h2 class="text-2xl font-bold text-jasg-black font-outfit tracking-tight">Gestión de Órdenes de Trabajo</h2>
+                <p class="text-xs text-slate-500 font-medium mt-1">Control de tiempos, mecánicos y flujo del taller JASG Automotriz.</p>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
-                    <input type="text" x-model="filtroBusqueda" placeholder="Buscar Patente, OT o VehÃ­culo..." 
+                    <input type="text" x-model="filtroBusqueda" placeholder="Buscar Patente, OT o Vehículo..." 
                            class="pl-10 pr-4 py-2 border border-slate-300 rounded-xl text-xs w-64 focus:ring-2 focus:ring-amber-500 focus:outline-none">
                 </div>
 
@@ -493,8 +493,8 @@
                     <thead>
                         <tr class="bg-jasg-black text-amber-400 font-semibold uppercase tracking-wider font-outfit">
                             <th class="p-4">OT / Patente</th>
-                            <th class="p-4">VehÃ­culo & Detalle</th>
-                            <th class="p-4">MecÃ¡nico Asignado</th>
+                            <th class="p-4">Vehículo & Detalle</th>
+                            <th class="p-4">Mecánico Asignado</th>
                             <th class="p-4 text-center">Etapa Actual</th>
                             <th class="p-4 text-center">Tiempo Restante</th>
                             <th class="p-4 text-right">Acciones</th>
@@ -522,8 +522,8 @@
                                 <td class="p-4 text-center">
                                     <select :value="tarea.estado" @change="cambiarEstado(tarea.id, parseInt($event.target.value))"
                                             class="bg-slate-100 border border-slate-300 font-medium text-slate-800 rounded-lg px-2.5 py-1 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                                        <option value="1">1. DiagnÃ³stico</option>
-                                        <option value="2">2. ReparaciÃ³n</option>
+                                        <option value="1">1. Diagnóstico</option>
+                                        <option value="2">2. Reparación</option>
                                         <option value="3">3. Pruebas / Listo</option>
                                     </select>
                                 </td>
@@ -535,7 +535,7 @@
                                 </td>
                                 <td class="p-4 text-right">
                                     <div class="flex justify-end gap-2">
-                                        <button @click="agregarTiempo(tarea.id, 15)" title="AÃ±adir 15 Minutos" class="px-2.5 py-1 bg-amber-50 text-amber-800 hover:bg-amber-100 rounded-lg border border-amber-300 font-semibold text-xs">
+                                        <button @click="agregarTiempo(tarea.id, 15)" title="Añadir 15 Minutos" class="px-2.5 py-1 bg-amber-50 text-amber-800 hover:bg-amber-100 rounded-lg border border-amber-300 font-semibold text-xs">
                                             +15m
                                         </button>
                                         <button @click="eliminarTarea(tarea.id)" title="Eliminar OT" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg border border-red-200 font-medium">
@@ -549,7 +549,7 @@
                         <template x-if="tareasFiltradas().length === 0">
                             <tr>
                                 <td colspan="6" class="p-8 text-center text-slate-400 font-medium">
-                                    No se encontraron Ã³rdenes de trabajo activas.
+                                    No se encontraron órdenes de trabajo activas.
                                 </td>
                             </tr>
                         </template>
@@ -560,17 +560,17 @@
     </div>
 
     <!-- ================================================================================= -->
-    <!-- VISTA 3: MANTENEDOR DE MECÃNICOS -->
+    <!-- VISTA 3: MANTENEDOR DE MECÁNICOS -->
     <!-- ================================================================================= -->
     <div x-show="vistaActual === 'mecanicos'" class="flex-1 p-8 max-w-7xl mx-auto w-full space-y-6">
         <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200 flex items-center justify-between">
             <div>
-                <h2 class="text-2xl font-bold text-jasg-black font-outfit tracking-tight">Personal TÃ©cnico</h2>
-                <p class="text-xs text-slate-500 font-medium mt-1">AdministraciÃ³n de mecÃ¡nicos del taller.</p>
+                <h2 class="text-2xl font-bold text-jasg-black font-outfit tracking-tight">Personal Técnico</h2>
+                <p class="text-xs text-slate-500 font-medium mt-1">Administración de mecánicos del taller.</p>
             </div>
             <button @click="abrirModalNuevoMecanico = true" class="bg-gold-gradient hover:opacity-95 text-jasg-black font-semibold px-4 py-2 rounded-xl text-xs shadow-gold-sm transition flex items-center gap-2 uppercase tracking-wider">
                 <i class="fa-solid fa-user-plus"></i>
-                <span>Nuevo MecÃ¡nico</span>
+                <span>Nuevo Mecánico</span>
             </button>
         </div>
 
@@ -610,7 +610,7 @@
     </div>
 
     <!-- ================================================================================= -->
-    <!-- VISTA 4: CONFIGURACIÃ“N DE TALLER & MARCA -->
+    <!-- VISTA 4: CONFIGURACIÓN DE TALLER & MARCA -->
     <!-- ================================================================================= -->
     <div x-show="vistaActual === 'config'" class="flex-1 p-8 max-w-3xl mx-auto w-full space-y-6">
         <div class="bg-white p-8 rounded-2xl shadow-xs border border-slate-200">
@@ -624,7 +624,7 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-800 mb-1 font-outfit">SubtÃ­tulo del Monitor</label>
+                    <label class="block font-semibold text-slate-800 mb-1 font-outfit">Subtítulo del Monitor</label>
                     <input type="text" x-model="configuracion.subtituloTaller" required class="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium text-slate-900">
                 </div>
 
@@ -672,14 +672,14 @@
 
             <h3 class="text-xl font-bold text-jasg-black mb-5 font-outfit flex items-center gap-2">
                 <i class="fa-solid fa-wrench text-amber-500"></i>
-                <span>Asignar Tarea a MecÃ¡nico</span>
+                <span>Asignar Tarea a Mecánico</span>
             </h3>
 
             <form @submit.prevent="agregarTarea()" class="space-y-3.5 text-xs">
                 <div>
-                    <label class="block font-semibold text-slate-800 mb-1 font-outfit">MecÃ¡nico Asignado</label>
+                    <label class="block font-semibold text-slate-800 mb-1 font-outfit">Mecánico Asignado</label>
                     <select x-model="nuevaTarea.mecanico" required class="w-full border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-amber-500 font-medium">
-                        <option value="">Seleccione MecÃ¡nico...</option>
+                        <option value="">Seleccione Mecánico...</option>
                         <template x-for="m in mecanicos" :key="m.id">
                             <option :value="m.nombre" x-text="m.nombre + ' (' + m.especialidad + ')'"></option>
                         </template>
@@ -688,7 +688,7 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold text-slate-800 mb-1 font-outfit">VehÃ­culo / Modelo</label>
+                        <label class="block font-semibold text-slate-800 mb-1 font-outfit">Vehículo / Modelo</label>
                         <input type="text" x-model="nuevaTarea.vehiculo" placeholder="Ej: Chevrolet Silverado 5.3" required class="w-full border border-slate-300 rounded-xl p-2.5">
                     </div>
                     <div>
@@ -698,8 +698,8 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-800 mb-1 font-outfit">DescripciÃ³n del Trabajo</label>
-                    <textarea x-model="nuevaTarea.descripcion" rows="2" placeholder="Detalle la reparaciÃ³n o mantenimiento..." required class="w-full border border-slate-300 rounded-xl p-2.5"></textarea>
+                    <label class="block font-semibold text-slate-800 mb-1 font-outfit">Descripción del Trabajo</label>
+                    <textarea x-model="nuevaTarea.descripcion" rows="2" placeholder="Detalle la reparación o mantenimiento..." required class="w-full border border-slate-300 rounded-xl p-2.5"></textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -710,8 +710,8 @@
                     <div>
                         <label class="block font-semibold text-slate-800 mb-1 font-outfit">Etapa Inicial</label>
                         <select x-model.number="nuevaTarea.estado" class="w-full border border-slate-300 rounded-xl p-2.5 font-medium">
-                            <option value="1">1. DiagnÃ³stico / Mantenimiento</option>
-                            <option value="2">2. En ReparaciÃ³n / Montaje</option>
+                            <option value="1">1. Diagnóstico / Mantenimiento</option>
+                            <option value="2">2. En Reparación / Montaje</option>
                             <option value="3">3. Pruebas / Listo</option>
                         </select>
                     </div>
@@ -729,7 +729,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: NUEVO MECÃNICO -->
+    <!-- MODAL 2: NUEVO MECÁNICO -->
     <div x-show="abrirModalNuevoMecanico" x-cloak class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 relative border-t-4 border-jasg-gold" @click.away="abrirModalNuevoMecanico = false">
             <button @click="abrirModalNuevoMecanico = false" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
@@ -738,7 +738,7 @@
 
             <h3 class="text-xl font-bold text-jasg-black mb-5 font-outfit flex items-center gap-2">
                 <i class="fa-solid fa-user-plus text-amber-500"></i>
-                <span>Nuevo MecÃ¡nico JASG</span>
+                <span>Nuevo Mecánico JASG</span>
             </h3>
 
             <form @submit.prevent="agregarMecanico()" class="space-y-3.5 text-xs">
@@ -764,7 +764,7 @@
         </div>
     </div>
 
-    <!-- LÃ“GICA Y TIEMPO REAL -->
+    <!-- LÓGICA Y TIEMPO REAL -->
     <script>
         function tallerSystem() {
             return {
@@ -779,16 +779,16 @@
 
                 configuracion: {
                     nombreTaller: 'JASG AUTOMOTRIZ',
-                    subtituloTaller: 'DESABOLLADURA Y PINTURA â€¢ COMPRA Y VENTA â€¢ MECÃNICA EN GENERAL',
+                    subtituloTaller: 'DESABOLLADURA Y PINTURA • COMPRA Y VENTA • MECÁNICA EN GENERAL',
                     logoUrl: '',
                     intervaloRecarga: 89
                 },
 
                 mecanicos: [
                     { id: 1, nombre: 'Carlos Mendoza', especialidad: 'Desabolladura & Pintura', disponible: true },
-                    { id: 2, nombre: 'Felipe Araya', especialidad: 'EscÃ¡ner & InyecciÃ³n', disponible: true },
-                    { id: 3, nombre: 'Roberto GÃ³mez', especialidad: 'MecÃ¡nica General', disponible: true },
-                    { id: 4, nombre: 'MatÃ­as Silva', especialidad: 'Frenos & SuspensiÃ³n', disponible: true }
+                    { id: 2, nombre: 'Felipe Araya', especialidad: 'Escáner & Inyección', disponible: true },
+                    { id: 3, nombre: 'Roberto Gómez', especialidad: 'Mecánica General', disponible: true },
+                    { id: 4, nombre: 'Matías Silva', especialidad: 'Frenos & Suspensión', disponible: true }
                 ],
 
                 nuevaTarea: {
@@ -812,7 +812,7 @@
                         mecanico: 'Carlos Mendoza',
                         vehiculo: 'Chevrolet Silverado 5.3',
                         patente: 'KPRW-89',
-                        descripcion: 'Pintura de parachoques delantero y pulido de carrocerÃ­a.',
+                        descripcion: 'Pintura de parachoques delantero y pulido de carrocería.',
                         segundosRestantes: 2130, // 35:30
                         estado: 1
                     },
@@ -822,27 +822,27 @@
                         mecanico: 'Felipe Araya',
                         vehiculo: 'Ford Ranger 3.2 4x4',
                         patente: 'LL-PP-90',
-                        descripcion: 'EscÃ¡ner por falla en sensor CKP y pÃ©rdida de potencia.',
+                        descripcion: 'Escáner por falla en sensor CKP y pérdida de potencia.',
                         segundosRestantes: -570, // -09:30
                         estado: 2
                     },
                     {
                         id: 3,
                         ot: '4822',
-                        mecanico: 'Roberto GÃ³mez',
+                        mecanico: 'Roberto Gómez',
                         vehiculo: 'Hyundai Accent 1.6',
                         patente: 'HG-FX-12',
-                        descripcion: 'Ajuste de pastillas de freno y cambio de lÃ­quido hidrÃ¡ulico.',
+                        descripcion: 'Ajuste de pastillas de freno y cambio de líquido hidráulico.',
                         segundosRestantes: 0,
                         estado: 3
                     },
                     {
                         id: 4,
                         ot: '4820',
-                        mecanico: 'MatÃ­as Silva',
+                        mecanico: 'Matías Silva',
                         vehiculo: 'Nissan Qashqai 2.0',
                         patente: 'JT-SK-54',
-                        descripcion: 'Mantenimiento general de 60.000 km e inspecciÃ³n.',
+                        descripcion: 'Mantenimiento general de 60.000 km e inspección.',
                         segundosRestantes: 0,
                         estado: 3
                     }
