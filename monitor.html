@@ -980,6 +980,14 @@
                     if (bitacoraGuardada) {
                         try { this.bitacora = JSON.parse(bitacoraGuardada); } catch(e) {}
                     }
+                    const tareasGuardadas = localStorage.getItem('jasg_monitor_tareas_v1');
+                    if (tareasGuardadas) {
+                        try { this.tareas = JSON.parse(tareasGuardadas); } catch(e) {}
+                    }
+                    const mecanicosGuardados = localStorage.getItem('jasg_monitor_mecanicos_v1');
+                    if (mecanicosGuardados) {
+                        try { this.mecanicos = JSON.parse(mecanicosGuardados); } catch(e) {}
+                    }
                     this.registrarMovimiento('Sistema iniciado', 'Monitor cargado correctamente');
 
                     this.actualizarRelojChile();
@@ -996,6 +1004,7 @@
                         if (this.countdownRecarga <= 0) {
                             this.countdownRecarga = this.configuracion.intervaloRecarga || 89;
                         }
+                        if (this.countdownRecarga % 10 === 0) this.guardarDatosOperativos();
                     }, 1000);
                 },
 
@@ -1070,6 +1079,11 @@
                     localStorage.setItem('jasg_monitor_categorias_v1', JSON.stringify(this.categorias));
                 },
 
+                guardarDatosOperativos() {
+                    localStorage.setItem('jasg_monitor_tareas_v1', JSON.stringify(this.tareas));
+                    localStorage.setItem('jasg_monitor_mecanicos_v1', JSON.stringify(this.mecanicos));
+                },
+
                 registrarMovimiento(accion, detalle) {
                     this.bitacora.push({ id: Date.now() + Math.random(), fecha: new Date().toLocaleString('es-CL'), accion, detalle });
                     this.bitacora = this.bitacora.slice(-300);
@@ -1139,6 +1153,7 @@
                     const t = this.tareas.find(item => item.id === id);
                     if (t && t.estado < this.categorias.length) {
                         t.estado++;
+                        this.guardarDatosOperativos();
                         this.registrarMovimiento('Tarea avanzada', `OT #${t.ot} pasó a ${this.categorias[t.estado - 1]?.nombre || 'nueva categoría'}`);
                     }
                 },
@@ -1147,6 +1162,7 @@
                     const t = this.tareas.find(item => item.id === id);
                     if (t && t.estado > 1) {
                         t.estado--;
+                        this.guardarDatosOperativos();
                         this.registrarMovimiento('Tarea retrocedida', `OT #${t.ot} volvió a ${this.categorias[t.estado - 1]?.nombre || 'categoría anterior'}`);
                     }
                 },
@@ -1154,11 +1170,13 @@
                 cambiarEstado(id, nuevoEstado) {
                     const t = this.tareas.find(item => item.id === id);
                     if (t) t.estado = nuevoEstado;
+                    this.guardarDatosOperativos();
                 },
 
                 agregarTiempo(id, minutos) {
                     const t = this.tareas.find(item => item.id === id);
                     if (t) t.segundosRestantes += minutos * 60;
+                    this.guardarDatosOperativos();
                 },
 
                 finalizarTarea(id) {
@@ -1171,6 +1189,7 @@
                     const tarea = this.tareas.find(item => item.id === id);
                     if (tarea) this.registrarMovimiento('Tarea eliminada', `OT #${tarea.ot} · ${tarea.vehiculo}`);
                     this.tareas = this.tareas.filter(t => t.id !== id);
+                    this.guardarDatosOperativos();
                 },
 
                 agregarTarea() {
@@ -1186,6 +1205,7 @@
                         segundosRestantes: this.nuevaTarea.minutosEstimados * 60,
                         estado: parseInt(this.nuevaTarea.estado)
                     });
+                    this.guardarDatosOperativos();
 
                     this.nuevaTarea = { mecanico: '', vehiculo: '', patente: '', descripcion: '', minutosEstimados: 45, estado: 1 };
                     this.abrirModalNuevaTarea = false;
@@ -1203,6 +1223,7 @@
                         especialidad: this.nuevoMecanico.especialidad,
                         disponible: true
                     });
+                    this.guardarDatosOperativos();
                     this.nuevoMecanico = { nombre: '', especialidad: '' };
                     this.abrirModalNuevoMecanico = false;
                     this.registrarMovimiento('Mecánico creado', this.mecanicos[this.mecanicos.length - 1].nombre);
@@ -1211,6 +1232,7 @@
                 eliminarMecanico(id) {
                     const mecanico = this.mecanicos.find(item => item.id === id);
                     this.mecanicos = this.mecanicos.filter(m => m.id !== id);
+                    this.guardarDatosOperativos();
                     if (mecanico) this.registrarMovimiento('Mecánico eliminado', mecanico.nombre);
                 },
 
