@@ -347,6 +347,14 @@
 
     </main>
 
+    <div id="expense-detail-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4" onclick="closeExpenseDetail()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onclick="event.stopPropagation()">
+            <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between"><div><h3 class="font-bold flex items-center"><i class="fa-solid fa-receipt text-rose-400 mr-2"></i>Detalle del gasto</h3><p class="text-xs text-slate-300 mt-1">Registro de egreso del taller</p></div><button onclick="closeExpenseDetail()" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button></div>
+            <div class="p-5 space-y-3 text-sm"><div class="flex justify-between border-b border-slate-100 pb-2"><span class="text-slate-500">Fecha</span><strong id="detail-expense-date"></strong></div><div class="flex justify-between border-b border-slate-100 pb-2"><span class="text-slate-500">Categoría</span><strong id="detail-expense-category" class="text-rose-600"></strong></div><div class="border-b border-slate-100 pb-2"><span class="text-slate-500 block mb-1">Descripción</span><strong id="detail-expense-description"></strong></div><div class="flex justify-between border-b border-slate-100 pb-2"><span class="text-slate-500">Medio de pago</span><strong id="detail-expense-method"></strong></div><div class="flex items-center justify-between bg-rose-50 rounded-xl px-4 py-3"><span class="font-semibold text-slate-700">Monto total</span><strong id="detail-expense-amount" class="text-xl text-rose-600"></strong></div></div>
+            <div class="px-5 pb-5 flex justify-end"><button onclick="closeExpenseDetail()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold">Cerrar</button></div>
+        </div>
+    </div>
+
     <div id="expense-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4" onclick="closeExpenseModal()">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4"><h3 class="font-bold text-slate-900"><i class="fa-solid fa-receipt text-rose-500 mr-2"></i>Registrar gasto diario</h3><button type="button" onclick="closeExpenseModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark"></i></button></div>
@@ -716,8 +724,15 @@
         function showExpenseDetail(id) {
             const expense = expenses.find(item => item.id === id);
             if (!expense) return;
-            alert(`Detalle del gasto\n\nFecha: ${expense.date}\nCategoría: ${expense.category}\nDescripción: ${expense.description}\nMedio de pago: ${expense.method}\nMonto: ${formatCLP(expense.amount)}`);
+            document.getElementById('detail-expense-date').textContent = expense.date;
+            document.getElementById('detail-expense-category').textContent = expense.category;
+            document.getElementById('detail-expense-description').textContent = expense.description;
+            document.getElementById('detail-expense-method').textContent = expense.method;
+            document.getElementById('detail-expense-amount').textContent = formatCLP(expense.amount);
+            document.getElementById('expense-detail-modal').classList.remove('hidden');
         }
+
+        function closeExpenseDetail() { document.getElementById('expense-detail-modal').classList.add('hidden'); }
 
         function renderExpenseCatalog() {
             const select = document.getElementById('expense-description-select');
