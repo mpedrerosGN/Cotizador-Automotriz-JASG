@@ -75,6 +75,26 @@
             color: #d4a72c !important;
         }
 
+        @media (max-width: 640px) {
+            .jasg-preview .preview-actions {
+                width: 100% !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 0.5rem !important;
+            }
+            .jasg-preview .preview-actions > label,
+            .jasg-preview .preview-actions > button {
+                flex: 1 1 145px !important;
+                min-width: 0 !important;
+                white-space: normal !important;
+                justify-content: center !important;
+                text-align: center !important;
+            }
+            .jasg-preview .preview-actions > label {
+                min-height: 42px !important;
+            }
+        }
+
         /* Restauración explícita de botones originales del editor */
         .cotizador-editor .bg-blue-600 { background-color: #2563eb !important; }
         .cotizador-editor .hover\:bg-blue-700:hover { background-color: #1d4ed8 !important; }
@@ -1137,7 +1157,7 @@
                     </button>
                 </div>
 
-                <div class="flex items-center space-x-3">
+                <div class="preview-actions flex flex-wrap items-center gap-3 justify-end">
                     <!-- Checkbox de Opciones de Impresión -->
                     <label class="flex items-center space-x-1.5 text-xs text-slate-700 cursor-pointer bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
                         <input type="checkbox" x-model="showImagesInPrint" class="rounded text-blue-600 focus:ring-blue-500">
