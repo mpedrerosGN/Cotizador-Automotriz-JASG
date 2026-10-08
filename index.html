@@ -253,6 +253,9 @@
                 padding: 0 !important;
                 font-size: 9pt !important;
             }
+            .terms-page.terms-disabled {
+                display: none !important;
+            }
 
             .terms-page header {
                 background: linear-gradient(135deg, #111111 0%, #2a2a2a 65%, #9a761b 100%) !important;
@@ -1041,7 +1044,7 @@
 
             </div>
 
-            <article class="print-only printable-card terms-page bg-white text-slate-800 max-w-4xl mx-auto font-sans">
+            <article :class="{ 'terms-disabled': !showTermsInPrint }" class="print-only printable-card terms-page bg-white text-slate-800 max-w-4xl mx-auto font-sans">
                 <header class="border-b-2 border-slate-900 pb-3 mb-3">
                     <div class="flex items-center justify-between gap-4">
                         <div>
@@ -1139,6 +1142,11 @@
                     <label class="flex items-center space-x-1.5 text-xs text-slate-700 cursor-pointer bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
                         <input type="checkbox" x-model="showImagesInPrint" class="rounded text-blue-600 focus:ring-blue-500">
                         <span class="font-semibold">Incluir Fotos en Imprimible / PDF</span>
+                    </label>
+
+                    <label class="flex items-center space-x-1.5 text-xs text-slate-700 cursor-pointer bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                        <input type="checkbox" x-model="showTermsInPrint" class="rounded text-blue-600 focus:ring-blue-500">
+                        <span class="font-semibold">Incluir Términos y Condiciones</span>
                     </label>
 
                     <!-- Email Share -->
@@ -1519,6 +1527,7 @@
                 quoteCounter: 1,
                 
                 showImagesInPrint: true,
+                showTermsInPrint: true,
                 images: [],
 
                 showAddCatalogModal: false,
