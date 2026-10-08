@@ -315,6 +315,9 @@
             .terms-page.terms-disabled {
                 display: none !important;
             }
+            .print-only.terms-page.terms-disabled {
+                display: none !important;
+            }
 
             .terms-page header {
                 background: linear-gradient(135deg, #111111 0%, #2a2a2a 65%, #9a761b 100%) !important;
@@ -1771,7 +1774,10 @@
                 preparePrint() {
                     const termsPage = document.querySelector('.terms-page');
                     const appShell = document.querySelector('.app-shell');
-                    if (termsPage && appShell) appShell.appendChild(termsPage);
+                    if (termsPage) {
+                        termsPage.classList.toggle('terms-disabled', !this.showTermsInPrint);
+                        if (appShell) appShell.appendChild(termsPage);
+                    }
                     window.print();
                 },
 
