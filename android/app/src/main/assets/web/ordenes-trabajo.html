@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Órdenes de Trabajo (OT) - JASG Taller</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="jasg-storage.js?v=1"></script>
+    <script defer src="jasg-brand.js?v=2"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @media print {
+            @page {
+                size: letter;
+                margin: 12mm;
+            }
+            html, body {
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                background: white !important;
+                color: #0f172a !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body * {
+                visibility: hidden !important;
+            }
+            body > .flex.min-h-screen {
+                display: block !important;
+                min-height: 0 !important;
+            }
+            body > .flex.min-h-screen > aside,
+            body > .flex.min-h-screen > .flex-1 > header,
+            body > .flex.min-h-screen > .flex-1 > main {
+                display: none !important;
+            }
+            body > .flex.min-h-screen > .flex-1 {
+                display: block !important;
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+            #detail-modal {
+                display: block !important;
+                visibility: visible !important;
+                position: static !important;
+                inset: auto !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                background: white !important;
+            }
+            #detail-modal > div {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                max-width: none !important;
+                height: auto !important;
+                max-height: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                background: white !important;
+            }
+            #printable-area, #printable-area * {
+                visibility: visible !important;
+            }
+            #printable-area {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                max-width: none !important;
+                height: auto !important;
+                max-height: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                color: #0f172a !important;
+                font-size: 9pt !important;
+                line-height: 1.35 !important;
+            }
+            #detail-tasks-list input[type="checkbox"] {
+                display: none !important;
+            }
+            #detail-initial-photos img, #detail-final-photos img {
+                width: 28mm !important;
+                height: 24mm !important;
+                object-fit: cover !important;
+            }
+            #printable-area h4 {
+                color: #0f172a !important;
+            }
+            #printable-area .bg-slate-50 {
+                background: #f8fafc !important;
+            }
+            #printable-area > div {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full antialiased">
+    <div class="flex min-h-screen flex-col lg:flex-row">
+        <aside class="w-full lg:w-64 lg:shrink-0 bg-slate-900 text-white border-b lg:border-b-0 lg:border-r border-slate-700/80 shadow-2xl no-print">
+            <div class="px-4 py-3 lg:px-5 lg:py-6 border-b border-slate-700/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
+                        <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                        <i data-jasg-brand-fallback class="fa-solid fa-clipboard-list text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black tracking-tight">JASG</div>
+                        <div class="text-[10px] text-slate-300 uppercase tracking-[0.2em]">Taller</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 p-2 lg:block lg:space-y-2 lg:p-4">
+                <a href="index.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-file-invoice"></i> Cotizador</a>
+                <a href="planificador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-list-check"></i> Planificador</a>
+                <a href="agendamientos.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-calendar-days"></i> Agendamientos</a>
+                <a href="ordenes-trabajo.html" aria-current="page" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-clipboard-list"></i> Órdenes</a>
+                <a href="inventario.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+                <a href="tasador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-car-side"></i> Tasador</a>
+                <a href="monitor.html" title="Monitor" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-display"></i> Monitor</a>
+                <a href="finanzas.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-wallet"></i> Finanzas</a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+            <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:min-h-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                        <div class="w-16 h-16 bg-white p-1.5 rounded-2xl border-2 border-amber-400 shadow-lg flex items-center justify-center overflow-hidden">
+                            <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                            <i data-jasg-brand-fallback class="fa-solid fa-clipboard-list text-blue-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-black text-slate-900 tracking-tight">JASG Taller</h1>
+                            <p class="text-xs text-slate-500 hidden sm:block">Gestión de Órdenes de Trabajo (OT)</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="hidden md:flex items-center space-x-4 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl">
+                            <span>Activas: <strong id="stat-active" class="text-blue-600">0</strong></span>
+                            <span>•</span>
+                            <span>En Proceso: <strong id="stat-process" class="text-amber-600">0</strong></span>
+                            <span>•</span>
+                            <span>Finalizadas: <strong id="stat-done" class="text-emerald-600">0</strong></span>
+                        </div>
+                        <button onclick="openOTModal()" class="w-full sm:w-auto justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm transition-all shadow-md flex items-center space-x-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nueva OT</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-hidden flex flex-col">
+
+        <!-- NOTIFICATION TOAST -->
+        <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-message" class="text-sm font-medium">Acción realizada con éxito</span>
+        </div>
+
+        <!-- SEARCH & FILTERS BAR -->
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
+            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                <div class="relative flex-1 sm:w-80">
+                    <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="search-ot" oninput="renderOTs()" placeholder="Buscar por Patente, Cliente, N° OT..."
+                        class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                <select id="filter-status" onchange="renderOTs()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="all">Todos los estados</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="En Proceso">En Proceso</option>
+                    <option value="Esperando Repuestos">Esperando Repuestos</option>
+                    <option value="Finalizada">Finalizada</option>
+                    <option value="Entregada">Entregada</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- OTs LIST CONTAINER -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+            <div id="ot-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Dynamic OT Cards rendered here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== MODAL: CREATE / EDIT OT ==================== -->
+    <div id="ot-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto" onclick="closeOTModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full p-6 my-8 relative overflow-hidden max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 flex-shrink-0">
+                <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center">
+                    <i class="fa-solid fa-file-invoice-dollar text-blue-600 mr-2"></i> <span id="ot-modal-title">Nueva Orden de Trabajo (OT)</span>
+                </h3>
+                <button onclick="closeOTModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="ot-form" onsubmit="handleOTSubmit(event)" class="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-2">
+                <input type="hidden" id="ot-id">
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">N° de OT *</label>
+                        <input type="text" id="ot-number" required placeholder="Ej: OT-2026-001"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Fecha de Ingreso *</label>
+                        <input type="date" id="ot-date" required
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Estado OT</label>
+                        <select id="ot-status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Proceso">En Proceso</option>
+                            <option value="Esperando Repuestos">Esperando Repuestos</option>
+                            <option value="Finalizada">Finalizada</option>
+                            <option value="Entregada">Entregada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider"><i class="fa-regular fa-user mr-1.5 text-blue-600"></i> Datos del Cliente</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Nombre Completo *</label>
+                            <input type="text" id="client-name" required placeholder="Ej: Roberto Sánchez"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Teléfono *</label>
+                            <input type="text" id="client-phone" required placeholder="Ej: +56 9 8765 4321"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Correo Electrónico</label>
+                            <input type="email" id="client-email" placeholder="cliente@correo.com"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider"><i class="fa-solid fa-car mr-1.5 text-blue-600"></i> Datos del Vehículo / Equipo</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Patente / Placa *</label>
+                            <input type="text" id="veh-plate" required placeholder="ABCD-12"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm uppercase focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Marca *</label>
+                            <input type="text" id="veh-brand" required placeholder="Toyota"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Modelo *</label>
+                            <input type="text" id="veh-model" required placeholder="Hilux"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Año</label>
+                            <input type="text" id="veh-year" placeholder="2022"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Kilometraje / Horas</label>
+                            <input type="text" id="veh-km" placeholder="45,000 km"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Diagnóstico Inicial / Trabajo a Realizar *</label>
+                    <textarea id="ot-diagnosis" rows="3" required placeholder="Descripción detallada de la cotización aceptada y trabajos acordados..."
+                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Costo Total Estimado ($) *</label>
+                        <input type="number" step="0.01" min="0" id="ot-cost" required placeholder="Ej: 350.00"
+                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Mecánico Asignado</label>
+                        <input type="text" id="ot-mechanic" placeholder="Ej: Carlos Gómez"
+                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Checklist Sub-tasks -->
+                <div class="border border-slate-200 p-4 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-slate-700 uppercase tracking-wider"><i class="fa-solid fa-list-check mr-1.5 text-blue-600"></i> Checklist / Tareas de la OT</label>
+                        <button type="button" onclick="addTaskRow()" class="text-xs text-blue-600 hover:underline font-semibold">+ Agregar tarea</button>
+                    </div>
+                    <div id="tasks-checklist-container" class="space-y-2">
+                        <!-- Dynamic task rows -->
+                    </div>
+                </div>
+
+                <!-- Parts Used -->
+                <div class="border border-slate-200 p-4 rounded-2xl space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-semibold text-slate-700 uppercase tracking-wider"><i class="fa-solid fa-boxes-stacked mr-1.5 text-blue-600"></i> Repuestos e Insumos Usados</label>
+                        <button type="button" onclick="addPartRow()" class="text-xs text-blue-600 hover:underline font-semibold">+ Agregar repuesto</button>
+                    </div>
+                    <div id="parts-used-container" class="space-y-2">
+                        <!-- Dynamic parts rows -->
+                    </div>
+                </div>
+
+                <!-- Photos Upload Section -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Fotografías Estado Inicial</label>
+                        <input type="file" id="initial-photos" accept="image/*" multiple onchange="handlePhotosUpload(event, 'initial')" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                        <div id="initial-preview-container" class="flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Fotografías Resultado Final</label>
+                        <input type="file" id="final-photos" accept="image/*" multiple onchange="handlePhotosUpload(event, 'final')" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                        <div id="final-preview-container" class="flex flex-wrap gap-2 mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 flex-shrink-0">
+                    <button type="button" onclick="closeOTModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md">Guardar Orden de Trabajo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: VIEW / PRINT OT DETAILS ==================== -->
+    <div id="detail-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto" onclick="closeDetailModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 sm:p-8 my-8 relative overflow-hidden max-h-[95vh] flex flex-col" onclick="event.stopPropagation()">
+            <!-- Printable Area -->
+            <div id="printable-area" class="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-6">
+                <div class="flex flex-wrap items-start justify-between gap-4 border-b-2 border-slate-800 pb-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 rounded-lg border border-slate-200 bg-white p-1 flex items-center justify-center overflow-hidden">
+                                <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                                <i data-jasg-brand-fallback class="fa-solid fa-clipboard-list text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-blue-700 text-sm">JASG Taller Mecánica Integral</h3>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-wider">Orden de Trabajo</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h2 class="text-xl font-bold text-slate-900" id="detail-ot-number">OT-2026-001</h2>
+                            <span id="detail-ot-status-badge" class="px-2.5 py-0.5 rounded-md text-xs font-bold">En Proceso</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Fecha de ingreso: <span id="detail-ot-date">2026-06-06</span></p>
+                    </div>
+                    <div class="text-left sm:text-right">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Documento de servicio</p>
+                        <p class="text-sm font-semibold text-slate-800">Recepción y ejecución de trabajos</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5">
+                        <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-2"><i class="fa-regular fa-user mr-1 text-blue-600"></i> Cliente</h4>
+                        <p><strong class="text-slate-700">Nombre:</strong> <span id="detail-client-name">-</span></p>
+                        <p><strong class="text-slate-700">Teléfono:</strong> <span id="detail-client-phone">-</span></p>
+                        <p><strong class="text-slate-700">Correo:</strong> <span id="detail-client-email">-</span></p>
+                    </div>
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-1.5">
+                        <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-2"><i class="fa-solid fa-car mr-1 text-blue-600"></i> Vehículo / Equipo</h4>
+                        <p><strong class="text-slate-700">Patente/Placa:</strong> <span id="detail-veh-plate" class="font-bold uppercase text-blue-600">-</span></p>
+                        <p><strong class="text-slate-700">Vehículo:</strong> <span id="detail-veh-desc">-</span></p>
+                        <p><strong class="text-slate-700">Kilometraje:</strong> <span id="detail-veh-km">-</span></p>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Diagnóstico Inicial / Trabajo Acordado</h4>
+                    <p id="detail-diagnosis" class="text-xs text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200 leading-relaxed">-</p>
+                </div>
+
+                <!-- Tasks Checklist View -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Checklist de Tareas</h4>
+                    <div id="detail-tasks-list" class="space-y-1.5">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Parts Used View -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Repuestos e Insumos</h4>
+                    <div id="detail-parts-list" class="space-y-1.5">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Photos View -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Fotos Estado Inicial</h4>
+                        <div id="detail-initial-photos" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Fotos Resultado Final</h4>
+                        <div id="detail-final-photos" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between border-t border-slate-200 pt-4">
+                    <div class="text-xs text-slate-500">
+                        <span>Mecánico Asignado: <strong id="detail-mechanic" class="text-slate-700">-</strong></span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-500 mr-2">Costo Total:</span>
+                        <span id="detail-total-cost" class="text-lg font-bold text-blue-600">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-10 pt-12 text-center text-xs">
+                    <div class="border-t border-slate-400 pt-2">
+                        <p class="font-semibold text-slate-800" id="detail-signature-client">Cliente</p>
+                        <p class="text-slate-500">Firma de conformidad</p>
+                    </div>
+                    <div class="border-t border-slate-400 pt-2">
+                        <p class="font-semibold text-slate-800" id="detail-signature-mechanic">Responsable JASG</p>
+                        <p class="text-slate-500">Firma del técnico</p>
+                    </div>
+                </div>
+                <p class="border-t border-slate-200 pt-3 text-center text-[9px] text-slate-400">Documento generado por JASG Taller. Conserve esta orden como respaldo de los trabajos realizados.</p>
+            </div>
+
+            <!-- Modal Action Buttons (No Print) -->
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100 mt-4 flex-shrink-0 no-print">
+                <button type="button" onclick="window.scrollTo(0, 0); window.print()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all flex items-center space-x-1.5">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Imprimir OT</span>
+                </button>
+                <button type="button" onclick="closeDetailModal()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: IMAGE LIGHTBOX ==================== -->
+    <div id="image-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 no-print" onclick="closeImageModal()">
+        <div class="relative max-w-4xl max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl p-2" onclick="event.stopPropagation()">
+            <button onclick="closeImageModal()" class="absolute top-4 right-4 bg-slate-900/70 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-900 transition-all z-10">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+            <img id="modal-image" src="" class="max-w-full max-h-[80vh] object-contain rounded-xl mx-auto block" alt="Imagen ampliada">
+        </div>
+    </div>
+
+    <script>
+        // State Management stored in localStorage
+        let workOrders = JSON.parse(localStorage.getItem('taller_work_orders')) || [
+            {
+                id: 1,
+                otNumber: "OT-2026-001",
+                date: "2026-06-05",
+                status: "En Proceso",
+                client: { name: "Juan Pérez", phone: "+56912345678", email: "juan@correo.com" },
+                vehicle: { plate: "ABCD-12", brand: "Toyota", model: "Corolla", year: "2021", km: "45,000 km" },
+                diagnosis: "Mantenimiento preventivo de 40,000 km, cambio de pastillas de freno delanteras y afinamiento de motor según cotización aceptada.",
+                cost: 320.00,
+                mechanic: "Carlos Gómez",
+                tasks: [
+                    { id: 1, text: "Desmontar ruedas delanteras", completed: true },
+                    { id: 2, text: "Cambiar pastillas de freno", completed: true },
+                    { id: 3, text: "Cambio de aceite y filtro", completed: false },
+                    { id: 4, text: "Escaneo computarizado OBD2", completed: false }
+                ],
+                parts: [
+                    { name: "Pastillas de freno cerámicas", qty: 1, price: 65.00 },
+                    { name: "Aceite sintético 5W-30 (4L)", qty: 1, price: 48.00 }
+                ],
+                initialPhotos: [],
+                finalPhotos: []
+            }
+        ];
+
+        let currentInitialPhotos = [];
+        let currentFinalPhotos = [];
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderOTs();
+            updateStats();
+        });
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            if(type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-400";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Update Summary Stats
+        function updateStats() {
+            const active = workOrders.filter(o => o.status !== 'Finalizada' && o.status !== 'Entregada').length;
+            const process = workOrders.filter(o => o.status === 'En Proceso').length;
+            const done = workOrders.filter(o => o.status === 'Finalizada' || o.status === 'Entregada').length;
+
+            document.getElementById('stat-active').textContent = active;
+            document.getElementById('stat-process').textContent = process;
+            document.getElementById('stat-done').textContent = done;
+        }
+
+        // Modal Controls for OT Form
+        function openOTModal(otId = null) {
+            const modal = document.getElementById('ot-modal');
+            const title = document.getElementById('ot-modal-title');
+
+            document.getElementById('ot-form').reset();
+            document.getElementById('ot-id').value = '';
+            document.getElementById('tasks-checklist-container').innerHTML = '';
+            document.getElementById('parts-used-container').innerHTML = '';
+            document.getElementById('initial-preview-container').innerHTML = '';
+            document.getElementById('final-preview-container').innerHTML = '';
+            currentInitialPhotos = [];
+            currentFinalPhotos = [];
+
+            // Set default date to today
+            document.getElementById('ot-date').value = new Date().toISOString().split('T')[0];
+
+            if (otId) {
+                title.textContent = 'Editar Orden de Trabajo (OT)';
+                const ot = workOrders.find(o => o.id === otId);
+                if (ot) {
+                    document.getElementById('ot-id').value = ot.id;
+                    document.getElementById('ot-number').value = ot.otNumber;
+                    document.getElementById('ot-date').value = ot.date;
+                    document.getElementById('ot-status').value = ot.status;
+                    document.getElementById('client-name').value = ot.client.name;
+                    document.getElementById('client-phone').value = ot.client.phone;
+                    document.getElementById('client-email').value = ot.client.email || '';
+                    document.getElementById('veh-plate').value = ot.vehicle.plate;
+                    document.getElementById('veh-brand').value = ot.vehicle.brand;
+                    document.getElementById('veh-model').value = ot.vehicle.model;
+                    document.getElementById('veh-year').value = ot.vehicle.year || '';
+                    document.getElementById('veh-km').value = ot.vehicle.km || '';
+                    document.getElementById('ot-diagnosis').value = ot.diagnosis;
+                    document.getElementById('ot-cost').value = ot.cost;
+                    document.getElementById('ot-mechanic').value = ot.mechanic || '';
+
+                    currentInitialPhotos = ot.initialPhotos || [];
+                    currentFinalPhotos = ot.finalPhotos || [];
+                    renderPhotoPreviews('initial');
+                    renderPhotoPreviews('final');
+
+                    if (ot.tasks && ot.tasks.length > 0) {
+                        ot.tasks.forEach(t => addTaskRow(t.text, t.completed));
+                    }
+                    if (ot.parts && ot.parts.length > 0) {
+                        ot.parts.forEach(p => addPartRow(p.name, p.qty, p.price));
+                    }
+                }
+            } else {
+                title.textContent = 'Nueva Orden de Trabajo (OT)';
+                // Generate auto number
+                const nextNum = `OT-2026-${String(workOrders.length + 1).padStart(3, '0')}`;
+                document.getElementById('ot-number').value = nextNum;
+                // Add default empty task & part
+                addTaskRow('Diagnóstico preliminar', false);
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeOTModal() {
+            document.getElementById('ot-modal').classList.add('hidden');
+        }
+
+        // Dynamic Tasks Checklist rows in Form
+        function addTaskRow(text = '', completed = false) {
+            const container = document.getElementById('tasks-checklist-container');
+            const rowId = Date.now() + Math.random();
+            const div = document.createElement('div');
+            div.className = "flex items-center space-x-2";
+            div.innerHTML = `
+                <input type="checkbox" ${completed ? 'checked' : ''} class="task-check h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                <input type="text" value="${escapeHtml(text)}" placeholder="Descripción de la tarea..." class="task-text-input flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-rose-600 px-2"><i class="fa-solid fa-trash-can text-xs"></i></button>
+            `;
+            container.appendChild(div);
+        }
+
+        // Dynamic Parts rows in Form
+        function addPartRow(name = '', qty = 1, price = 0) {
+            const container = document.getElementById('parts-used-container');
+            const div = document.createElement('div');
+            div.className = "flex items-center space-x-2";
+            div.innerHTML = `
+                <input type="text" value="${escapeHtml(name)}" placeholder="Nombre repuesto/insumo" class="part-name-input flex-2 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="number" value="${qty}" min="1" placeholder="Cant" class="part-qty-input w-20 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <input type="number" step="0.01" value="${price}" min="0" placeholder="Precio $" class="part-price-input w-24 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-rose-600 px-2"><i class="fa-solid fa-trash-can text-xs"></i></button>
+            `;
+            container.appendChild(div);
+        }
+
+        // FileReader for Photos
+        function handlePhotosUpload(event, type) {
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (type === 'initial') {
+                            currentInitialPhotos.push(e.target.result);
+                            renderPhotoPreviews('initial');
+                        } else {
+                            currentFinalPhotos.push(e.target.result);
+                            renderPhotoPreviews('final');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        function renderPhotoPreviews(type) {
+            const container = document.getElementById(type === 'initial' ? 'initial-preview-container' : 'final-preview-container');
+            const photos = type === 'initial' ? currentInitialPhotos : currentFinalPhotos;
+
+            container.innerHTML = photos.map((src, index) => `
+                <div class="relative w-14 h-14 rounded-xl border border-slate-200 overflow-hidden group">
+                    <img src="${src}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removePhoto('${type}', ${index})" class="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removePhoto(type, index) {
+            if (type === 'initial') {
+                currentInitialPhotos.splice(index, 1);
+                renderPhotoPreviews('initial');
+            } else {
+                currentFinalPhotos.splice(index, 1);
+                renderPhotoPreviews('final');
+            }
+        }
+
+        // Save OT Form Submission
+        function handleOTSubmit(event) {
+            event.preventDefault();
+
+            const idInput = document.getElementById('ot-id').value;
+            const otNumber = document.getElementById('ot-number').value.trim();
+            const date = document.getElementById('ot-date').value;
+            const status = document.getElementById('ot-status').value;
+
+            const client = {
+                name: document.getElementById('client-name').value.trim(),
+                phone: document.getElementById('client-phone').value.trim(),
+                email: document.getElementById('client-email').value.trim()
+            };
+
+            const vehicle = {
+                plate: document.getElementById('veh-plate').value.trim().toUpperCase(),
+                brand: document.getElementById('veh-brand').value.trim(),
+                model: document.getElementById('veh-model').value.trim(),
+                year: document.getElementById('veh-year').value.trim(),
+                km: document.getElementById('veh-km').value.trim()
+            };
+
+            const diagnosis = document.getElementById('ot-diagnosis').value.trim();
+            const cost = parseFloat(document.getElementById('ot-cost').value) || 0;
+            const mechanic = document.getElementById('ot-mechanic').value.trim();
+
+            // Collect Tasks
+            const tasks = [];
+            document.querySelectorAll('#tasks-checklist-container > div').forEach(row => {
+                const text = row.querySelector('.task-text-input').value.trim();
+                const completed = row.querySelector('.task-check').checked;
+                if (text) tasks.push({ id: Date.now() + Math.random(), text, completed });
+            });
+
+            // Collect Parts
+            const parts = [];
+            document.querySelectorAll('#parts-used-container > div').forEach(row => {
+                const name = row.querySelector('.part-name-input').value.trim();
+                const qty = parseInt(row.querySelector('.part-qty-input').value) || 1;
+                const price = parseFloat(row.querySelector('.part-price-input').value) || 0;
+                if (name) parts.push({ name, qty, price });
+            });
+
+            if (idInput) {
+                const ot = workOrders.find(o => o.id == idInput);
+                if (ot) {
+                    ot.otNumber = otNumber;
+                    ot.date = date;
+                    ot.status = status;
+                    ot.client = client;
+                    ot.vehicle = vehicle;
+                    ot.diagnosis = diagnosis;
+                    ot.cost = cost;
+                    ot.mechanic = mechanic;
+                    ot.tasks = tasks;
+                    ot.parts = parts;
+                    ot.initialPhotos = currentInitialPhotos;
+                    ot.finalPhotos = currentFinalPhotos;
+                }
+                showToast('Orden de Trabajo actualizada con éxito');
+            } else {
+                const newOT = {
+                    id: Date.now(),
+                    otNumber,
+                    date,
+                    status,
+                    client,
+                    vehicle,
+                    diagnosis,
+                    cost,
+                    mechanic,
+                    tasks,
+                    parts,
+                    initialPhotos: currentInitialPhotos,
+                    finalPhotos: currentFinalPhotos
+                };
+                workOrders.unshift(newOT);
+                showToast('Orden de Trabajo creada con éxito');
+            }
+
+            saveAndRefresh();
+            closeOTModal();
+        }
+
+        function saveAndRefresh() {
+            localStorage.setItem('taller_work_orders', JSON.stringify(workOrders));
+            renderOTs();
+            updateStats();
+        }
+
+        // Delete OT
+        function deleteOT(id) {
+            if (confirm('¿Estás seguro de eliminar esta Orden de Trabajo?')) {
+                workOrders = workOrders.filter(o => o.id !== id);
+                saveAndRefresh();
+                showToast('Orden de trabajo eliminada', 'error');
+            }
+        }
+
+        // Toggle individual task status directly from card
+        function toggleOTTask(otId, taskId) {
+            const ot = workOrders.find(o => o.id === otId);
+            if (ot) {
+                const task = ot.tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.completed = !task.completed;
+                    saveAndRefresh();
+                }
+            }
+        }
+
+        // Render OTs Grid
+        function renderOTs() {
+            const container = document.getElementById('ot-container');
+            const searchQuery = document.getElementById('search-ot').value.toLowerCase();
+            const statusFilter = document.getElementById('filter-status').value;
+
+            let filtered = workOrders.filter(ot => {
+                const matchesSearch = ot.otNumber.toLowerCase().includes(searchQuery) ||
+                                      ot.client.name.toLowerCase().includes(searchQuery) ||
+                                      ot.vehicle.plate.toLowerCase().includes(searchQuery) ||
+                                      ot.vehicle.brand.toLowerCase().includes(searchQuery);
+                const matchesStatus = statusFilter === 'all' ? true : ot.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-slate-400">
+                        <i class="fa-solid fa-folder-open text-4xl mb-2 text-slate-300"></i>
+                        <p class="text-sm font-medium">No se encontraron Órdenes de Trabajo</p>
+                        <p class="text-xs text-slate-400">Crea una nueva OT haciendo clic en "+ Nueva OT"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(ot => {
+                const statusColors = {
+                    'Pendiente': 'bg-slate-100 text-slate-700 border-slate-200',
+                    'En Proceso': 'bg-amber-50 text-amber-700 border-amber-200',
+                    'Esperando Repuestos': 'bg-blue-50 text-blue-700 border-blue-200',
+                    'Finalizada': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                    'Entregada': 'bg-blue-50 text-blue-700 border-blue-200'
+                };
+
+                const completedTasksCount = ot.tasks ? ot.tasks.filter(t => t.completed).length : 0;
+                const totalTasksCount = ot.tasks ? ot.tasks.length : 0;
+                const progressPercent = totalTasksCount > 0 ? Math.round((completedTasksCount / totalTasksCount) * 100) : 0;
+
+                return `
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                                <span class="font-bold text-sm text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-lg">${ot.otNumber}</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${statusColors[ot.status] || 'bg-slate-100'}">${ot.status}</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-base text-slate-900 uppercase">${escapeHtml(ot.vehicle.plate)}</h3>
+                                    <span class="text-xs font-semibold text-slate-600">${escapeHtml(ot.vehicle.brand)} ${escapeHtml(ot.vehicle.model)}</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5"><i class="fa-regular fa-user mr-1"></i>${escapeHtml(ot.client.name)} (${ot.client.phone})</p>
+                            </div>
+
+                            <p class="text-xs text-slate-600 line-clamp-2 mb-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">${escapeHtml(ot.diagnosis)}</p>
+
+                            <!-- Checklist preview -->
+                            ${totalTasksCount > 0 ? `
+                                <div class="mb-3 space-y-1.5">
+                                    <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                                        <span>Progreso de tareas</span>
+                                        <span>${completedTasksCount}/${totalTasksCount}</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-blue-600 h-full rounded-full transition-all" style="width: ${progressPercent}%"></div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100 mb-3">
+                                <span><i class="fa-regular fa-calendar mr-1"></i>${ot.date}</span>
+                                <span class="font-bold text-slate-900 text-sm">$${ot.cost.toFixed(2)}</span>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-1">
+                                <button onclick="openDetailModal(${ot.id})" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all flex items-center justify-center space-x-1">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>Ver / Imprimir</span>
+                                </button>
+                                <button onclick="openOTModal(${ot.id})" title="Editar" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all">
+                                    <i class="fa-solid fa-pen-to-square text-sm"></i>
+                                </button>
+                                <button onclick="deleteOT(${ot.id})" title="Eliminar" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-slate-50 rounded-xl transition-all">
+                                    <i class="fa-solid fa-trash-can text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Detail / Print Modal View
+        function openDetailModal(id) {
+            const ot = workOrders.find(o => o.id === id);
+            if (!ot) return;
+
+            document.getElementById('detail-ot-number').textContent = ot.otNumber;
+            document.getElementById('detail-ot-date').textContent = ot.date;
+
+            const badge = document.getElementById('detail-ot-status-badge');
+            badge.textContent = ot.status;
+            badge.className = "px-2.5 py-0.5 rounded-md text-xs font-bold " + (
+                ot.status === 'Finalizada' || ot.status === 'Entregada' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
+            );
+
+            document.getElementById('detail-client-name').textContent = ot.client.name;
+            document.getElementById('detail-client-phone').textContent = ot.client.phone;
+            document.getElementById('detail-client-email').textContent = ot.client.email || 'N/D';
+            document.getElementById('detail-signature-client').textContent = ot.client.name || 'Cliente';
+
+            document.getElementById('detail-veh-plate').textContent = ot.vehicle.plate;
+            document.getElementById('detail-veh-desc').textContent = `${ot.vehicle.brand} ${ot.vehicle.model} (${ot.vehicle.year || 'N/D'})`;
+            document.getElementById('detail-veh-km').textContent = ot.vehicle.km || 'N/D';
+
+            document.getElementById('detail-diagnosis').textContent = ot.diagnosis;
+            document.getElementById('detail-mechanic').textContent = ot.mechanic || 'No asignado';
+            document.getElementById('detail-signature-mechanic').textContent = ot.mechanic || 'Responsable JASG';
+            document.getElementById('detail-total-cost').textContent = `$${ot.cost.toFixed(2)}`;
+
+            // Tasks list
+            const tasksContainer = document.getElementById('detail-tasks-list');
+            if (ot.tasks && ot.tasks.length > 0) {
+                tasksContainer.innerHTML = ot.tasks.map(t => `
+                    <div class="flex items-center space-x-2 text-xs bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <input type="checkbox" ${t.completed ? 'checked' : ''} onclick="toggleOTTask(${ot.id}, ${t.id}); openDetailModal(${ot.id});" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                        <span class="${t.completed ? 'line-through text-slate-400' : 'text-slate-700 font-medium'}">${escapeHtml(t.text)}</span>
+                    </div>
+                `).join('');
+            } else {
+                tasksContainer.innerHTML = '<p class="text-xs text-slate-400 italic">No hay tareas registradas.</p>';
+            }
+
+            // Parts list
+            const partsContainer = document.getElementById('detail-parts-list');
+            if (ot.parts && ot.parts.length > 0) {
+                partsContainer.innerHTML = ot.parts.map(p => `
+                    <div class="flex items-center justify-between text-xs bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <span class="font-medium text-slate-700">${escapeHtml(p.name)} (Cant: ${p.qty})</span>
+                        <span class="font-bold text-slate-900">$${(p.qty * p.price).toFixed(2)}</span>
+                    </div>
+                `).join('');
+            } else {
+                partsContainer.innerHTML = '<p class="text-xs text-slate-400 italic">No hay repuestos registrados.</p>';
+            }
+
+            // Photos
+            const initialPhotosContainer = document.getElementById('detail-initial-photos');
+            if (ot.initialPhotos && ot.initialPhotos.length > 0) {
+                initialPhotosContainer.innerHTML = ot.initialPhotos.map(src => `
+                    <img src="${src}" class="w-16 h-16 rounded-xl object-cover border border-slate-200 cursor-pointer shadow-sm hover:opacity-85 transition-opacity" onclick="openImageModal('${src}')">
+                `).join('');
+            } else {
+                initialPhotosContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Sin fotos iniciales.</p>';
+            }
+
+            const finalPhotosContainer = document.getElementById('detail-final-photos');
+            if (ot.finalPhotos && ot.finalPhotos.length > 0) {
+                finalPhotosContainer.innerHTML = ot.finalPhotos.map(src => `
+                    <img src="${src}" class="w-16 h-16 rounded-xl object-cover border border-slate-200 cursor-pointer shadow-sm hover:opacity-85 transition-opacity" onclick="openImageModal('${src}')">
+                `).join('');
+            } else {
+                finalPhotosContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Sin fotos finales.</p>';
+            }
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        // Image Lightbox
+        function openImageModal(src) {
+            const modal = document.getElementById('image-modal');
+            const img = document.getElementById('modal-image');
+            img.src = src;
+            modal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+        }
+
+        // Security Helper
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#039;');
+        }
+    </script>
+</body>
+</html>

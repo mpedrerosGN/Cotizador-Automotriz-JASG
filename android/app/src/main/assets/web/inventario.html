@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trazabilidad de Inventario - TallerPro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="jasg-storage.js?v=1"></script>
+    <script defer src="jasg-brand.js?v=2"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full antialiased">
+    <div class="flex min-h-screen flex-col lg:flex-row">
+        <aside class="w-full lg:w-64 lg:shrink-0 bg-slate-900 text-white border-b lg:border-b-0 lg:border-r border-slate-700/80 shadow-2xl">
+            <div class="px-4 py-3 lg:px-5 lg:py-6 border-b border-slate-700/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
+                        <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                        <i data-jasg-brand-fallback class="fa-solid fa-boxes-stacked text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black tracking-tight">JASG</div>
+                        <div class="text-[10px] text-slate-300 uppercase tracking-[0.2em]">Taller</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 p-2 lg:block lg:space-y-2 lg:p-4">
+                <a href="index.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-file-invoice"></i> Cotizador</a>
+                <a href="planificador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-list-check"></i> Planificador</a>
+                <a href="agendamientos.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-calendar-days"></i> Agendamientos</a>
+                <a href="ordenes-trabajo.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-clipboard-list"></i> Órdenes</a>
+                <a href="inventario.html" aria-current="page" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+                <a href="tasador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-car-side"></i> Tasador</a>
+                <a href="monitor.html" title="Monitor" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-display"></i> Monitor</a>
+                <a href="finanzas.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-wallet"></i> Finanzas</a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+            <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:min-h-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-16 h-16 bg-white p-1.5 rounded-2xl border-2 border-amber-400 shadow-lg flex items-center justify-center overflow-hidden">
+                            <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                            <i data-jasg-brand-fallback class="fa-solid fa-boxes-stacked text-blue-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-black text-slate-900 tracking-tight">JASG Inventario</h1>
+                            <p class="text-xs text-slate-500 hidden sm:block">Control y Trazabilidad de Inventario</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                        <div class="flex w-full sm:w-auto bg-slate-100 p-1 rounded-xl">
+                            <button onclick="switchTab('inventory')" id="btn-tab-inventory" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm">
+                                <i class="fa-solid fa-box mr-1.5"></i> Inventario
+                            </button>
+                            <button onclick="switchTab('movements')" id="btn-tab-movements" class="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900">
+                                <i class="fa-solid fa-right-left mr-1.5"></i> Historial / Trazabilidad
+                            </button>
+                        </div>
+                        <button onclick="startNewInventoryItem()" class="w-full sm:w-auto justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-sm transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Nuevo Artículo
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 overflow-visible lg:overflow-hidden flex flex-col">
+
+        <!-- NOTIFICATION TOAST -->
+        <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-message" class="text-sm font-medium">Acción realizada con éxito</span>
+        </div>
+
+        <!-- ==================== TAB 1: INVENTORY MANAGEMENT ==================== -->
+        <div id="view-inventory" class="flex-1 flex flex-col lg:flex-row gap-4 sm:gap-6 overflow-visible lg:overflow-hidden">
+
+            <!-- Left Sidebar / Item Form -->
+            <div class="w-full lg:w-96 lg:shrink-0 bg-white border border-slate-200 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col lg:overflow-y-auto custom-scrollbar">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                    <h2 class="font-bold text-slate-900 flex items-center text-sm sm:text-base">
+                        <i class="fa-solid fa-circle-plus text-blue-600 mr-2"></i> <span id="form-title-text">Nuevo Artículo</span>
+                    </h2>
+                    <button onclick="resetItemForm()" class="text-xs text-slate-400 hover:text-slate-600 underline">Limpiar</button>
+                </div>
+
+                <form id="item-form" onsubmit="handleItemSubmit(event)" class="space-y-3.5 flex-1">
+                    <input type="hidden" id="item-id">
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Nombre del Artículo *</label>
+                        <input type="text" id="item-name" required placeholder="Ej: Pastillas de freno cerámicas"
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Código / SKU *</label>
+                            <input type="text" id="item-sku" required placeholder="Ej: SKU-9482"
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Categoría</label>
+                            <select id="item-category" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                                <option value="Herramientas">Herramientas</option>
+                                <option value="Repuestos">Repuestos</option>
+                                <option value="Lubricantes/Fluidos">Lubricantes/Fluidos</option>
+                                <option value="Insumos/Consumibles">Insumos/Consumibles</option>
+                                <option value="Equipamiento">Equipamiento</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Cantidad Actual *</label>
+                            <input type="number" id="item-stock" min="0" required placeholder="Ej: 15"
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Stock Mínimo *</label>
+                            <input type="number" id="item-minstock" min="0" required placeholder="Ej: 3"
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Ubicación Taller</label>
+                            <input type="text" id="item-location" placeholder="Ej: Estante A-3"
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Costo Unitario ($)</label>
+                            <input type="number" step="0.01" min="0" id="item-cost" placeholder="Ej: 45.00"
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Proveedor</label>
+                        <input type="text" id="item-supplier" placeholder="Ej: Autopartes Global S.A."
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Fotografía del Artículo</label>
+                        <div class="flex items-center justify-center w-full">
+                            <label for="item-photo-file" class="flex flex-col items-center justify-center w-full h-24 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all overflow-hidden relative group">
+                                <div id="photo-placeholder" class="flex flex-col items-center justify-center pt-3 pb-4">
+                                    <i class="fa-solid fa-cloud-arrow-up text-slate-400 text-lg mb-1"></i>
+                                    <p class="text-[11px] text-slate-500 font-medium">Subir foto de pieza</p>
+                                </div>
+                                <img id="photo-preview" class="hidden absolute inset-0 w-full h-full object-cover group-hover:opacity-75 transition-opacity" alt="Vista previa">
+                                <input type="file" id="item-photo-file" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                            </label>
+                        </div>
+                        <div id="remove-photo-container" class="hidden mt-1 text-right">
+                            <button type="button" onclick="clearPhoto()" class="text-xs text-rose-500 hover:underline font-medium"><i class="fa-solid fa-trash-can mr-1"></i> Quitar foto</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submit-item-btn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all text-xs sm:text-sm flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span id="submit-btn-text">Guardar Artículo</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Content / Inventory List & Filters -->
+            <div class="w-full min-w-0 flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm p-4 sm:p-5 flex flex-col overflow-hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                    <div class="flex items-center space-x-2">
+                        <h2 class="font-bold text-slate-900 text-base sm:text-lg">Inventario Actual</h2>
+                        <span id="inventory-count" class="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                    </div>
+                    <!-- Filters & Search -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="relative">
+                            <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input type="text" id="search-inventory" oninput="renderInventory()" placeholder="Buscar por SKU o nombre..."
+                                class="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-36 sm:w-48">
+                        </div>
+                        <select id="filter-category" onchange="renderInventory()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">Todas las categorías</option>
+                            <option value="Herramientas">Herramientas</option>
+                            <option value="Repuestos">Repuestos</option>
+                            <option value="Lubricantes/Fluidos">Lubricantes/Fluidos</option>
+                            <option value="Insumos/Consumibles">Insumos/Consumibles</option>
+                            <option value="Equipamiento">Equipamiento</option>
+                        </select>
+                        <select id="filter-stock-status" onchange="renderInventory()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">Todo el stock</option>
+                            <option value="normal">Stock Normal</option>
+                            <option value="low">Stock Bajo / Crítico</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Inventory Scroll Table/Card Area -->
+                <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+                    <div id="inventory-container" class="space-y-3">
+                        <!-- Dynamic Inventory Cards/Rows populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: TRACEABILITY / MOVEMENTS ==================== -->
+        <div id="view-movements" class="hidden flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 flex flex-col overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center space-x-2">
+                    <h2 class="font-bold text-slate-900 text-base sm:text-lg">Historial de Trazabilidad y Movimientos</h2>
+                    <span id="movement-count" class="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="relative">
+                        <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="search-movements" oninput="renderMovements()" placeholder="Buscar en historial..."
+                            class="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-44 sm:w-56">
+                    </div>
+                    <button onclick="openMovementModal()" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-all shadow-sm flex items-center space-x-1.5">
+                        <i class="fa-solid fa-right-left"></i>
+                        <span>Registrar Movimiento</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Movements Table / List Area -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+                <div id="movements-container" class="space-y-3">
+                    <!-- Dynamic movements rendered here -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== MODAL: REGISTER MOVEMENT (ENTRADA / SALIDA / AJUSTE) ==================== -->
+    <div id="movement-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4" onclick="closeMovementModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative overflow-hidden" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                <h3 class="font-bold text-slate-900 text-base flex items-center">
+                    <i class="fa-solid fa-right-left text-blue-600 mr-2"></i> Registrar Movimiento de Trazabilidad
+                </h3>
+                <button onclick="closeMovementModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="movement-form" onsubmit="handleMovementSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Seleccionar Artículo *</label>
+                    <select id="mov-item-id" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Tipo de Movimiento *</label>
+                        <select id="mov-type" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Entrada">Entrada (Ingreso)</option>
+                            <option value="Salida">Salida (Uso/Retiro)</option>
+                            <option value="Ajuste">Ajuste de Inventario</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Cantidad *</label>
+                        <input type="number" id="mov-qty" min="1" required placeholder="Ej: 5"
+                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Responsable *</label>
+                    <input type="text" id="mov-responsible" required placeholder="Ej: Carlos Mechanic (Técnico Líder)"
+                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Motivo / Notas *</label>
+                    <textarea id="mov-reason" rows="2" required placeholder="Ej: Mantenimiento preventivo unidad #4 / Reposición mensual..."
+                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeMovementModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md">Registrar y Actualizar Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: IMAGE LIGHTBOX ==================== -->
+    <div id="image-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4" onclick="closeImageModal()">
+        <div class="relative max-w-4xl max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl p-2" onclick="event.stopPropagation()">
+            <button onclick="closeImageModal()" class="absolute top-4 right-4 bg-slate-900/70 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-900 transition-all z-10">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+            <img id="modal-image" src="" class="max-w-full max-h-[80vh] object-contain rounded-xl mx-auto block" alt="Imagen ampliada pieza">
+        </div>
+    </div>
+
+    <script>
+        // State Management stored in localStorage
+        let inventory = JSON.parse(localStorage.getItem('taller_inventory')) || [
+            {
+                id: 101,
+                name: "Pastillas de freno delanteras",
+                sku: "SKU-FRN-01",
+                category: "Repuestos",
+                stock: 2,
+                minStock: 4,
+                location: "Estante B-2",
+                cost: 35.50,
+                supplier: "Frenos & Partes S.A.",
+                photo: null
+            },
+            {
+                id: 102,
+                name: "Aceite sintético 5W-30 (Litros)",
+                sku: "SKU-LUB-05",
+                category: "Lubricantes/Fluidos",
+                stock: 45,
+                minStock: 10,
+                location: "Bodega Central - Pasillo 1",
+                cost: 12.00,
+                supplier: "Lubricantes del Sur",
+                photo: null
+            },
+            {
+                id: 103,
+                name: "Llave de impacto neumática 1/2\"",
+                sku: "SKU-HER-88",
+                category: "Herramientas",
+                stock: 1,
+                minStock: 2,
+                location: "Panel de Herramientas Principal",
+                cost: 180.00,
+                supplier: "Industrial Tools Corp",
+                photo: null
+            }
+        ];
+
+        let movements = JSON.parse(localStorage.getItem('taller_movements')) || [
+            {
+                id: 501,
+                itemId: 101,
+                itemName: "Pastillas de freno delanteras",
+                itemSku: "SKU-FRN-01",
+                type: "Salida",
+                qty: 2,
+                previousStock: 4,
+                newStock: 2,
+                responsible: "Carlos Gómez",
+                reason: "Instalación en vehículo Toyota Corolla cliente Juan Pérez",
+                date: "2026-06-06 14:30"
+            }
+        ];
+
+        let currentPhotoBase64 = null;
+
+        // Initialize App on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderInventory();
+            renderMovements();
+        });
+
+        // Switch between Inventory and Movements tabs
+        function switchTab(tabName) {
+            const invView = document.getElementById('view-inventory');
+            const movView = document.getElementById('view-movements');
+            const btnInv = document.getElementById('btn-tab-inventory');
+            const btnMov = document.getElementById('btn-tab-movements');
+
+            if (tabName === 'inventory') {
+                invView.classList.remove('hidden');
+                movView.classList.add('hidden');
+                btnInv.className = "px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm";
+                btnMov.className = "px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900";
+            } else {
+                invView.classList.add('hidden');
+                movView.classList.remove('hidden');
+                btnMov.className = "px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm";
+                btnInv.className = "px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900";
+                renderMovements();
+            }
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            if(type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-400";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // FileReader for item photo upload
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPhotoBase64 = e.target.result;
+                    const preview = document.getElementById('photo-preview');
+                    const placeholder = document.getElementById('photo-placeholder');
+                    const removeBtn = document.getElementById('remove-photo-container');
+
+                    preview.src = currentPhotoBase64;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    removeBtn.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearPhoto() {
+            currentPhotoBase64 = null;
+            document.getElementById('item-photo-file').value = '';
+            document.getElementById('photo-preview').src = '';
+            document.getElementById('photo-preview').classList.add('hidden');
+            document.getElementById('photo-placeholder').classList.remove('hidden');
+            document.getElementById('remove-photo-container').classList.add('hidden');
+        }
+
+        // Save Item (Create or Edit)
+        function handleItemSubmit(event) {
+            event.preventDefault();
+
+            const idInput = document.getElementById('item-id').value;
+            const name = document.getElementById('item-name').value.trim();
+            const sku = document.getElementById('item-sku').value.trim().toUpperCase();
+            const category = document.getElementById('item-category').value;
+            const stock = parseInt(document.getElementById('item-stock').value);
+            const minStock = parseInt(document.getElementById('item-minstock').value);
+            const location = document.getElementById('item-location').value.trim();
+            const cost = parseFloat(document.getElementById('item-cost').value) || 0;
+            const supplier = document.getElementById('item-supplier').value.trim();
+
+            if (!name || !sku || isNaN(stock) || isNaN(minStock)) {
+                showToast('Por favor completa los campos obligatorios', 'error');
+                return;
+            }
+
+            if (idInput) {
+                // Editing existing item
+                const item = inventory.find(i => i.id == idInput);
+                if (item) {
+                    item.name = name;
+                    item.sku = sku;
+                    item.category = category;
+                    item.stock = stock;
+                    item.minStock = minStock;
+                    item.location = location;
+                    item.cost = cost;
+                    item.supplier = supplier;
+                    if (currentPhotoBase64 !== null) {
+                        item.photo = currentPhotoBase64;
+                    }
+                }
+                showToast('Artículo actualizado correctamente');
+            } else {
+                // Creating new item
+                const newItem = {
+                    id: Date.now(),
+                    name: name,
+                    sku: sku,
+                    category: category,
+                    stock: stock,
+                    minStock: minStock,
+                    location: location,
+                    cost: cost,
+                    supplier: supplier,
+                    photo: currentPhotoBase64
+                };
+                inventory.push(newItem);
+                showToast('Artículo registrado en inventario');
+            }
+
+            saveAndRefreshInventory();
+            resetItemForm();
+        }
+
+        function saveAndRefreshInventory() {
+            localStorage.setItem('taller_inventory', JSON.stringify(inventory));
+            renderInventory();
+        }
+
+        function resetItemForm() {
+            document.getElementById('item-form').reset();
+            document.getElementById('item-id').value = '';
+            document.getElementById('form-title-text').textContent = 'Nuevo Artículo';
+            document.getElementById('submit-btn-text').textContent = 'Guardar Artículo';
+            clearPhoto();
+        }
+
+        function startNewInventoryItem() {
+            const isEditing = Boolean(document.getElementById('item-id').value);
+            const hasDraft = ['item-name', 'item-sku', 'item-stock', 'item-minstock', 'item-location', 'item-cost', 'item-supplier']
+                .some(id => document.getElementById(id).value.trim());
+            if ((isEditing || hasDraft) && !confirm('¿Descartar los cambios del formulario y comenzar un artículo nuevo?')) return;
+            resetItemForm();
+            document.getElementById('item-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('item-name').focus({ preventScroll: true });
+        }
+
+        function editItem(id) {
+            const item = inventory.find(i => i.id === id);
+            if (item) {
+                document.getElementById('item-id').value = item.id;
+                document.getElementById('item-name').value = item.name;
+                document.getElementById('item-sku').value = item.sku;
+                document.getElementById('item-category').value = item.category;
+                document.getElementById('item-stock').value = item.stock;
+                document.getElementById('item-minstock').value = item.minStock;
+                document.getElementById('item-location').value = item.location || '';
+                document.getElementById('item-cost').value = item.cost || '';
+                document.getElementById('item-supplier').value = item.supplier || '';
+                document.getElementById('form-title-text').textContent = 'Editar Artículo';
+                document.getElementById('submit-btn-text').textContent = 'Actualizar Artículo';
+
+                if (item.photo) {
+                    currentPhotoBase64 = item.photo;
+                    const preview = document.getElementById('photo-preview');
+                    const placeholder = document.getElementById('photo-placeholder');
+                    const removeBtn = document.getElementById('remove-photo-container');
+                    preview.src = item.photo;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    removeBtn.classList.remove('hidden');
+                } else {
+                    clearPhoto();
+                }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function deleteItem(id) {
+            if (confirm('¿Estás seguro de eliminar este artículo del inventario?')) {
+                inventory = inventory.filter(i => i.id !== id);
+                saveAndRefreshInventory();
+                showToast('Artículo eliminado', 'error');
+            }
+        }
+
+        // Render Inventory View
+        function renderInventory() {
+            const container = document.getElementById('inventory-container');
+            const searchQuery = document.getElementById('search-inventory').value.toLowerCase();
+            const catFilter = document.getElementById('filter-category').value;
+            const stockStatusFilter = document.getElementById('filter-stock-status').value;
+
+            let filtered = inventory.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(searchQuery) || item.sku.toLowerCase().includes(searchQuery) || (item.location && item.location.toLowerCase().includes(searchQuery));
+                const matchesCat = catFilter === 'all' ? true : item.category === catFilter;
+
+                let matchesStock = true;
+                const isLow = item.stock <= item.minStock;
+                if (stockStatusFilter === 'normal') matchesStock = !isLow;
+                if (stockStatusFilter === 'low') matchesStock = isLow;
+
+                return matchesSearch && matchesCat && matchesStock;
+            });
+
+            document.getElementById('inventory-count').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-box-open text-4xl mb-2 text-slate-300"></i>
+                        <p class="text-sm font-medium">No se encontraron artículos</p>
+                        <p class="text-xs text-slate-400">Registra un artículo usando el formulario izquierdo</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                const isLowStock = item.stock <= item.minStock;
+                const stockBadge = isLowStock
+                    ? `<span class="bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Stock Crítico (${item.stock})</span>`
+                    : `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-md">Normal (${item.stock})</span>`;
+
+                return `
+                    <div class="border ${isLowStock ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} rounded-2xl p-4 hover:border-slate-300 transition-all shadow-sm flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                        <div class="flex items-start space-x-3.5 flex-1 min-w-0">
+                            ${item.photo ? `
+                                <div class="relative cursor-pointer group/img flex-shrink-0" onclick="openImageModal('${item.photo}')">
+                                    <img src="${item.photo}" class="w-14 h-14 rounded-xl object-cover border border-slate-200 shadow-sm" alt="Foto">
+                                    <div class="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
+                                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 flex-shrink-0">
+                                    <i class="fa-solid fa-image text-lg"></i>
+                                </div>
+                            `}
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center space-x-2 flex-wrap gap-y-1 mb-1">
+                                    <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">${item.sku}</span>
+                                    <h3 class="font-semibold text-sm text-slate-900 truncate">${escapeHtml(item.name)}</h3>
+                                    ${stockBadge}
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs text-slate-500 mt-2">
+                                    <div><span class="font-medium text-slate-700">Categoría:</span> ${item.category}</div>
+                                    <div><span class="font-medium text-slate-700">Ubicación:</span> ${escapeHtml(item.location || 'N/D')}</div>
+                                    <div><span class="font-medium text-slate-700">Costo Unit.:</span> $${item.cost.toFixed(2)}</div>
+                                    <div><span class="font-medium text-slate-700">Proveedor:</span> ${escapeHtml(item.supplier || 'N/D')}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-1 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
+                            <button onclick="quickMoveItem(${item.id})" title="Registrar Movimiento" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold transition-all flex items-center space-x-1">
+                                <i class="fa-solid fa-right-left"></i>
+                                <span>Mover</span>
+                            </button>
+                            <button onclick="editItem(${item.id})" title="Editar" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded-lg transition-all">
+                                <i class="fa-solid fa-pen-to-square text-sm"></i>
+                            </button>
+                            <button onclick="deleteItem(${item.id})" title="Eliminar" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-slate-50 rounded-lg transition-all">
+                                <i class="fa-solid fa-trash-can text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== MOVEMENTS & TRACEABILITY LOGIC ==================== -->
+        function openMovementModal(preselectedId = null) {
+            const select = document.getElementById('mov-item-id');
+            select.innerHTML = inventory.map(i => `<option value="${i.id}">${i.sku} - ${i.name} (Stock actual: ${i.stock})</option>`).join('');
+
+            if (preselectedId) {
+                select.value = preselectedId;
+            }
+
+            document.getElementById('movement-modal').classList.remove('hidden');
+        }
+
+        function closeMovementModal() {
+            document.getElementById('movement-modal').classList.add('hidden');
+            document.getElementById('movement-form').reset();
+        }
+
+        function quickMoveItem(id) {
+            openMovementModal(id);
+        }
+
+        function handleMovementSubmit(event) {
+            event.preventDefault();
+
+            const itemId = parseInt(document.getElementById('mov-item-id').value);
+            const type = document.getElementById('mov-type').value;
+            const qty = parseInt(document.getElementById('mov-qty').value);
+            const responsible = document.getElementById('mov-responsible').value.trim();
+            const reason = document.getElementById('mov-reason').value.trim();
+
+            const item = inventory.find(i => i.id === itemId);
+            if (!item) {
+                showToast('Artículo no encontrado', 'error');
+                return;
+            }
+
+            const previousStock = item.stock;
+            let newStock = previousStock;
+
+            if (type === 'Entrada') {
+                newStock += qty;
+            } else if (type === 'Salida') {
+                newStock -= qty;
+                if (newStock < 0) newStock = 0; // Prevent negative stock
+            } else if (type === 'Ajuste') {
+                newStock = qty; // In adjustment, qty entered is the exact new physical count
+            }
+
+            // Update item stock
+            item.stock = newStock;
+
+            // Record movement
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+            const newMovement = {
+                id: Date.now(),
+                itemId: item.id,
+                itemName: item.name,
+                itemSku: item.sku,
+                type: type,
+                qty: qty,
+                previousStock: previousStock,
+                newStock: newStock,
+                responsible: responsible,
+                reason: reason,
+                date: dateStr
+            };
+
+            movements.unshift(newMovement); // Add to beginning of history
+
+            localStorage.setItem('taller_inventory', JSON.stringify(inventory));
+            localStorage.setItem('taller_movements', JSON.stringify(movements));
+
+            renderInventory();
+            renderMovements();
+            closeMovementModal();
+            showToast(`Movimiento registrado (${type}). Stock actualizado a ${newStock}`);
+        }
+
+        function renderMovements() {
+            const container = document.getElementById('movements-container');
+            const searchQuery = document.getElementById('search-movements').value.toLowerCase();
+
+            let filtered = movements.filter(m => {
+                return m.itemName.toLowerCase().includes(searchQuery) ||
+                       m.itemSku.toLowerCase().includes(searchQuery) ||
+                       m.responsible.toLowerCase().includes(searchQuery) ||
+                       m.reason.toLowerCase().includes(searchQuery) ||
+                       m.type.toLowerCase().includes(searchQuery);
+            });
+
+            document.getElementById('movement-count').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-clock-rotate-left text-4xl mb-2 text-slate-300"></i>
+                        <p class="text-sm font-medium">No hay movimientos registrados</p>
+                        <p class="text-xs text-slate-400">Los registros de entradas y salidas aparecerán aquí</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(m => {
+                const typeColors = {
+                    'Entrada': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                    'Salida': 'bg-amber-50 text-amber-700 border-amber-200',
+                    'Ajuste': 'bg-blue-50 text-blue-700 border-blue-200'
+                };
+
+                const typeIcons = {
+                    'Entrada': 'fa-arrow-trend-up',
+                    'Salida': 'fa-arrow-trend-down',
+                    'Ajuste': 'fa-sliders'
+                };
+
+                return `
+                    <div class="border border-slate-200 rounded-2xl p-4 bg-white hover:border-slate-300 transition-all shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div class="flex items-start space-x-3.5 flex-1 min-w-0">
+                            <div class="p-2.5 rounded-xl border ${typeColors[m.type]} flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid ${typeIcons[m.type]} text-base"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center space-x-2 flex-wrap gap-y-1 mb-1">
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${typeColors[m.type]}">${m.type}</span>
+                                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">${m.itemSku}</span>
+                                    <h3 class="font-semibold text-sm text-slate-900 truncate">${escapeHtml(m.itemName)}</h3>
+                                </div>
+                                <p class="text-xs text-slate-600 mt-1"><span class="font-medium text-slate-700">Motivo:</span> ${escapeHtml(m.reason)}</p>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 mt-2">
+                                    <span><i class="fa-regular fa-user mr-1"></i>${escapeHtml(m.responsible)}</span>
+                                    <span><i class="fa-regular fa-calendar mr-1"></i>${m.date}</span>
+                                    <span>Stock: <strong class="text-slate-700">${m.previousStock}</strong> ➔ <strong class="text-blue-600">${m.newStock}</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Image Modal Lightbox
+        function openImageModal(src) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image');
+            modalImg.src = src;
+            modal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+        }
+
+        // Security Helper
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#039;');
+        }
+    </script>
+</body>
+</html>

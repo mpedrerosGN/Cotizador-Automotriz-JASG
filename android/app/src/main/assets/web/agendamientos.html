@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamiento y Citas - JASG Taller</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="jasg-storage.js?v=1"></script>
+    <script defer src="jasg-brand.js?v=2"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full antialiased">
+    <div class="flex min-h-screen flex-col lg:flex-row">
+        <aside class="w-full lg:w-64 lg:shrink-0 bg-slate-900 text-white border-b lg:border-b-0 lg:border-r border-slate-700/80 shadow-2xl">
+            <div class="px-4 py-3 lg:px-5 lg:py-6 border-b border-slate-700/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
+                        <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                        <i data-jasg-brand-fallback class="fa-solid fa-calendar-days text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black tracking-tight">JASG</div>
+                        <div class="text-[10px] text-slate-300 uppercase tracking-[0.2em]">Taller</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 p-2 lg:block lg:space-y-2 lg:p-4">
+                <a href="index.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-file-invoice"></i> Cotizador</a>
+                <a href="planificador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-list-check"></i> Planificador</a>
+                <a href="agendamientos.html" aria-current="page" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-calendar-days"></i> Agendamientos</a>
+                <a href="ordenes-trabajo.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-clipboard-list"></i> Órdenes</a>
+                <a href="inventario.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+                <a href="tasador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-car-side"></i> Tasador</a>
+                <a href="monitor.html" title="Monitor" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-display"></i> Monitor</a>
+                <a href="finanzas.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-wallet"></i> Finanzas</a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+            <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-0 sm:min-h-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex flex-wrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                        <div class="w-16 h-16 bg-white p-1.5 rounded-2xl border-2 border-amber-400 shadow-lg flex items-center justify-center overflow-hidden">
+                            <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                            <i data-jasg-brand-fallback class="fa-solid fa-calendar-days text-blue-600 text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-black text-slate-900 tracking-tight">JASG Taller</h1>
+                            <p class="text-xs text-slate-500 hidden sm:block">Agendamiento y Citas del Taller</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="hidden md:flex items-center space-x-4 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl">
+                            <span>Citas Hoy: <strong id="stat-today" class="text-blue-600">0</strong></span>
+                            <span>•</span>
+                            <span>Confirmadas: <strong id="stat-confirmed" class="text-emerald-600">0</strong></span>
+                            <span>•</span>
+                            <span>En Taller: <strong id="stat-workshop" class="text-amber-600">0</strong></span>
+                        </div>
+                        <button onclick="openAppointmentModal()" class="w-full sm:w-auto justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs sm:text-sm transition-all shadow-md flex items-center space-x-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Nueva Cita</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-hidden flex flex-col">
+
+        <!-- NOTIFICATION TOAST -->
+        <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3">
+            <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toast-message" class="text-sm font-medium">Acción realizada con éxito</span>
+        </div>
+
+        <!-- SEARCH & VIEW TOGGLE BAR -->
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center space-x-2 w-full sm:w-auto">
+                <div class="relative flex-1 sm:w-80">
+                    <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="search-apt" oninput="renderAppointments()" placeholder="Buscar por Cliente, Patente, Servicio..."
+                        class="w-full pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                <!-- Date Filter -->
+                <input type="date" id="filter-date" onchange="renderAppointments()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                <!-- Status Filter -->
+                <select id="filter-status" onchange="renderAppointments()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="all">Todos los estados</option>
+                    <option value="Agendada">Agendada</option>
+                    <option value="Confirmada">Confirmada</option>
+                    <option value="En Taller">En Taller</option>
+                    <option value="Finalizada">Finalizada</option>
+                    <option value="Cancelada">Cancelada</option>
+                </select>
+
+                <button onclick="resetDateFilter()" title="Ver todas las fechas" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs transition-all">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- APPOINTMENTS LIST CONTAINER -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
+            <div id="appointments-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Dynamic Appointment Cards rendered here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== MODAL: CREATE / EDIT APPOINTMENT ==================== -->
+    <div id="appointment-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto" onclick="closeAppointmentModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 my-8 relative overflow-hidden max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4 flex-shrink-0">
+                <h3 class="font-bold text-slate-900 text-base sm:text-lg flex items-center">
+                    <i class="fa-solid fa-calendar-plus text-blue-600 mr-2"></i> <span id="apt-modal-title">Agendar Nueva Cita</span>
+                </h3>
+                <button onclick="closeAppointmentModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="appointment-form" onsubmit="handleAppointmentSubmit(event)" class="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-2">
+                <input type="hidden" id="apt-id">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Fecha de la Cita *</label>
+                        <input type="date" id="apt-date" required
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Hora Estimada *</label>
+                        <input type="time" id="apt-time" required
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider"><i class="fa-regular fa-user mr-1.5 text-blue-600"></i> Datos del Cliente</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Nombre Completo *</label>
+                            <input type="text" id="client-name" required placeholder="Ej: Marcela Arancibia"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Teléfono de Contacto *</label>
+                            <input type="text" id="client-phone" required placeholder="Ej: +56 9 9123 4567"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider"><i class="fa-solid fa-car mr-1.5 text-blue-600"></i> Datos del Vehículo / Equipo</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Patente / Placa *</label>
+                            <input type="text" id="veh-plate" required placeholder="WXYZ-89"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm uppercase focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Marca *</label>
+                            <input type="text" id="veh-brand" required placeholder="Chevrolet"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Modelo *</label>
+                            <input type="text" id="veh-model" required placeholder="Tracker"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-slate-600 mb-1">Año</label>
+                            <input type="text" id="veh-year" placeholder="2023"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Tipo de Servicio *</label>
+                        <select id="apt-service" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Mantención Preventiva">Mantención Preventiva</option>
+                            <option value="Diagnóstico / Scanner">Diagnóstico / Scanner</option>
+                            <option value="Sistema de Frenos">Sistema de Frenos</option>
+                            <option value="Suspensión y Dirección">Suspensión y Dirección</option>
+                            <option value="Cambio de Aceite y Filtros">Cambio de Aceite y Filtros</option>
+                            <option value="Revisión Técnica / Pre-ITV">Revisión Técnica / Pre-ITV</option>
+                            <option value="Otro Servicio">Otro Servicio</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Estado de la Cita</label>
+                        <select id="apt-status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Agendada">Agendada</option>
+                            <option value="Confirmada">Confirmada</option>
+                            <option value="En Taller">En Taller</option>
+                            <option value="Finalizada">Finalizada</option>
+                            <option value="Cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Notas u Observaciones del Cliente</label>
+                    <textarea id="apt-notes" rows="2" placeholder="Ej: Ruido extraño al girar el volante en frío..."
+                        class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100 flex-shrink-0">
+                    <button type="button" onclick="closeAppointmentModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md">Guardar Cita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: VIEW / CONVERT OT DETAILS ==================== -->
+    <div id="detail-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 overflow-y-auto" onclick="closeDetailModal()">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 sm:p-7 my-8 relative overflow-hidden flex flex-col space-y-4" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base" id="detail-service-title">Mantención Preventiva</h3>
+                    <p class="text-xs text-slate-500">Detalles de la Cita Programada</p>
+                </div>
+                <span id="detail-status-badge" class="px-2.5 py-1 rounded-md text-xs font-bold">Confirmada</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <div>
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold">Fecha y Hora</span>
+                    <strong class="text-slate-800" id="detail-datetime">-</strong>
+                </div>
+                <div>
+                    <span class="text-slate-400 block text-[10px] uppercase font-bold">Patente / Vehículo</span>
+                    <strong class="text-blue-600 uppercase" id="detail-vehicle">-</strong>
+                </div>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <p><strong class="text-slate-600">Cliente:</strong> <span id="detail-client-name">-</span></p>
+                <p><strong class="text-slate-600">Teléfono:</strong> <span id="detail-client-phone">-</span></p>
+                <div>
+                    <strong class="text-slate-600 block mb-1">Notas / Observaciones:</strong>
+                    <p id="detail-notes" class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-slate-600 italic">-</p>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-100 p-3.5 rounded-xl flex items-center justify-between">
+                <div>
+                    <h4 class="text-xs font-bold text-blue-900">¿Vehículo ingresó al taller?</h4>
+                    <p class="text-[11px] text-blue-700">Puedes convertir esta cita directamente en una Orden de Trabajo (OT).</p>
+                </div>
+                <button onclick="convertToOTFromAppointment()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md flex items-center space-x-1.5 flex-shrink-0">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Pasar a OT</span>
+                </button>
+            </div>
+
+            <div class="flex items-center justify-end pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeDetailModal()" class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management stored in localStorage
+        let appointments = JSON.parse(localStorage.getItem('taller_appointments')) || [
+            {
+                id: 1,
+                date: new Date().toISOString().split('T')[0],
+                time: "09:30",
+                client: { name: "Roberto Sánchez", phone: "+56987654321" },
+                vehicle: { plate: "ABCD-12", brand: "Toyota", model: "Hilux", year: "2022" },
+                service: "Mantención Preventiva",
+                status: "Confirmada",
+                notes: "Cliente solicita revisión especial de frenos traseros y cambio de aceite sintético."
+            },
+            {
+                id: 2,
+                date: new Date().toISOString().split('T')[0],
+                time: "11:45",
+                client: { name: "Camila Valenzuela", phone: "+56976543210" },
+                vehicle: { plate: "JKLM-45", brand: "Mazda", model: "CX-5", year: "2021" },
+                service: "Diagnóstico / Scanner",
+                status: "Agendada",
+                notes: "Testigo de Check Engine encendido de forma intermitente."
+            },
+            {
+                id: 3,
+                date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                time: "15:00",
+                client: { name: "Esteban Morales", phone: "+56965432109" },
+                vehicle: { plate: "ZZ-99-88", brand: "Nissan", model: "Navara", year: "2020" },
+                service: "Sistema de Frenos",
+                status: "Agendada",
+                notes: "Vibración al frenar a alta velocidad."
+            }
+        ];
+
+        let selectedAppointmentId = null;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAppointments();
+            updateStats();
+        });
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            if(type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-400";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Update Summary Stats
+        function updateStats() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const todayCount = appointments.filter(a => a.date === todayStr).length;
+            const confirmedCount = appointments.filter(a => a.status === 'Confirmada').length;
+            const workshopCount = appointments.filter(a => a.status === 'En Taller').length;
+
+            document.getElementById('stat-today').textContent = todayCount;
+            document.getElementById('stat-confirmed').textContent = confirmedCount;
+            document.getElementById('stat-workshop').textContent = workshopCount;
+        }
+
+        // Reset Date Filter
+        function resetDateFilter() {
+            document.getElementById('filter-date').value = '';
+            document.getElementById('filter-status').value = 'all';
+            document.getElementById('search-apt').value = '';
+            renderAppointments();
+        }
+
+        // Modal Controls for Appointment Form
+        function openAppointmentModal(aptId = null) {
+            const modal = document.getElementById('appointment-modal');
+            const title = document.getElementById('apt-modal-title');
+
+            document.getElementById('appointment-form').reset();
+            document.getElementById('apt-id').value = '';
+
+            // Set default date to today and default time
+            document.getElementById('apt-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('apt-time').value = '10:00';
+
+            if (aptId) {
+                title.textContent = 'Editar Cita / Agendamiento';
+                const apt = appointments.find(a => a.id === aptId);
+                if (apt) {
+                    document.getElementById('apt-id').value = apt.id;
+                    document.getElementById('apt-date').value = apt.date;
+                    document.getElementById('apt-time').value = apt.time;
+                    document.getElementById('client-name').value = apt.client.name;
+                    document.getElementById('client-phone').value = apt.client.phone;
+                    document.getElementById('veh-plate').value = apt.vehicle.plate;
+                    document.getElementById('veh-brand').value = apt.vehicle.brand;
+                    document.getElementById('veh-model').value = apt.vehicle.model;
+                    document.getElementById('veh-year').value = apt.vehicle.year || '';
+                    document.getElementById('apt-service').value = apt.service;
+                    document.getElementById('apt-status').value = apt.status;
+                    document.getElementById('apt-notes').value = apt.notes || '';
+                }
+            } else {
+                title.textContent = 'Agendar Nueva Cita';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeAppointmentModal() {
+            document.getElementById('appointment-modal').classList.add('hidden');
+        }
+
+        // Save Appointment Submission
+        function handleAppointmentSubmit(event) {
+            event.preventDefault();
+
+            const idInput = document.getElementById('apt-id').value;
+            const date = document.getElementById('apt-date').value;
+            const time = document.getElementById('apt-time').value;
+
+            const client = {
+                name: document.getElementById('client-name').value.trim(),
+                phone: document.getElementById('client-phone').value.trim()
+            };
+
+            const vehicle = {
+                plate: document.getElementById('veh-plate').value.trim().toUpperCase(),
+                brand: document.getElementById('veh-brand').value.trim(),
+                model: document.getElementById('veh-model').value.trim(),
+                year: document.getElementById('veh-year').value.trim()
+            };
+
+            const service = document.getElementById('apt-service').value;
+            const status = document.getElementById('apt-status').value;
+            const notes = document.getElementById('apt-notes').value.trim();
+
+            if (idInput) {
+                const apt = appointments.find(a => a.id == idInput);
+                if (apt) {
+                    apt.date = date;
+                    apt.time = time;
+                    apt.client = client;
+                    apt.vehicle = vehicle;
+                    apt.service = service;
+                    apt.status = status;
+                    apt.notes = notes;
+                }
+                showToast('Cita actualizada con éxito');
+            } else {
+                const newApt = {
+                    id: Date.now(),
+                    date,
+                    time,
+                    client,
+                    vehicle,
+                    service,
+                    status,
+                    notes
+                };
+                appointments.unshift(newApt);
+                showToast('Cita agendada con éxito');
+            }
+
+            saveAndRefresh();
+            closeAppointmentModal();
+        }
+
+        function saveAndRefresh() {
+            localStorage.setItem('taller_appointments', JSON.stringify(appointments));
+            renderAppointments();
+            updateStats();
+        }
+
+        // Delete Appointment
+        function deleteAppointment(id) {
+            if (confirm('¿Estás seguro de eliminar esta cita agendada?')) {
+                appointments = appointments.filter(a => a.id !== id);
+                saveAndRefresh();
+                showToast('Cita eliminada', 'error');
+            }
+        }
+
+        // Change Status quickly from card badge or buttons
+        function updateAppointmentStatus(id, newStatus) {
+            const apt = appointments.find(a => a.id === id);
+            if (apt) {
+                apt.status = newStatus;
+                saveAndRefresh();
+                showToast(`Estado cambiado a: ${newStatus}`);
+            }
+        }
+
+        // Render Appointments Grid
+        function renderAppointments() {
+            const container = document.getElementById('appointments-container');
+            const searchQuery = document.getElementById('search-apt').value.toLowerCase();
+            const statusFilter = document.getElementById('filter-status').value;
+            const dateFilter = document.getElementById('filter-date').value;
+
+            let filtered = appointments.filter(apt => {
+                const matchesSearch = apt.client.name.toLowerCase().includes(searchQuery) ||
+                                      apt.vehicle.plate.toLowerCase().includes(searchQuery) ||
+                                      apt.service.toLowerCase().includes(searchQuery) ||
+                                      apt.vehicle.brand.toLowerCase().includes(searchQuery);
+                const matchesStatus = statusFilter === 'all' ? true : apt.status === statusFilter;
+                const matchesDate = dateFilter ? apt.date === dateFilter : true;
+                return matchesSearch && matchesStatus && matchesDate;
+            });
+
+            // Sort by date and time ascending
+            filtered.sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-slate-400">
+                        <i class="fa-solid fa-calendar-xmark text-4xl mb-2 text-slate-300"></i>
+                        <p class="text-sm font-medium">No se encontraron citas programadas</p>
+                        <p class="text-xs text-slate-400">Agrega una nueva cita haciendo clic en "+ Nueva Cita"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(apt => {
+                const statusColors = {
+                    'Agendada': 'bg-slate-100 text-slate-700 border-slate-200',
+                    'Confirmada': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                    'En Taller': 'bg-amber-50 text-amber-700 border-amber-200',
+                    'Finalizada': 'bg-blue-50 text-blue-700 border-blue-200',
+                    'Cancelada': 'bg-rose-50 text-rose-700 border-rose-200'
+                };
+
+                return `
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                                <span class="font-bold text-xs text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg">
+                                    <i class="fa-regular fa-clock mr-1"></i>${apt.date} · ${apt.time}
+                                </span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${statusColors[apt.status] || 'bg-slate-100'}">${apt.status}</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-bold text-base text-slate-900 uppercase">${escapeHtml(apt.vehicle.plate)}</h3>
+                                    <span class="text-xs font-semibold text-slate-600">${escapeHtml(apt.vehicle.brand)} ${escapeHtml(apt.vehicle.model)}</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-0.5"><i class="fa-regular fa-user mr-1"></i>${escapeHtml(apt.client.name)} (${apt.client.phone})</p>
+                            </div>
+
+                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 mb-3 space-y-1">
+                                <p class="text-xs font-bold text-slate-800"><i class="fa-solid fa-screwdriver-wrench text-blue-600 mr-1.5"></i>${escapeHtml(apt.service)}</p>
+                                ${apt.notes ? `<p class="text-[11px] text-slate-600 line-clamp-2">${escapeHtml(apt.notes)}</p>` : ''}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between gap-1 pt-3 border-t border-slate-100">
+                                <button onclick="openDetailModal(${apt.id})" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-all flex items-center justify-center space-x-1">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>Ver Detalles</span>
+                                </button>
+                                <button onclick="openAppointmentModal(${apt.id})" title="Editar" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded-xl transition-all">
+                                    <i class="fa-solid fa-pen-to-square text-sm"></i>
+                                </button>
+                                <button onclick="deleteAppointment(${apt.id})" title="Eliminar" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-slate-50 rounded-xl transition-all">
+                                    <i class="fa-solid fa-trash-can text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Detail Modal View
+        function openDetailModal(id) {
+            const apt = appointments.find(a => a.id === id);
+            if (!apt) return;
+
+            selectedAppointmentId = apt.id;
+            document.getElementById('detail-service-title').textContent = apt.service;
+            document.getElementById('detail-datetime').textContent = `${apt.date} a las ${apt.time}`;
+            document.getElementById('detail-vehicle').textContent = `${apt.vehicle.plate} (${apt.vehicle.brand} ${apt.vehicle.model})`;
+            document.getElementById('detail-client-name').textContent = apt.client.name;
+            document.getElementById('detail-client-phone').textContent = apt.client.phone;
+            document.getElementById('detail-notes').textContent = apt.notes || 'Sin observaciones adicionales.';
+
+            const badge = document.getElementById('detail-status-badge');
+            badge.textContent = apt.status;
+            badge.className = "px-2.5 py-1 rounded-md text-xs font-bold " + (
+                apt.status === 'Confirmada' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                apt.status === 'En Taller' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-700 border border-slate-200'
+            );
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+            selectedAppointmentId = null;
+        }
+
+        // Convert Appointment to Work Order (OT) simulator integration
+        function convertToOTFromAppointment() {
+            const apt = appointments.find(a => a.id === selectedAppointmentId);
+            if (!apt) return;
+
+            // Mark appointment as 'En Taller'
+            apt.status = 'En Taller';
+            saveAndRefresh();
+
+            // Store in sessionStorage or localStorage to pass to the work orders module if needed
+            const newOTDraft = {
+                otNumber: `OT-2026-${String(Math.floor(Math.random() * 900) + 100)}`,
+                date: new Date().toISOString().split('T')[0],
+                status: 'En Proceso',
+                client: apt.client,
+                vehicle: apt.vehicle,
+                diagnosis: `Servicio agendado: ${apt.service}. Observaciones: ${apt.notes || 'N/D'}`,
+                cost: 0,
+                mechanic: 'Por asignar',
+                tasks: [{ id: 1, text: apt.service, completed: false }],
+                parts: []
+            };
+
+            // Retrieve existing OTs or initialize
+            let existingOTs = JSON.parse(localStorage.getItem('taller_work_orders')) || [];
+            existingOTs.unshift({ id: Date.now(), ...newOTDraft });
+            localStorage.setItem('taller_work_orders', JSON.stringify(existingOTs));
+
+            closeDetailModal();
+            showToast('¡Cita convertida a Orden de Trabajo con éxito!', 'success');
+        }
+
+        // Security Helper
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#039;');
+        }
+    </script>
+</body>
+</html>

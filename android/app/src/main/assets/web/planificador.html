@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificador de Trabajo - JASG Taller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="jasg-storage.js?v=1"></script>
+    <script defer src="jasg-brand.js?v=2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .print-only { display: none; }
+        @media print {
+            .no-print, .app-shell > aside, .app-shell > div > header { display: none !important; }
+            body { background: #fff !important; color: #0f172a !important; }
+            .print-only { display: flex !important; }
+            #planner-module { display: block !important; padding: 0 !important; }
+            .planner-ui-header, #view-planner-tasks, .planner-calendar-controls { display: none !important; }
+            #view-planner-calendar { display: flex !important; border: 0 !important; box-shadow: none !important; padding: 8mm !important; }
+            #planner-calendar-grid { overflow: visible !important; }
+            #planner-calendar-month-year { color: #0f172a !important; }
+            #planner-calendar-grid > div { border-color: #bfdbfe !important; background: #f8fbff !important; }
+            .planner-print-brand { background: #0f172a !important; border-radius: 12px !important; padding: 12px !important; color: #fff !important; }
+            .planner-print-brand h1 { color: #fff !important; }
+            .planner-print-brand p { color: #dbeafe !important; }
+            @page { margin: 12mm; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen antialiased">
+    <div class="flex min-h-screen flex-col lg:flex-row app-shell">
+        <aside class="w-full lg:w-64 lg:shrink-0 bg-slate-900 text-white border-b lg:border-b-0 lg:border-r border-slate-700/80 shadow-2xl no-print">
+            <div class="px-4 py-3 lg:px-5 lg:py-6 border-b border-slate-700/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
+                        <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                        <i data-jasg-brand-fallback class="fa-solid fa-list-check text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black tracking-tight">JASG</div>
+                        <div class="text-[10px] text-slate-300 uppercase tracking-[0.2em]">Taller</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 p-2 lg:block lg:space-y-2 lg:p-4">
+                <a href="index.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-file-invoice"></i> Cotizador</a>
+                <a href="planificador.html" aria-current="page" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold bg-blue-600 text-white shadow-lg shadow-blue-600/20 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-list-check"></i> Planificador</a>
+                <a href="agendamientos.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-calendar-days"></i> Agendamientos</a>
+                <a href="ordenes-trabajo.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-clipboard-list"></i> Órdenes</a>
+                <a href="inventario.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+                <a href="tasador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-car-side"></i> Tasador</a>
+                <a href="monitor.html" title="Monitor" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-display"></i> Monitor</a>
+                <a href="finanzas.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-wallet"></i> Finanzas</a>
+            </nav>
+        </aside>
+        <div class="flex-1 min-w-0">
+            <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm no-print">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-20 py-3 flex items-center gap-3">
+                    <div class="w-16 h-16 bg-white p-1.5 rounded-2xl border-2 border-amber-400 shadow-lg flex items-center justify-center overflow-hidden"><img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG"><i data-jasg-brand-fallback class="fa-solid fa-list-check text-blue-600 text-lg"></i></div>
+                    <div>
+                        <h1 class="text-xl font-black text-slate-900 tracking-tight">JASG Taller</h1>
+                        <p class="text-xs text-slate-500 hidden sm:block">Planificación de tareas y calendario de trabajo</p>
+                    </div>
+                </div>
+            </header>
+            <main class="max-w-7xl w-full mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-6">
+                    <section id="planner-module" class="p-6">
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+            <div class="planner-print-brand print-only items-center gap-4 pb-4 mb-5">
+                <div class="w-16 h-16 rounded-xl bg-white p-1 flex items-center justify-center overflow-hidden border border-blue-200 shrink-0">
+                    <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                    <i data-jasg-brand-fallback class="fa-solid fa-list-check text-blue-600 text-3xl"></i>
+                </div>
+                <div>
+                    <h1 data-jasg-company-name class="text-xl font-black text-white">SERVICIO TÉCNICO JASG Spa</h1>
+                    <p data-jasg-company-address class="text-xs text-blue-100"></p>
+                    <p data-jasg-company-contact class="text-xs text-blue-100"></p>
+                </div>
+            </div>
+            <div class="planner-ui-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 pb-4 border-b border-slate-100 no-print">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                        <i class="fa-solid fa-list-check text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-900 text-base">PlanificadorPro</h2>
+                        <p class="text-xs text-slate-500">Organiza tareas, fechas y fotos del trabajo</p>
+                    </div>
+                </div>
+                <div class="flex w-fit max-w-full bg-slate-100 p-1 rounded-xl">
+                    <button type="button" onclick="switchPlannerTab('tasks')" id="btn-tab-tasks" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm">
+                        <i class="fa-solid fa-tasks mr-1.5"></i> Tareas
+                    </button>
+                    <button type="button" onclick="switchPlannerTab('calendar')" id="btn-tab-calendar" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900">
+                        <i class="fa-solid fa-calendar-days mr-1.5"></i> Calendario
+                    </button>
+                </div>
+            </div>
+
+            <div id="toast-planner" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3">
+                <i id="toast-planner-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+                <span id="toast-planner-message" class="text-sm font-medium">Acción realizada con éxito</span>
+            </div>
+
+            <div id="view-planner-tasks" class="flex flex-col lg:flex-row gap-6 overflow-hidden">
+                <div class="w-full lg:w-96 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 flex flex-col overflow-y-auto custom-scrollbar">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                        <h3 class="font-bold text-slate-900 flex items-center">
+                            <i class="fa-solid fa-plus-circle text-blue-600 mr-2"></i> Nueva Tarea
+                        </h3>
+                        <button type="button" onclick="resetPlannerForm()" class="text-xs text-slate-400 hover:text-slate-600 underline">Limpiar</button>
+                    </div>
+
+                    <form id="planner-task-form" onsubmit="handlePlannerTaskSubmit(event)" class="space-y-4 flex-1">
+                        <input type="hidden" id="planner-task-id">
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Título de la Tarea *</label>
+                            <input type="text" id="planner-task-title" required placeholder="Ej: Rediseñar interfaz de usuario" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Descripción</label>
+                            <textarea id="planner-task-desc" rows="3" placeholder="Detalles o notas importantes..." class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all resize-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Responsables</label>
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white">
+                                <div id="planner-responsible-chips" class="flex flex-wrap gap-1.5 mb-1"></div>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" id="planner-responsible-picker-input" list="planner-responsible-options" onkeydown="handlePlannerResponsibleKeydown(event)" placeholder="Seleccionar o agregar responsable" class="min-w-0 flex-1 bg-transparent px-1 py-1 text-sm focus:outline-none">
+                                    <button type="button" onclick="addPlannerResponsible()" class="w-7 h-7 rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center shrink-0" title="Agregar responsable"><i class="fa-solid fa-plus text-xs"></i></button>
+                                </div>
+                            </div>
+                            <datalist id="planner-responsible-options"></datalist>
+                            <input type="hidden" id="planner-task-responsible">
+                            <p class="text-[10px] text-slate-400 mt-1">Puedes agregar y seleccionar varios responsables.</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Fecha Límite *</label>
+                                <input type="date" id="planner-task-date" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Prioridad</label>
+                                <select id="planner-task-priority" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+                                    <option value="Baja">Baja</option>
+                                    <option value="Media" selected>Media</option>
+                                    <option value="Alta">Alta</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Adjuntar Fotografía</label>
+                            <div class="flex items-center justify-center w-full">
+                                <label for="planner-task-photo" class="flex flex-col items-center justify-center w-full h-28 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all overflow-hidden relative group">
+                                    <div id="planner-photo-placeholder" class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <i class="fa-solid fa-image text-2xl text-slate-300 mb-2"></i>
+                                        <p class="text-xs text-slate-400">Subir imagen</p>
+                                    </div>
+                                    <img id="planner-photo-preview" class="hidden absolute inset-0 w-full h-full object-cover group-hover:opacity-75 transition-opacity" alt="Vista previa">
+                                    <input type="file" id="planner-task-photo" accept="image/*" class="hidden" onchange="handlePlannerImageUpload(event)">
+                                </label>
+                            </div>
+                            <div id="planner-remove-photo-container" class="hidden mt-1 text-right">
+                                <button type="button" onclick="clearPlannerPhoto()" class="text-xs text-rose-500 hover:underline font-medium"><i class="fa-solid fa-trash-can mr-1"></i> Quitar foto</button>
+                            </div>
+                        </div>
+
+                        <button type="button" id="planner-submit-btn" onclick="handlePlannerTaskSubmit(event)" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all text-sm flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-plus"></i>
+                            <span id="planner-submit-btn-text">Guardar Tarea</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 flex flex-col overflow-hidden">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                        <div class="flex items-center space-x-2">
+                            <h3 class="font-bold text-slate-900 text-lg">Listado de Tareas</h3>
+                            <span id="planner-task-count" class="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="relative">
+                                <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+                                <input type="text" id="planner-search-input" oninput="renderPlannerTasks()" placeholder="Buscar tarea..." class="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 w-36 sm:w-48">
+                            </div>
+                            <select id="planner-filter-status" onchange="renderPlannerTasks()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="all">Todas</option>
+                                <option value="pending">Pendientes</option>
+                                <option value="completed">Completadas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="planner-tasks-container" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1"></div>
+                </div>
+            </div>
+
+            <div id="view-planner-calendar" class="hidden flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 flex flex-col overflow-hidden">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                    <div class="flex items-center space-x-3">
+                        <h3 id="planner-calendar-month-year" class="text-xl font-bold text-slate-900">Cargando mes...</h3>
+                    </div>
+                    <div class="planner-calendar-controls flex flex-wrap items-center justify-end gap-2 no-print">
+                        <div class="flex bg-slate-100 p-1 rounded-xl">
+                            <button type="button" onclick="setPlannerCalendarView('day')" id="planner-view-day" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900">Día</button>
+                            <button type="button" onclick="setPlannerCalendarView('week')" id="planner-view-week" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900">Semana</button>
+                            <button type="button" onclick="setPlannerCalendarView('month')" id="planner-view-month" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white text-blue-600 shadow-sm">Mes</button>
+                        </div>
+                        <button type="button" onclick="printPlannerPeriod()" class="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold"><i class="fa-solid fa-print mr-1"></i> Imprimir PDF</button>
+                        <button type="button" onclick="changePlannerMonth(-1)" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all text-sm font-semibold"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button type="button" onclick="goToCurrentPlannerMonth()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all text-xs font-semibold">Hoy</button>
+                        <button type="button" onclick="changePlannerMonth(1)" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-all text-sm font-semibold"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-7 gap-1 text-center font-semibold text-xs text-slate-400 uppercase tracking-wider mb-2">
+                    <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+                </div>
+
+                <div id="planner-calendar-grid" class="flex-1 grid grid-cols-7 grid-rows-6 gap-1 overflow-y-auto"></div>
+            </div>
+        </div>
+    </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="planner-image-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 no-print" onclick="closePlannerImageModal()">
+        <div class="relative max-w-4xl max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl p-2" onclick="event.stopPropagation()">
+            <button type="button" onclick="closePlannerImageModal()" class="absolute top-4 right-4 bg-slate-900/70 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-900 z-10" aria-label="Cerrar imagen"><i class="fa-solid fa-xmark"></i></button>
+            <img id="planner-modal-image" src="" class="max-w-full max-h-[80vh] object-contain rounded-xl mx-auto block" alt="Imagen de tarea">
+        </div>
+    </div>
+
+    <script>
+                let plannerCurrentPhotoBase64 = null;
+        let plannerCalendarDate = new Date();
+        let expandedPlannerTaskId = null;
+        let plannerSelectedResponsibles = [];
+
+        function plannerGetResponsibleCatalog() {
+            try {
+                return JSON.parse(localStorage.getItem('planner_responsibles')) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function renderPlannerResponsiblePicker() {
+            const chips = document.getElementById('planner-responsible-chips');
+            const hiddenInput = document.getElementById('planner-task-responsible');
+            const options = document.getElementById('planner-responsible-options');
+            if (!chips || !hiddenInput || !options) return;
+
+            hiddenInput.value = plannerSelectedResponsibles.join(', ');
+            chips.innerHTML = plannerSelectedResponsibles.map((name, index) => `
+                <span class="inline-flex items-center gap-1 rounded-lg bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 text-[11px] font-semibold">
+                    <i class="fa-solid fa-user text-[9px]"></i>${name}
+                    <button type="button" onclick="removePlannerResponsible(${index})" class="text-blue-500 hover:text-rose-600 ml-0.5"><i class="fa-solid fa-xmark"></i></button>
+                </span>
+            `).join('');
+            options.innerHTML = plannerGetResponsibleCatalog().map((name) => `<option value="${name.replace(/"/g, '&quot;')}"></option>`).join('');
+        }
+
+        function setPlannerResponsibles(value) {
+            plannerSelectedResponsibles = String(value || '').split(',').map((name) => name.trim()).filter(Boolean).filter((name, index, list) => list.indexOf(name) === index);
+            renderPlannerResponsiblePicker();
+        }
+
+        function addPlannerResponsible() {
+            const input = document.getElementById('planner-responsible-picker-input');
+            if (!input) return;
+            const names = input.value.split(',').map((name) => name.trim()).filter(Boolean);
+            names.forEach((name) => {
+                if (!plannerSelectedResponsibles.includes(name)) plannerSelectedResponsibles.push(name);
+                const catalog = plannerGetResponsibleCatalog();
+                if (!catalog.includes(name)) {
+                    catalog.push(name);
+                    localStorage.setItem('planner_responsibles', JSON.stringify(catalog.sort((a, b) => a.localeCompare(b))));
+                }
+            });
+            input.value = '';
+            renderPlannerResponsiblePicker();
+        }
+
+        function removePlannerResponsible(index) {
+            plannerSelectedResponsibles.splice(index, 1);
+            renderPlannerResponsiblePicker();
+        }
+
+        function handlePlannerResponsibleKeydown(event) {
+            if (event.key === 'Enter' || event.key === ',') {
+                event.preventDefault();
+                addPlannerResponsible();
+            }
+        }
+
+        function plannerGetTasks() {
+            try {
+                return JSON.parse(localStorage.getItem('tasks_pro')) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function plannerSaveTasks(tasks) {
+            localStorage.setItem('tasks_pro', JSON.stringify(tasks));
+            renderPlannerTasks();
+            renderPlannerCalendar();
+        }
+
+        function plannerShowToast(message, type = 'success') {
+            const toast = document.getElementById('toast-planner');
+            const toastMsg = document.getElementById('toast-planner-message');
+            const toastIcon = document.getElementById('toast-planner-icon');
+            if (!toast || !toastMsg || !toastIcon) return;
+            toastMsg.textContent = message;
+            toastIcon.className = type === 'success' ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-triangle-exclamation text-amber-400';
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function switchPlannerTab(tabName) {
+            const tasksView = document.getElementById('view-planner-tasks');
+            const calendarView = document.getElementById('view-planner-calendar');
+            const btnTasks = document.getElementById('btn-tab-tasks');
+            const btnCalendar = document.getElementById('btn-tab-calendar');
+            if (!tasksView || !calendarView || !btnTasks || !btnCalendar) return;
+
+            if (tabName === 'tasks') {
+                tasksView.classList.remove('hidden');
+                calendarView.classList.add('hidden');
+                btnTasks.className = 'px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm';
+                btnCalendar.className = 'px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900';
+            } else {
+                tasksView.classList.add('hidden');
+                calendarView.classList.remove('hidden');
+                btnCalendar.className = 'px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-600 shadow-sm';
+                btnTasks.className = 'px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900';
+                renderPlannerCalendar();
+            }
+        }
+
+        function handlePlannerImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                plannerCurrentPhotoBase64 = e.target.result;
+                const preview = document.getElementById('planner-photo-preview');
+                const placeholder = document.getElementById('planner-photo-placeholder');
+                const removeContainer = document.getElementById('planner-remove-photo-container');
+                if (preview) {
+                    preview.src = plannerCurrentPhotoBase64;
+                    preview.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (removeContainer) removeContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearPlannerPhoto() {
+            plannerCurrentPhotoBase64 = null;
+            const input = document.getElementById('planner-task-photo');
+            if (input) input.value = '';
+            const preview = document.getElementById('planner-photo-preview');
+            const placeholder = document.getElementById('planner-photo-placeholder');
+            const removeContainer = document.getElementById('planner-remove-photo-container');
+            if (preview) {
+                preview.src = '';
+                preview.classList.add('hidden');
+            }
+            if (placeholder) placeholder.classList.remove('hidden');
+            if (removeContainer) removeContainer.classList.add('hidden');
+        }
+
+        function resetPlannerForm() {
+            const form = document.getElementById('planner-task-form');
+            if (form) form.reset();
+            document.getElementById('planner-task-id').value = '';
+            document.getElementById('planner-submit-btn-text').textContent = 'Guardar Tarea';
+            document.getElementById('planner-task-date').value = new Date().toISOString().split('T')[0];
+            setPlannerResponsibles('');
+            clearPlannerPhoto();
+        }
+
+        function handlePlannerTaskSubmit(event) {
+            event.preventDefault();
+            const title = document.getElementById('planner-task-title').value.trim();
+            const desc = document.getElementById('planner-task-desc').value.trim();
+            addPlannerResponsible();
+            const responsible = document.getElementById('planner-task-responsible').value.trim();
+            const date = document.getElementById('planner-task-date').value;
+            const priority = document.getElementById('planner-task-priority').value;
+            const idInput = document.getElementById('planner-task-id').value;
+
+            if (!title || !date) {
+                plannerShowToast('Por favor completa los campos obligatorios', 'error');
+                return;
+            }
+
+            const tasks = plannerGetTasks();
+            if (idInput) {
+                const task = tasks.find((t) => String(t.id) === String(idInput));
+                if (task) {
+                    task.title = title;
+                    task.desc = desc;
+                    task.responsible = responsible;
+                    task.date = date;
+                    task.priority = priority;
+                    if (plannerCurrentPhotoBase64 !== null) task.photo = plannerCurrentPhotoBase64;
+                }
+                plannerShowToast('Tarea actualizada correctamente');
+            } else {
+                tasks.push({
+                    id: Date.now(),
+                    title,
+                    desc,
+                    responsible,
+                    date,
+                    priority,
+                    completed: false,
+                    photo: plannerCurrentPhotoBase64
+                });
+                plannerShowToast('Tarea creada con éxito');
+            }
+
+            plannerSaveTasks(tasks);
+            resetPlannerForm();
+        }
+
+        function togglePlannerTaskCompletion(id) {
+            const tasks = plannerGetTasks();
+            const task = tasks.find((t) => t.id === id);
+            if (!task) return;
+            task.completed = !task.completed;
+            plannerSaveTasks(tasks);
+            plannerShowToast(task.completed ? 'Tarea marcada como completada' : 'Tarea marcada como pendiente');
+        }
+
+        function deletePlannerTask(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar esta tarea?')) return;
+            const tasks = plannerGetTasks().filter((t) => t.id !== id);
+            plannerSaveTasks(tasks);
+            plannerShowToast('Tarea eliminada', 'error');
+        }
+
+        function editPlannerTask(id) {
+            const tasks = plannerGetTasks();
+            const task = tasks.find((t) => t.id === id);
+            if (!task) return;
+            document.getElementById('planner-task-id').value = task.id;
+            document.getElementById('planner-task-title').value = task.title;
+            document.getElementById('planner-task-desc').value = task.desc || '';
+            setPlannerResponsibles(task.responsible || '');
+            document.getElementById('planner-task-date').value = task.date;
+            document.getElementById('planner-task-priority').value = task.priority;
+            document.getElementById('planner-submit-btn-text').textContent = 'Actualizar Tarea';
+
+            if (task.photo) {
+                plannerCurrentPhotoBase64 = task.photo;
+                const preview = document.getElementById('planner-photo-preview');
+                const placeholder = document.getElementById('planner-photo-placeholder');
+                const removeContainer = document.getElementById('planner-remove-photo-container');
+                if (preview) {
+                    preview.src = task.photo;
+                    preview.classList.remove('hidden');
+                }
+                if (placeholder) placeholder.classList.add('hidden');
+                if (removeContainer) removeContainer.classList.remove('hidden');
+            } else {
+                clearPlannerPhoto();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderPlannerTasks() {
+            const container = document.getElementById('planner-tasks-container');
+            if (!container) return;
+
+            const tasks = plannerGetTasks();
+            const searchQuery = document.getElementById('planner-search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('planner-filter-status').value;
+
+            let filtered = tasks.filter((task) => {
+                const matchesSearch = task.title.toLowerCase().includes(searchQuery) || (task.desc && task.desc.toLowerCase().includes(searchQuery)) || (task.responsible && task.responsible.toLowerCase().includes(searchQuery));
+                const matchesStatus = statusFilter === 'all' ? true : statusFilter === 'completed' ? task.completed : !task.completed;
+                return matchesSearch && matchesStatus;
+            });
+
+            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+            document.getElementById('planner-task-count').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center py-12 text-center text-slate-400">
+                        <i class="fa-solid fa-clipboard-list text-4xl mb-2 text-slate-300"></i>
+                        <p class="text-sm font-medium">No se encontraron tareas</p>
+                        <p class="text-xs text-slate-400">Crea una nueva tarea para comenzar</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const priorityColors = {
+                Baja: 'bg-slate-100 text-slate-600 border-slate-200',
+                Media: 'bg-amber-50 text-amber-700 border-amber-200',
+                Alta: 'bg-rose-50 text-rose-700 border-rose-200'
+            };
+
+            container.innerHTML = filtered.map((task) => {
+                const [year, month, day] = task.date.split('-');
+                const formattedDate = `${day}/${month}/${year}`;
+                const priorityClass = priorityColors[task.priority] || 'bg-slate-100 text-slate-600 border-slate-200';
+
+                const isExpanded = expandedPlannerTaskId === task.id;
+                return `
+                    <div onclick="togglePlannerTaskDetails(${task.id})" class="group border border-slate-200 rounded-2xl p-4 bg-white hover:border-slate-300 transition-all shadow-sm cursor-pointer">
+                        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                        <div class="flex items-start space-x-3 flex-1 min-w-0">
+                                    <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="event.stopPropagation(); togglePlannerTaskCompletion(${task.id})" class="mt-1 h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                                    <h4 class="font-bold text-slate-800 text-sm ${task.completed ? 'line-through text-slate-400' : ''}">${task.title}</h4>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full border ${priorityClass}">${task.priority}</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1 ${task.completed ? 'line-through' : ''}">${task.desc || 'Sin descripción'}</p>
+                                <div class="flex items-center space-x-2 mt-2 text-[11px] text-slate-500">
+                                    <i class="fa-solid fa-calendar-days text-slate-400"></i>
+                                    <span>${formattedDate}</span>
+                                        ${task.responsible ? `<span><i class="fa-solid fa-users text-slate-400 mr-1"></i>${formatPlannerResponsible(task.responsible)}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
+                                    ${task.photo ? `<button type="button" onclick="event.stopPropagation(); openPlannerImageModal('${task.photo}')" class="text-blue-600 hover:text-blue-700 text-sm"><i class="fa-regular fa-image"></i></button>` : ''}
+                            <div class="flex items-center space-x-1">
+                                        <button type="button" onclick="event.stopPropagation(); editPlannerTask(${task.id})" class="text-slate-600 hover:text-blue-700 p-1.5 rounded-lg hover:bg-blue-50 transition"><i class="fa-solid fa-pen"></i></button>
+                                <button type="button" onclick="event.stopPropagation(); deletePlannerTask(${task.id})" class="text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </div>
+                        </div>
+                        ${isExpanded ? `
+                            <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4" onclick="event.stopPropagation()">
+                                <div class="space-y-2 text-xs text-slate-600">
+                                    <div><span class="font-bold text-slate-800">Descripción:</span> ${task.desc || 'Sin descripción'}</div>
+                                    <div><span class="font-bold text-slate-800">Fecha límite:</span> ${formattedDate}</div>
+                                    <div><span class="font-bold text-slate-800">Prioridad:</span> ${task.priority}</div>
+                                    <div><span class="font-bold text-slate-800">Responsables:</span> ${formatPlannerResponsible(task.responsible) || 'Sin asignar'}</div>
+                                    <button type="button" onclick="editPlannerTask(${task.id})" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition">
+                                        <i class="fa-solid fa-pen mr-1"></i> Editar en formulario
+                                    </button>
+                                </div>
+                                ${task.photo ? `<img src="${task.photo}" alt="Foto de la tarea" class="w-full md:w-32 h-24 object-cover rounded-xl border border-slate-200">` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function togglePlannerTaskDetails(id) {
+            expandedPlannerTaskId = expandedPlannerTaskId === id ? null : id;
+            renderPlannerTasks();
+        }
+
+        function renderPlannerCalendar() {
+            const grid = document.getElementById('planner-calendar-grid');
+            const monthYearLabel = document.getElementById('planner-calendar-month-year');
+            if (!grid || !monthYearLabel) return;
+
+            const year = plannerCalendarDate.getFullYear();
+            const month = plannerCalendarDate.getMonth();
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            monthYearLabel.textContent = `${monthNames[month]} ${year}`;
+
+            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            const prevTotalDays = new Date(year, month, 0).getDate();
+            let cellsHtml = '';
+
+            for (let i = firstDayIndex; i > 0; i--) {
+                const dayNum = prevTotalDays - i + 1;
+                cellsHtml += `<div class="bg-slate-50/50 border border-slate-100 rounded-xl p-2 text-slate-300 text-xs flex flex-col h-24 opacity-50"><span class="font-bold">${dayNum}</span></div>`;
+            }
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const tasks = plannerGetTasks();
+
+            for (let day = 1; day <= totalDays; day++) {
+                const formattedMonth = String(month + 1).padStart(2, '0');
+                const formattedDay = String(day).padStart(2, '0');
+                const dateStr = `${year}-${formattedMonth}-${formattedDay}`;
+                const isToday = dateStr === todayStr;
+                const dayTasks = tasks.filter((t) => t.date === dateStr);
+
+                cellsHtml += `
+                            <div class="bg-white border ${isToday ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200'} rounded-xl p-2 flex flex-col h-24 sm:h-28 overflow-hidden">
+                        <div class="flex items-center justify-between mb-1">
+                                    <span class="font-bold text-xs ${isToday ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center' : 'text-slate-700'}">${day}</span>
+                            ${dayTasks.length > 0 ? `<span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded-full">${dayTasks.length}</span>` : ''}
+                        </div>
+                        <div class="flex-1 overflow-y-auto custom-scrollbar space-y-1">
+                            ${dayTasks.map((t) => `
+                                        <div class="text-[10px] rounded-md px-1.5 py-0.5 ${t.completed ? 'bg-emerald-100 text-emerald-700 line-through' : 'bg-blue-100 text-blue-700'}">
+                                    ${t.title.length > 12 ? t.title.slice(0, 12) + '…' : t.title}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const totalCellsRendered = firstDayIndex + totalDays;
+            const remainingCells = totalCellsRendered <= 35 ? 35 - totalCellsRendered : 42 - totalCellsRendered;
+            for (let i = 1; i <= remainingCells; i++) {
+                cellsHtml += `<div class="bg-slate-50/50 border border-slate-100 rounded-xl p-2 text-slate-300 text-xs flex flex-col h-24 opacity-50"><span class="font-bold">${i}</span></div>`;
+            }
+
+            grid.innerHTML = cellsHtml;
+        }
+
+        function changePlannerMonth(direction) {
+            plannerCalendarDate.setMonth(plannerCalendarDate.getMonth() + direction);
+            renderPlannerCalendar();
+        }
+
+        function goToCurrentPlannerMonth() {
+            plannerCalendarDate = new Date();
+            renderPlannerCalendar();
+        }
+
+        let plannerCalendarView = 'month';
+
+        function plannerDateKey(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function plannerFormatDate(date) {
+            return date.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function plannerRenderTaskList(tasks) {
+            if (!tasks.length) return '<p class="text-xs text-slate-400 italic">Sin tareas</p>';
+            return tasks.map((task) => `<div class="text-xs rounded-lg px-2 py-1.5 ${task.completed ? 'bg-emerald-100 text-emerald-700 line-through' : 'bg-blue-100 text-blue-700'}"><span class="font-semibold">${task.title}</span>${task.responsible ? `<span class="block text-[10px] opacity-75"><i class="fa-solid fa-users mr-1"></i>${formatPlannerResponsible(task.responsible)}</span>` : ''}</div>`).join('');
+        }
+
+        function formatPlannerResponsible(value) {
+            return String(value || '').split(',').map((name) => name.trim()).filter(Boolean).join(' · ');
+        }
+
+        function setPlannerCalendarView(view) {
+            plannerCalendarView = view;
+            ['day', 'week', 'month'].forEach((name) => {
+                const button = document.getElementById(`planner-view-${name}`);
+                if (!button) return;
+                button.className = name === view
+                    ? 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-white text-blue-600 shadow-sm'
+                    : 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-slate-900';
+            });
+            renderPlannerCalendar();
+        }
+
+        function renderPlannerCalendar() {
+            const grid = document.getElementById('planner-calendar-grid');
+            const monthYearLabel = document.getElementById('planner-calendar-month-year');
+            if (!grid || !monthYearLabel) return;
+
+            const tasks = plannerGetTasks();
+            const selectedDate = new Date(plannerCalendarDate);
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            let startDate = new Date(selectedDate);
+            let endDate = new Date(selectedDate);
+
+            if (plannerCalendarView === 'week') {
+                const mondayOffset = (selectedDate.getDay() + 6) % 7;
+                startDate.setDate(selectedDate.getDate() - mondayOffset);
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 6);
+                monthYearLabel.textContent = `Semana ${plannerFormatDate(startDate)} - ${plannerFormatDate(endDate)}`;
+            } else if (plannerCalendarView === 'day') {
+                monthYearLabel.textContent = `Día ${plannerFormatDate(selectedDate)}`;
+            } else {
+                const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                monthYearLabel.textContent = `${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+            }
+
+            const todayKey = plannerDateKey(new Date());
+            if (plannerCalendarView === 'day') {
+                const dateKey = plannerDateKey(selectedDate);
+                const dayTasks = tasks.filter((task) => task.date === dateKey);
+                grid.className = 'flex-1 overflow-y-auto';
+                grid.innerHTML = `<div class="border ${dateKey === todayKey ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200'} rounded-2xl p-5 min-h-64 bg-white"><div class="flex items-center justify-between mb-4"><span class="text-2xl font-black text-slate-800">${dayNames[selectedDate.getDay()]} ${plannerFormatDate(selectedDate)}</span><span class="text-xs bg-blue-50 text-blue-700 font-bold px-2 py-1 rounded-full">${dayTasks.length} tarea(s)</span></div><div class="space-y-2">${plannerRenderTaskList(dayTasks)}</div></div>`;
+                return;
+            }
+
+            if (plannerCalendarView === 'week') {
+                grid.className = 'flex-1 grid grid-cols-1 md:grid-cols-7 gap-2 overflow-y-auto';
+                let html = '';
+                for (let index = 0; index < 7; index++) {
+                    const date = new Date(startDate);
+                    date.setDate(startDate.getDate() + index);
+                    const dateKey = plannerDateKey(date);
+                    const dayTasks = tasks.filter((task) => task.date === dateKey);
+                    html += `<div class="border ${dateKey === todayKey ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200'} rounded-xl p-3 min-h-40 bg-white"><div class="flex items-center justify-between mb-3"><span class="font-bold text-sm text-slate-800">${dayNames[date.getDay()]} ${date.getDate()}</span><span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded-full">${dayTasks.length}</span></div><div class="space-y-1">${plannerRenderTaskList(dayTasks)}</div></div>`;
+                }
+                grid.innerHTML = html;
+                return;
+            }
+
+            grid.className = 'flex-1 grid grid-cols-7 grid-rows-6 gap-1 overflow-y-auto';
+            const year = selectedDate.getFullYear();
+            const month = selectedDate.getMonth();
+            const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            const prevTotalDays = new Date(year, month, 0).getDate();
+            let html = '';
+            for (let index = firstDayIndex; index > 0; index--) {
+                html += `<div class="bg-slate-50/50 border border-slate-100 rounded-xl p-2 text-slate-300 text-xs h-24 opacity-50"><span class="font-bold">${prevTotalDays - index + 1}</span></div>`;
+            }
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(year, month, day);
+                const dateKey = plannerDateKey(date);
+                const dayTasks = tasks.filter((task) => task.date === dateKey);
+                html += `<div class="bg-white border ${dateKey === todayKey ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-200'} rounded-xl p-2 flex flex-col h-24 sm:h-28 overflow-hidden"><div class="flex items-center justify-between mb-1"><span class="font-bold text-xs ${dateKey === todayKey ? 'bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center' : 'text-slate-700'}">${day}</span>${dayTasks.length ? `<span class="text-[10px] bg-slate-100 text-slate-600 font-bold px-1.5 py-0.5 rounded-full">${dayTasks.length}</span>` : ''}</div><div class="flex-1 overflow-y-auto custom-scrollbar space-y-1">${plannerRenderTaskList(dayTasks)}</div></div>`;
+            }
+            const totalCells = firstDayIndex + totalDays;
+            const remainingCells = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
+            for (let index = 1; index <= remainingCells; index++) html += `<div class="bg-slate-50/50 border border-slate-100 rounded-xl p-2 text-slate-300 text-xs h-24 opacity-50"><span class="font-bold">${index}</span></div>`;
+            grid.innerHTML = html;
+        }
+
+        function changePlannerMonth(direction) {
+            const amount = plannerCalendarView === 'day' ? 1 : plannerCalendarView === 'week' ? 7 : 1;
+            plannerCalendarDate.setDate(plannerCalendarDate.getDate() + direction * amount);
+            renderPlannerCalendar();
+        }
+
+        function goToCurrentPlannerMonth() {
+            plannerCalendarDate = new Date();
+            renderPlannerCalendar();
+        }
+
+        function printPlannerPeriod() {
+            document.body.classList.add('planner-printing');
+            window.addEventListener('afterprint', () => document.body.classList.remove('planner-printing'), { once: true });
+            window.print();
+        }
+
+        function openPlannerImageModal(src) {
+            const modal = document.getElementById('planner-image-modal');
+            const modalImg = document.getElementById('planner-modal-image');
+            if (modal && modalImg) {
+                modalImg.src = src;
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closePlannerImageModal() {
+            const modal = document.getElementById('planner-image-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('planner-task-date');
+            if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+            renderPlannerResponsiblePicker();
+            renderPlannerTasks();
+            renderPlannerCalendar();
+        });
+
+    </script>
+</body>
+</html>
