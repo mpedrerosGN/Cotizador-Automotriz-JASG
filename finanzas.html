@@ -120,6 +120,10 @@
                 <i class="fa-solid fa-chart-pie"></i>
                 <span>Rentabilidad y Costos</span>
             </button>
+            <button onclick="openDailyExpenses()" id="tab-btn-gastos" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-rose-600 hover:bg-rose-50 border border-rose-200 flex items-center space-x-2">
+                <i class="fa-solid fa-receipt"></i>
+                <span>Gastos Diarios</span>
+            </button>
         </div>
 
         <!-- ==================== TAB 1: PAGOS Y FACTURACIÓN ==================== -->
@@ -254,7 +258,7 @@
             </div>
 
             <!-- GASTOS DIARIOS Y TRAZABILIDAD -->
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <div id="daily-expenses-panel" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 mb-4">
                     <div>
                         <h4 class="font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-receipt text-rose-500 mr-2"></i>Gastos Diarios</h4>
@@ -655,6 +659,11 @@
             if (tabName === 'rentabilidad') {
                 updateFinancialKPIs();
             }
+        }
+
+        function openDailyExpenses() {
+            switchTab('rentabilidad');
+            setTimeout(() => document.getElementById('daily-expenses-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
         }
 
         function formatCLP(amount) {
