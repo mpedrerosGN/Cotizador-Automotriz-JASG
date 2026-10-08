@@ -98,6 +98,81 @@
                 margin: 0 0 1.5mm !important;
                 padding-left: 4mm !important;
             }
+
+            @page {
+                size: A4;
+                margin: 9mm;
+            }
+
+            .printable-card:not(.terms-page) {
+                padding: 0 !important;
+                font-size: 9.5pt !important;
+                color: #1e293b !important;
+            }
+
+            .printable-card:not(.terms-page) > div:first-child {
+                background: #0f172a !important;
+                border-radius: 0 !important;
+                padding: 9mm !important;
+                margin-bottom: 6mm !important;
+                border-bottom: 3px solid #d4a72c !important;
+            }
+
+            .printable-card:not(.terms-page) .print-logo {
+                width: 25mm !important;
+                height: 25mm !important;
+                border-radius: 5mm !important;
+                background: white !important;
+                border: 2px solid #d4a72c !important;
+            }
+
+            .printable-card:not(.terms-page) table {
+                font-size: 8.5pt !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            .printable-card:not(.terms-page) table thead tr {
+                background: #1e293b !important;
+                color: white !important;
+            }
+
+            .printable-card:not(.terms-page) table th,
+            .printable-card:not(.terms-page) table td {
+                padding: 2.8mm 2.5mm !important;
+                vertical-align: top !important;
+            }
+
+            .printable-card:not(.terms-page) .bg-blue-50\/60,
+            .printable-card:not(.terms-page) .bg-amber-50\/60 {
+                border: 1px solid #cbd5e1 !important;
+                padding: 4mm !important;
+                background: #f8fafc !important;
+            }
+
+            .terms-page {
+                padding: 0 !important;
+                font-size: 9pt !important;
+            }
+
+            .terms-page header {
+                background: #0f172a !important;
+                color: white !important;
+                padding: 7mm !important;
+                border-bottom: 3px solid #d4a72c !important;
+                margin-bottom: 5mm !important;
+            }
+
+            .terms-page header h2,
+            .terms-page header p {
+                color: white !important;
+            }
+
+            .terms-page .terms-columns {
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                padding: 5mm !important;
+                border-radius: 3mm !important;
+            }
             
             /* REGLAS ANTICORTE DE HOJA PROFESIONALES */
             .avoid-break {
