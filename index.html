@@ -41,6 +41,39 @@
     <style>
         [x-cloak] { display: none !important; }
 
+        /* Paleta corporativa JASG para el cotizador */
+        .jasg-cotizador .bg-blue-600,
+        .jasg-cotizador .bg-blue-700,
+        .jasg-cotizador .bg-indigo-600,
+        .jasg-cotizador .bg-indigo-700 { background-color: #171717 !important; }
+        .jasg-cotizador .text-blue-600,
+        .jasg-cotizador .text-blue-700,
+        .jasg-cotizador .text-blue-800,
+        .jasg-cotizador .text-blue-900,
+        .jasg-cotizador .text-indigo-600 { color: #9a761b !important; }
+        .jasg-cotizador .border-blue-200,
+        .jasg-cotizador .border-blue-300,
+        .jasg-cotizador .border-blue-400,
+        .jasg-cotizador .border-blue-500 { border-color: #d4a72c !important; }
+        .jasg-cotizador .bg-blue-50,
+        .jasg-cotizador .bg-blue-50\/60,
+        .jasg-cotizador .bg-indigo-50 { background-color: #f8fafc !important; }
+        .jasg-cotizador [class~="from-blue-600"] {
+            --tw-gradient-from: #171717 var(--tw-gradient-from-position) !important;
+            --tw-gradient-to: rgb(23 23 23 / 0) var(--tw-gradient-to-position) !important;
+        }
+        .jasg-cotizador [class~="to-indigo-600"] { --tw-gradient-to: #9a761b var(--tw-gradient-to-position) !important; }
+        .jasg-cotizador .bg-emerald-600,
+        .jasg-cotizador .bg-emerald-500 { background-color: #b68b20 !important; }
+        .jasg-cotizador .text-emerald-600,
+        .jasg-cotizador .text-emerald-700,
+        .jasg-cotizador .text-emerald-800 { color: #8f6b16 !important; }
+        .jasg-cotizador .border-emerald-200,
+        .jasg-cotizador .border-emerald-300,
+        .jasg-cotizador .border-emerald-400 { border-color: #d4a72c !important; }
+        .jasg-cotizador .shadow-blue-600\/30,
+        .jasg-cotizador .shadow-emerald-600\/20 { --tw-shadow-color: rgb(154 118 27 / 0.28) !important; }
+
         /* Identidad visual JASG para la vista previa */
         .jasg-preview-card {
             border-color: #d4a72c !important;
@@ -276,7 +309,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen pb-12" x-data="quoteApp()" x-cloak>
+<body class="jasg-cotizador bg-slate-100 text-slate-800 font-sans antialiased min-h-screen pb-12" x-data="quoteApp()" x-cloak>
 
     <div class="flex min-h-screen flex-col lg:flex-row app-shell">
         <aside class="w-full lg:w-64 lg:shrink-0 bg-slate-900 text-white border-b lg:border-b-0 lg:border-r border-slate-700/80 shadow-2xl no-print">
