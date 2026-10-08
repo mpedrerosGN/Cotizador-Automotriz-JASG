@@ -340,7 +340,12 @@
             <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4"><h3 class="font-bold text-slate-900"><i class="fa-solid fa-receipt text-rose-500 mr-2"></i>Registrar gasto diario</h3><button type="button" onclick="closeExpenseModal()" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark"></i></button></div>
             <form onsubmit="handleExpenseSubmit(event)" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="block text-xs font-semibold mb-1">Fecha *</label><input id="expense-date" type="date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"></div><div><label class="block text-xs font-semibold mb-1">Categoría *</label><select id="expense-category" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"><option>Insumos</option><option>Combustible</option><option>Herramientas</option><option>Servicios básicos</option><option>Transporte</option><option>Otros</option></select></div></div>
-                <div><label class="block text-xs font-semibold mb-1">Descripción *</label><input id="expense-description" required placeholder="Ej: Compra de limpiacontactos" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"></div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Gasto frecuente / descripción *</label>
+                    <div class="flex gap-2"><select id="expense-description-select" onchange="selectExpensePreset(this.value)" class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"></select><button type="button" onclick="addExpensePreset()" class="px-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200" title="Agregar concepto"><i class="fa-solid fa-plus"></i></button><button type="button" onclick="removeExpensePreset()" class="px-3 rounded-xl bg-slate-100 text-slate-400 hover:text-rose-600" title="Eliminar concepto"><i class="fa-solid fa-trash-can"></i></button></div>
+                    <input id="expense-description" required placeholder="Descripción del gasto" class="w-full mt-2 px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm">
+                    <p class="text-[11px] text-slate-400 mt-1">Usa + para mantener tus conceptos frecuentes.</p>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><div><label class="block text-xs font-semibold mb-1">Monto (CLP) *</label><input id="expense-amount" type="number" min="1" required placeholder="15000" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"></div><div><label class="block text-xs font-semibold mb-1">Medio de pago</label><select id="expense-method" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Otro</option></select></div></div>
                 <div class="flex justify-end gap-2 pt-3 border-t border-slate-100"><button type="button" onclick="closeExpenseModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Cancelar</button><button class="px-5 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-semibold">Guardar gasto</button></div>
             </form>
@@ -636,11 +641,18 @@
             }
         ];
         let expenses = JSON.parse(localStorage.getItem('jasg_daily_expenses')) || [];
+        let expenseCatalog = JSON.parse(localStorage.getItem('jasg_expense_catalog')) || [
+            { name: 'Carga de combustible', category: 'Combustible' },
+            { name: 'Compra de limpiacontactos', category: 'Insumos' },
+            { name: 'Compra de materiales', category: 'Insumos' },
+            { name: 'Compra de herramientas', category: 'Herramientas' }
+        ];
 
         window.addEventListener('DOMContentLoaded', () => {
             renderPayments();
             renderAbonos();
             renderExpenses();
+            renderExpenseCatalog();
             updateFinancialKPIs();
         });
 
@@ -672,10 +684,54 @@
 
         function openExpenseModal() {
             document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
+            renderExpenseCatalog();
             document.getElementById('expense-modal').classList.remove('hidden');
         }
 
         function closeExpenseModal() { document.getElementById('expense-modal').classList.add('hidden'); }
+
+        function renderExpenseCatalog() {
+            const select = document.getElementById('expense-description-select');
+            if (!select) return;
+            select.innerHTML = '<option value="">Selecciona un gasto frecuente...</option>' + expenseCatalog.map((item, index) => `<option value="${index}">${escapeHtml(item.name)}</option>`).join('') + '<option value="custom">Otro concepto...</option>';
+        }
+
+        function selectExpensePreset(value) {
+            if (value === 'custom') {
+                document.getElementById('expense-description').value = '';
+                document.getElementById('expense-description').focus();
+                return;
+            }
+            const item = expenseCatalog[Number(value)];
+            if (!item) return;
+            document.getElementById('expense-description').value = item.name;
+            document.getElementById('expense-category').value = item.category;
+        }
+
+        function addExpensePreset() {
+            const name = prompt('Nombre del nuevo gasto frecuente:');
+            if (!name || !name.trim()) return;
+            const category = document.getElementById('expense-category').value;
+            expenseCatalog.push({ name: name.trim(), category });
+            localStorage.setItem('jasg_expense_catalog', JSON.stringify(expenseCatalog));
+            renderExpenseCatalog();
+            const select = document.getElementById('expense-description-select');
+            select.value = String(expenseCatalog.length - 1);
+            selectExpensePreset(select.value);
+            showToast('Concepto agregado al mantenedor');
+        }
+
+        function removeExpensePreset() {
+            const select = document.getElementById('expense-description-select');
+            const index = Number(select.value);
+            if (!Number.isInteger(index) || !expenseCatalog[index]) return showToast('Selecciona un concepto frecuente para eliminar', 'warning');
+            if (!confirm(`¿Eliminar "${expenseCatalog[index].name}" del mantenedor?`)) return;
+            expenseCatalog.splice(index, 1);
+            localStorage.setItem('jasg_expense_catalog', JSON.stringify(expenseCatalog));
+            renderExpenseCatalog();
+            document.getElementById('expense-description').value = '';
+            showToast('Concepto eliminado del mantenedor');
+        }
 
         function handleExpenseSubmit(event) {
             event.preventDefault();
