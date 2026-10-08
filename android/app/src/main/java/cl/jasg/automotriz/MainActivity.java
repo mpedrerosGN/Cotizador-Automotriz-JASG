@@ -17,7 +17,7 @@ public class MainActivity extends Activity {
         webView.getSettings().setAllowContentAccess(true);
         webView.setWebViewClient(new WebViewClient());
         webView.setWebChromeClient(new WebChromeClient());
-        webView.loadUrl("file:///android_asset/web/index.html");
+        webView.loadUrl("https://mpedrerosgn.github.io/Cotizador-Automotriz-JASG/index.html");
         setContentView(webView);
     }
     @Override public void onBackPressed() { if (webView.canGoBack()) webView.goBack(); else super.onBackPressed(); }

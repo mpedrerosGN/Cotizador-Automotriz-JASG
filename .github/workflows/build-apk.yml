@@ -28,8 +28,9 @@ jobs:
       - name: Publicar APK descargable
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: android-latest
-          name: JASG Automotriz Android
+          tag_name: android-v1.1.0-online
+          name: JASG Automotriz Android v1.1.0-online
           prerelease: false
           make_latest: true
           files: android/app/build/outputs/apk/debug/app-debug.apk
+          body: "Versión v1.1.0-online: la APK carga la versión web publicada y recibe automáticamente los cambios del sistema."
