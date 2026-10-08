@@ -125,11 +125,24 @@
             }
 
             .printable-card:not(.terms-page) > div:first-child {
-                background: #0f172a !important;
+                background: linear-gradient(135deg, #111111 0%, #262626 58%, #8f6b16 100%) !important;
                 border-radius: 0 !important;
                 padding: 9mm !important;
                 margin-bottom: 6mm !important;
-                border-bottom: 3px solid #d4a72c !important;
+                border-bottom: 4px solid #d4a72c !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+
+            .printable-card:not(.terms-page) > div:first-child::after {
+                content: '' !important;
+                position: absolute !important;
+                right: -18mm !important;
+                top: -30mm !important;
+                width: 70mm !important;
+                height: 90mm !important;
+                background: rgba(212, 167, 44, 0.16) !important;
+                transform: rotate(35deg) !important;
             }
 
             .printable-card:not(.terms-page) .print-logo {
@@ -146,7 +159,7 @@
             }
 
             .printable-card:not(.terms-page) table thead tr {
-                background: #1e293b !important;
+                background: #171717 !important;
                 color: white !important;
             }
 
@@ -169,13 +182,36 @@
                 background: #f8fafc !important;
             }
 
+            .printable-card:not(.terms-page) .bg-blue-50\/60 {
+                border-top: 3px solid #d4a72c !important;
+            }
+
+            .printable-card:not(.terms-page) .bg-amber-50\/60 {
+                border-top: 3px solid #1f1f1f !important;
+            }
+
+            .printable-card:not(.terms-page) .text-blue-700,
+            .printable-card:not(.terms-page) .text-blue-900,
+            .printable-card:not(.terms-page) .text-blue-600,
+            .printable-card:not(.terms-page) .text-blue-300 {
+                color: #9a761b !important;
+            }
+
+            .printable-card:not(.terms-page) .bg-slate-900 {
+                background: #171717 !important;
+            }
+
+            .printable-card:not(.terms-page) .text-emerald-400 {
+                color: #d4a72c !important;
+            }
+
             .terms-page {
                 padding: 0 !important;
                 font-size: 9pt !important;
             }
 
             .terms-page header {
-                background: #0f172a !important;
+                background: linear-gradient(135deg, #111111 0%, #2a2a2a 65%, #9a761b 100%) !important;
                 color: white !important;
                 padding: 7mm !important;
                 border-bottom: 3px solid #d4a72c !important;
