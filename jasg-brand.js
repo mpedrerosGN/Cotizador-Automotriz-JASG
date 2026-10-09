@@ -21,8 +21,9 @@
 
         document.querySelectorAll('[data-jasg-brand-logo]').forEach((image) => {
             const fallback = image.parentElement.querySelector('[data-jasg-brand-fallback]');
-            if (company.customIcon) {
-                image.src = company.customIcon;
+            const logoSource = company.customIcon || 'assets/jasg-logo.jpeg';
+            if (logoSource) {
+                image.src = logoSource;
                 image.classList.remove('hidden');
                 fallback?.classList.add('hidden');
             } else {
