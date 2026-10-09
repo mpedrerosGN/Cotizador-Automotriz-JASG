@@ -12,9 +12,13 @@
 
     async function guardar(modulo, registroId, datos) {
         if (!window.jasgSupabase) return { data: null, error: null };
+        const { data: sessionData, error: sessionError } = await window.jasgSupabase.auth.getUser();
+        if (sessionError || !sessionData?.user) {
+            return { data: null, error: sessionError || new Error('No hay una sesión autenticada') };
+        }
         const { data, error } = await window.jasgSupabase
             .from('datos_compartidos')
-            .upsert({ modulo, registro_id: String(registroId), datos }, { onConflict: 'modulo,registro_id' })
+            .upsert({ modulo, registro_id: String(registroId), datos, creado_por: sessionData.user.id }, { onConflict: 'modulo,registro_id' })
             .select()
             .single();
         return { data, error };
