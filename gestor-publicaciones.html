@@ -48,9 +48,13 @@
             background: #cbd5e1;
             border-radius: 4px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .bg-indigo-600 { background-color: #111111 !important; }
+        .hover\:bg-indigo-700:hover { background-color: #2b2b2b !important; }
+        .text-indigo-600, .text-indigo-700, .text-indigo-500 { color: #a87912 !important; }
+        .bg-indigo-50, .bg-indigo-50\/50 { background-color: #fffaf0 !important; }
+        .border-indigo-300, .border-indigo-200 { border-color: #d4a72c !important; }
+        .jasg-logo { width: 42px; height: 42px; object-fit: contain; border-radius: 10px; background: #fff; }
     </style>
 </head>
 <body class="h-full flex overflow-hidden font-sans bg-slate-50 text-slate-800" x-data="autoApp()" x-init="initApp()">
@@ -103,12 +107,12 @@
             <!-- Header Sidebar con Logo -->
             <div class="p-6 flex items-center justify-between border-b border-slate-100">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
-                        <i class="fa-solid fa-car-side text-xl"></i>
+                    <div class="w-10 h-10 rounded-xl bg-white border-2 border-amber-500 flex items-center justify-center shadow-lg">
+                        <img src="assets/jasg-logo.jpeg" class="jasg-logo" alt="Logo JASG Automotriz">
                     </div>
                     <div>
                         <h1 class="font-bold text-base text-slate-900 tracking-tight">JASG <span class="text-amber-600">Automotriz</span></h1>
-                        <span class="text-xs text-slate-400 block font-mono">Laravel Multi-Poster</span>
+                        <span class="text-xs text-slate-400 block font-mono">Gestor de Publicaciones</span>
                     </div>
                 </div>
                 <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-slate-600">
@@ -193,8 +197,8 @@
                 JM
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold text-slate-800 truncate">Juan Motors LLC</p>
-                <p class="text-xs text-slate-400 truncate">admin@automotriz.com</p>
+                <p class="text-sm font-bold text-slate-800 truncate">JASG Automotriz</p>
+                <p class="text-xs text-slate-400 truncate">demo@jasg.cl</p>
             </div>
         </div>
     </aside>
@@ -257,14 +261,14 @@
                                 <img :src="car.images[0]" :alt="car.title" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                 <div class="absolute top-3 right-3 flex gap-1">
                                     <span x-show="car.publishedFB" class="bg-brand-fb text-white text-[10px] font-bold px-2 py-1 rounded-md shadow" title="Publicado en Facebook">
-                                        <i class="fa-brands fa-facebook"></i> Marketplace
+                                        <i class="fa-brands fa-facebook"></i> Facebook
                                     </span>
                                     <span x-show="car.publishedIG" class="bg-brand-ig text-white text-[10px] font-bold px-2 py-1 rounded-md shadow" title="Publicado en Instagram">
                                         <i class="fa-brands fa-instagram"></i> Instagram
                                     </span>
                                 </div>
                                 <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-emerald-700 font-bold text-sm border border-slate-200">
-                                    $<span x-text="formatNumber(car.price)"></span> USD
+                                    $<span x-text="formatNumber(car.price)"></span> CLP
                                 </div>
                             </div>
 
@@ -335,8 +339,8 @@
                                 <input type="number" x-model="formData.year" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
                             </div>
                             <div>
-                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Precio (USD) *</label>
-                                <input type="number" x-model="formData.price" placeholder="25000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Precio (CLP) *</label>
+                                <input type="number" x-model="formData.price" placeholder="15000000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
                             </div>
                             <div>
                                 <label class="block text-slate-700 font-semibold mb-1 text-xs">Kilometraje (km) *</label>
@@ -474,7 +478,7 @@
                                 </div>
                                 <div>
                                     <div class="font-bold text-sm text-slate-900 flex items-center gap-1">
-                                        Juan Motors Marketplace
+                                        JASG Automotriz
                                         <i class="fa-solid fa-circle-check text-indigo-600 text-xs"></i>
                                     </div>
                                     <span class="text-[11px] text-slate-400">Hace un momento · <i class="fa-solid fa-globe"></i></span>
@@ -550,7 +554,7 @@
                                 <div class="p-3 bg-white rounded-xl text-xs space-y-1 border border-slate-200">
                                     <div class="text-slate-500 flex justify-between">
                                         <span>Página Vinculada:</span>
-                                        <strong class="text-slate-800">Juan Motors Official</strong>
+                        <strong class="text-slate-800">JASG Automotriz Oficial</strong>
                                     </div>
                                 </div>
                             </div>
@@ -679,7 +683,7 @@
                     brand: 'Ford',
                     model: 'Mustang GT',
                     year: 2022,
-                    price: 48000,
+                    price: 48000000,
                     mileage: 18000,
                     transmission: 'Automática',
                     fuel: 'Gasolina',
@@ -758,7 +762,7 @@
                 },
 
                 formatNumber(val) {
-                    return new Intl.NumberFormat('en-US').format(val || 0);
+                    return new Intl.NumberFormat('es-CL').format(val || 0);
                 },
 
                 addImageDemo() {
