@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="jasg-storage.js?v=1"></script>
     <script defer src="jasg-brand.js?v=2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js?v=1"></script>
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
@@ -668,11 +670,12 @@
             { name: 'Compra de herramientas', category: 'Herramientas' }
         ];
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             renderPayments();
             renderAbonos();
             renderExpenses();
             renderExpenseCatalog();
+            await syncExpensesFromCloud();
             updateFinancialKPIs();
         });
 
@@ -711,6 +714,15 @@
         }
 
         function closeExpenseModal() { document.getElementById('expense-modal').classList.add('hidden'); }
+
+        async function syncExpensesFromCloud() {
+            if (!window.jasgSupabase) return;
+            const { data, error } = await window.jasgSupabase.from('gastos_diarios').select('id, fecha, categoria_nombre, descripcion, monto, medio_pago, creado_en').order('fecha', { ascending: false });
+            if (error) { console.warn('Supabase gastos:', error.message); return; }
+            expenses = (data || []).map(item => ({ id: item.id, date: item.fecha, category: item.categoria_nombre, description: item.descripcion, amount: Number(item.monto) || 0, method: item.medio_pago || '', createdAt: item.creado_en }));
+            localStorage.setItem('jasg_daily_expenses', JSON.stringify(expenses));
+            renderExpenses();
+        }
 
         function formatExpenseAmount(input) {
             const digits = String(input.value || '').replace(/\D/g, '');
@@ -777,17 +789,22 @@
             showToast('Concepto eliminado del mantenedor');
         }
 
-        function handleExpenseSubmit(event) {
+        async function handleExpenseSubmit(event) {
             event.preventDefault();
-            expenses.unshift({
-                id: Date.now(), date: document.getElementById('expense-date').value,
+            const expense = {
+                id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(), date: document.getElementById('expense-date').value,
                 category: document.getElementById('expense-category').value,
                 description: document.getElementById('expense-description').value.trim(),
                 amount: parseExpenseAmount(document.getElementById('expense-amount').value),
                 method: document.getElementById('expense-method').value,
                 createdAt: new Date().toISOString()
-            });
+            };
+            expenses.unshift(expense);
             localStorage.setItem('jasg_daily_expenses', JSON.stringify(expenses));
+            if (window.jasgSupabase) {
+                const { error } = await window.jasgSupabase.from('gastos_diarios').insert({ id: expense.id, fecha: expense.date, categoria_nombre: expense.category, descripcion: expense.description, monto: expense.amount, medio_pago: expense.method });
+                if (error) showToast('Guardado localmente; falta iniciar sesión en Supabase', 'warning');
+            }
             renderExpenses(); updateFinancialKPIs(); closeExpenseModal(); event.target.reset();
             showToast('Gasto registrado correctamente');
         }
@@ -809,6 +826,7 @@
             if (!confirm('¿Eliminar este gasto del registro?')) return;
             expenses = expenses.filter(expense => expense.id !== id);
             localStorage.setItem('jasg_daily_expenses', JSON.stringify(expenses));
+            if (window.jasgSupabase) window.jasgSupabase.from('gastos_diarios').delete().eq('id', id).then(({ error }) => { if (error) console.warn('Supabase eliminar gasto:', error.message); });
             renderExpenses(); updateFinancialKPIs(); showToast('Gasto eliminado');
         }
 
