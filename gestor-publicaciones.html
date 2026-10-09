@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50 text-slate-800">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Publicaciones | JASG Automotriz</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js?v=1"></script>
+    <script src="jasg-cloud.js?v=3"></script>
+    <script src="auth.js?v=1"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js CDN -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            fb: '#1877F2',
+                            ig: '#E4405F',
+                            meta: '#0081FB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        /* Scrollbar personalizado suave */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="h-full flex overflow-hidden font-sans bg-slate-50 text-slate-800" x-data="autoApp()" x-init="initApp()">
+
+    <!-- Sistema de Toast Notifications -->
+    <div class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-show="toast.visible" 
+                 x-transition:enter="transition ease-out duration-300 transform translate-y-2 opacity-0"
+                 x-transition:enter-start="translate-y-2 opacity-0 scale-95"
+                 x-transition:enter-end="translate-y-0 opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-200 opacity-100"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 class="pointer-events-auto p-4 rounded-xl shadow-xl flex items-center gap-3 border text-sm font-medium bg-white text-slate-800"
+                 :class="{
+                    'border-emerald-500/50 shadow-emerald-500/10': toast.type === 'success',
+                    'border-rose-500/50 shadow-rose-500/10': toast.type === 'error',
+                    'border-sky-500/50 shadow-sky-500/10': toast.type === 'info'
+                 }">
+                <i :class="{
+                    'fa-solid fa-circle-check text-emerald-500 text-lg': toast.type === 'success',
+                    'fa-solid fa-circle-xmark text-rose-500 text-lg': toast.type === 'error',
+                    'fa-solid fa-circle-info text-sky-500 text-lg': toast.type === 'info'
+                }"></i>
+                <span class="flex-1 text-slate-700" x-text="toast.message"></span>
+                <button @click="removeToast(toast.id)" class="text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </template>
+    </div>
+
+    <!-- Overlay Móvil -->
+    <div x-show="sidebarOpen" 
+         x-transition:enter="transition-opacity ease-linear duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-linear duration-300"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="sidebarOpen = false" 
+         class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 lg:hidden" x-cloak></div>
+
+    <!-- Sidebar Principal (Blanca) -->
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+           class="fixed lg:static inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 shadow-sm">
+        
+        <div>
+            <!-- Header Sidebar con Logo -->
+            <div class="p-6 flex items-center justify-between border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                        <i class="fa-solid fa-car-side text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base text-slate-900 tracking-tight">JASG <span class="text-amber-600">Automotriz</span></h1>
+                        <span class="text-xs text-slate-400 block font-mono">Laravel Multi-Poster</span>
+                    </div>
+                </div>
+                <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-slate-600">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Navegación Lateral -->
+            <nav class="p-4 space-y-1">
+                <button @click="currentTab = 'catalog'; sidebarOpen = false" 
+                        :class="currentTab === 'catalog' ? 'bg-indigo-50 text-indigo-700 font-semibold border-r-4 border-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-l-xl transition-all text-sm">
+                    <i class="fa-solid fa-car text-lg w-5 text-indigo-500"></i>
+                    <span>Mis Vehículos</span>
+                    <span class="ml-auto text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600" x-text="cars.length">0</span>
+                </button>
+
+                <button @click="currentTab = 'publish'; sidebarOpen = false" 
+                        :class="currentTab === 'publish' ? 'bg-indigo-50 text-indigo-700 font-semibold border-r-4 border-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-l-xl transition-all text-sm">
+                    <i class="fa-solid fa-paper-plane text-lg w-5 text-indigo-500"></i>
+                    <span>Publicar / Multi-posting</span>
+                    <span class="ml-auto flex h-2 w-2 relative">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+                    </span>
+                </button>
+
+                <button @click="currentTab = 'integrations'; sidebarOpen = false" 
+                        :class="currentTab === 'integrations' ? 'bg-indigo-50 text-indigo-700 font-semibold border-r-4 border-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-l-xl transition-all text-sm">
+                    <i class="fa-solid fa-plug text-lg w-5 text-indigo-500"></i>
+                    <span>Cuentas Vinculadas</span>
+                    <span x-show="connections.facebook && connections.instagram" class="ml-auto text-emerald-500 text-xs"><i class="fa-solid fa-circle-check"></i></span>
+                </button>
+
+                <button @click="currentTab = 'history'; sidebarOpen = false" 
+                        :class="currentTab === 'history' ? 'bg-indigo-50 text-indigo-700 font-semibold border-r-4 border-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-l-xl transition-all text-sm">
+                    <i class="fa-solid fa-clock-rotate-left text-lg w-5 text-indigo-500"></i>
+                    <span>Historial y Logs</span>
+                </button>
+
+                <button @click="currentTab = 'settings'; sidebarOpen = false" 
+                        :class="currentTab === 'settings' ? 'bg-indigo-50 text-indigo-700 font-semibold border-r-4 border-indigo-600' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-l-xl transition-all text-sm">
+                    <i class="fa-solid fa-sliders text-lg w-5 text-indigo-500"></i>
+                    <span>Configuración API</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Estado Meta API Status Card -->
+        <div class="p-4 m-4 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+                <span>Estado Meta Sync</span>
+                <span class="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+            </div>
+            <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600 font-medium flex items-center gap-2">
+                        <i class="fa-brands fa-facebook text-brand-fb"></i> FB Marketplace
+                    </span>
+                    <span :class="connections.facebook ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'" class="px-2 py-0.5 rounded font-bold text-[10px]">
+                        <span x-text="connections.facebook ? 'Activo' : 'Off'"></span>
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600 font-medium flex items-center gap-2">
+                        <i class="fa-brands fa-instagram text-brand-ig"></i> IG Business
+                    </span>
+                    <span :class="connections.instagram ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'" class="px-2 py-0.5 rounded font-bold text-[10px]">
+                        <span x-text="connections.instagram ? 'Activo' : 'Off'"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Perfil Usuario en Footer Sidebar -->
+        <div class="p-4 border-t border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold border border-indigo-200">
+                JM
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-slate-800 truncate">Juan Motors LLC</p>
+                <p class="text-xs text-slate-400 truncate">admin@automotriz.com</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Contenedor Principal de Vista -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        <!-- Header Superior -->
+        <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3">
+                <button @click="sidebarOpen = true" class="lg:hidden text-slate-500 hover:text-slate-800 p-2">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span x-text="getTabTitle()"></span>
+                </h2>
+            </div>
+
+            <!-- Acciones Rápidas -->
+            <div class="flex items-center gap-3">
+                <button @click="syncAllAccounts()" class="px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate" :class="{'animate-spin': isSyncing}"></i>
+                    <span class="hidden sm:inline">Sincronizar APIs</span>
+                </button>
+                <button @click="currentTab = 'publish'" class="px-4 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition flex items-center gap-2 shadow-sm shadow-indigo-600/30">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Nuevo Auto</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Área de Contenido Dinámico -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50">
+
+            <!-- TAB 1: CATÁLOGO DE VEHÍCULOS -->
+            <section x-show="currentTab === 'catalog'" x-cloak class="space-y-6">
+                <!-- Filtros y Búsqueda -->
+                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" x-model="searchQuery" placeholder="Buscar por marca, modelo o año..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <select x-model="filterStatus" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-indigo-500">
+                            <option value="all">Todos los Estados</option>
+                            <option value="published">Publicados en Meta</option>
+                            <option value="fb_only">Solo Facebook</option>
+                            <option value="ig_only">Solo Instagram</option>
+                            <option value="draft">Borradores</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Grid de Tarjetas de Autos -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="car in filteredCars" :key="car.id">
+                        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition duration-200 group">
+                            <!-- Foto Principal -->
+                            <div class="relative h-48 bg-slate-100 overflow-hidden">
+                                <img :src="car.images[0]" :alt="car.title" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <div class="absolute top-3 right-3 flex gap-1">
+                                    <span x-show="car.publishedFB" class="bg-brand-fb text-white text-[10px] font-bold px-2 py-1 rounded-md shadow" title="Publicado en Facebook">
+                                        <i class="fa-brands fa-facebook"></i> Marketplace
+                                    </span>
+                                    <span x-show="car.publishedIG" class="bg-brand-ig text-white text-[10px] font-bold px-2 py-1 rounded-md shadow" title="Publicado en Instagram">
+                                        <i class="fa-brands fa-instagram"></i> Instagram
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-lg text-emerald-700 font-bold text-sm border border-slate-200">
+                                    $<span x-text="formatNumber(car.price)"></span> USD
+                                </div>
+                            </div>
+
+                            <!-- Contenido del Auto -->
+                            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-900 text-lg leading-snug" x-text="car.title"></h3>
+                                    <p class="text-slate-500 text-xs mt-1 line-clamp-2" x-text="car.description"></p>
+                                    
+                                    <!-- Especificaciones rápidas -->
+                                    <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-100 text-center text-xs text-slate-600">
+                                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                            <i class="fa-solid fa-calendar text-slate-400 block mb-1"></i>
+                                            <span x-text="car.year"></span>
+                                        </div>
+                                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                            <i class="fa-solid fa-gauge-high text-slate-400 block mb-1"></i>
+                                            <span x-text="formatNumber(car.mileage) + ' km'"></span>
+                                        </div>
+                                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                            <i class="fa-solid fa-gear text-slate-400 block mb-1"></i>
+                                            <span x-text="car.transmission"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botones de Acción -->
+                                <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                                    <button @click="quickRepublish(car)" class="flex-1 py-2 px-3 bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-share-nodes"></i>
+                                        <span>Re-Publicar</span>
+                                    </button>
+                                    <button @click="deleteCar(car.id)" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- TAB 2: FORMULARIO PUBLICAR NUEVO VEHÍCULO -->
+            <section x-show="currentTab === 'publish'" x-cloak class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    <!-- Formulario Blanco (Lado Izquierdo) -->
+                    <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                        <div class="border-b border-slate-100 pb-4">
+                            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-car text-indigo-600"></i> Detalles del Vehículo
+                            </h3>
+                            <p class="text-xs text-slate-500">Completa la información técnica para sincronizar con la API de Meta.</p>
+                        </div>
+
+                        <!-- Form Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Marca *</label>
+                                <input type="text" x-model="formData.brand" placeholder="Ej: Toyota" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Modelo *</label>
+                                <input type="text" x-model="formData.model" placeholder="Ej: Corolla Cross" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Año *</label>
+                                <input type="number" x-model="formData.year" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Precio (USD) *</label>
+                                <input type="number" x-model="formData.price" placeholder="25000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Kilometraje (km) *</label>
+                                <input type="number" x-model="formData.mileage" placeholder="45000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Transmisión</label>
+                                <select x-model="formData.transmission" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                                    <option value="Automática">Automática</option>
+                                    <option value="Manual">Manual</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Combustible</label>
+                                <select x-model="formData.fuel" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                                    <option value="Gasolina">Gasolina</option>
+                                    <option value="Diésel">Diésel</option>
+                                    <option value="Híbrido">Híbrido</option>
+                                    <option value="Eléctrico">Eléctrico</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-700 font-semibold mb-1 text-xs">Ubicación / Ciudad</label>
+                                <input type="text" x-model="formData.location" placeholder="Madrid, España" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-700 font-semibold mb-1 text-xs">Descripción Detallada *</label>
+                            <textarea x-model="formData.description" rows="3" placeholder="Describe el estado del auto, equipamiento..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:bg-white focus:border-indigo-500 focus:outline-none transition"></textarea>
+                        </div>
+
+                        <!-- Galería de Fotos / Subida -->
+                        <div>
+                            <label class="block text-slate-700 font-semibold mb-2 text-xs">Fotografías del Vehículo (Mínimo 1)</label>
+                            <div class="grid grid-cols-4 gap-3 mb-3">
+                                <template x-for="(img, index) in formData.images" :key="index">
+                                    <div class="relative group rounded-xl overflow-hidden aspect-square border border-slate-200 bg-slate-100">
+                                        <img :src="img" class="w-full h-full object-cover">
+                                        <button @click="removeImage(index)" class="absolute top-1 right-1 bg-rose-600 text-white rounded-full p-1 text-xs opacity-0 group-hover:opacity-100 transition">
+                                            <i class="fa-solid fa-xmark w-3 h-3 flex items-center justify-center"></i>
+                                        </button>
+                                    </div>
+                                </template>
+                                <button @click="addImageDemo()" class="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-xl flex flex-col items-center justify-center p-2 text-slate-400 hover:text-indigo-600 transition aspect-square bg-slate-50">
+                                    <i class="fa-solid fa-plus text-lg"></i>
+                                    <span class="text-[10px] mt-1 font-semibold">Agregar Foto</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- SELECCIÓN DE DESTINOS DE PUBLICACIÓN -->
+                        <div class="border-t border-slate-100 pt-5 space-y-4">
+                            <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-share-nodes text-indigo-600"></i> Canales de Publicación
+                            </h4>
+
+                            <div class="space-y-3">
+                                <!-- Facebook Marketplace -->
+                                <label class="flex items-center justify-between p-3.5 rounded-xl border transition cursor-pointer"
+                                       :class="formData.targetFB ? 'bg-indigo-50/50 border-indigo-300' : 'bg-slate-50 border-slate-200'">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-brand-fb/10 flex items-center justify-center text-brand-fb">
+                                            <i class="fa-brands fa-facebook text-lg"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-sm font-bold text-slate-800 block">Facebook Marketplace</span>
+                                            <span class="text-xs text-slate-500">Sincronizar como listado de vehículo</span>
+                                        </div>
+                                    </div>
+                                    <input type="checkbox" x-model="formData.targetFB" class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                </label>
+
+                                <!-- Instagram Feed -->
+                                <label class="flex items-center justify-between p-3.5 rounded-xl border transition cursor-pointer"
+                                       :class="formData.targetIG ? 'bg-indigo-50/50 border-indigo-300' : 'bg-slate-50 border-slate-200'">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-brand-ig/10 flex items-center justify-center text-brand-ig">
+                                            <i class="fa-brands fa-instagram text-lg"></i>
+                                        </div>
+                                        <div>
+                                            <span class="text-sm font-bold text-slate-800 block">Instagram Feed & Stories</span>
+                                            <span class="text-xs text-slate-500">Publicar en el feed oficial de la empresa</span>
+                                        </div>
+                                    </div>
+                                    <input type="checkbox" x-model="formData.targetIG" class="w-5 h-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Botón Publicar -->
+                        <div class="pt-4">
+                            <button @click="publishCar()" 
+                                    :disabled="isPublishing"
+                                    class="w-full py-3.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md shadow-indigo-600/20 transition flex items-center justify-center gap-3 disabled:opacity-50">
+                                <template x-if="!isPublishing">
+                                    <span class="flex items-center gap-2">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                        <span>Publicar en Canales Seleccionados</span>
+                                    </span>
+                                </template>
+                                <template x-if="isPublishing">
+                                    <span class="flex items-center gap-2">
+                                        <i class="fa-solid fa-circle-notch animate-spin"></i>
+                                        <span>Procesando y Conectando con Meta Graph API...</span>
+                                    </span>
+                                </template>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Previsualización en Vivo (Lado Derecho) -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <div class="flex items-center justify-between bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="text-xs font-bold text-slate-400 px-2 uppercase">Vista Previa</span>
+                            <div class="flex gap-1">
+                                <button @click="previewTab = 'fb'" 
+                                        :class="previewTab === 'fb' ? 'bg-indigo-50 text-brand-fb border border-indigo-200 font-bold' : 'text-slate-500 hover:text-slate-800'"
+                                        class="px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5">
+                                    <i class="fa-brands fa-facebook"></i> FB Post
+                                </button>
+                                <button @click="previewTab = 'ig'" 
+                                        :class="previewTab === 'ig' ? 'bg-rose-50 text-brand-ig border border-rose-200 font-bold' : 'text-slate-500 hover:text-slate-800'"
+                                        class="px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5">
+                                    <i class="fa-brands fa-instagram"></i> IG Feed
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Preview Facebook -->
+                        <div x-show="previewTab === 'fb'" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg text-slate-800">
+                            <div class="p-4 border-b border-slate-100 flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-700 border border-slate-200">
+                                    JM
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm text-slate-900 flex items-center gap-1">
+                                        Juan Motors Marketplace
+                                        <i class="fa-solid fa-circle-check text-indigo-600 text-xs"></i>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400">Hace un momento · <i class="fa-solid fa-globe"></i></span>
+                                </div>
+                            </div>
+                            <div class="h-64 bg-slate-100 relative">
+                                <img :src="formData.images[0] || 'https://placehold.co/600x400/f1f5f9/94a3b8?text=Sin+Imagen'" class="w-full h-full object-cover">
+                                <div class="absolute bottom-3 left-3 bg-white/95 px-3 py-1 rounded-md text-emerald-700 font-bold text-sm border border-slate-200 shadow-sm">
+                                    $<span x-text="formatNumber(formData.price || 0)"></span>
+                                </div>
+                            </div>
+                            <div class="p-4 space-y-2">
+                                <h4 class="font-bold text-base text-slate-900" x-text="(formData.brand || 'Marca') + ' ' + (formData.model || 'Modelo') + ' ' + (formData.year || '')"></h4>
+                                <p class="text-xs text-slate-600 line-clamp-3" x-text="formData.description || 'Detalles del auto...'"></p>
+                            </div>
+                        </div>
+
+                        <!-- Preview Instagram -->
+                        <div x-show="previewTab === 'ig'" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-lg text-slate-800">
+                            <div class="p-3 border-b border-slate-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-0.5">
+                                        <div class="w-full h-full rounded-full bg-white flex items-center justify-center font-bold text-[10px] text-slate-800">
+                                            JM
+                                        </div>
+                                    </div>
+                                    <span class="font-bold text-xs text-slate-900">juanmotors_official</span>
+                                </div>
+                                <i class="fa-solid fa-ellipsis text-slate-400"></i>
+                            </div>
+                            <div class="aspect-square bg-slate-100">
+                                <img :src="formData.images[0] || 'https://placehold.co/600x600/f1f5f9/94a3b8?text=Sin+Imagen'" class="w-full h-full object-cover">
+                            </div>
+                            <div class="p-3 space-y-2 text-xs">
+                                <div class="flex justify-between items-center text-lg text-slate-700">
+                                    <div class="flex gap-3">
+                                        <i class="fa-regular fa-heart"></i>
+                                        <i class="fa-regular fa-comment"></i>
+                                        <i class="fa-regular fa-paper-plane"></i>
+                                    </div>
+                                    <i class="fa-regular fa-bookmark"></i>
+                                </div>
+                                <p class="text-slate-800">
+                                    <span class="font-bold mr-1">juanmotors_official</span>
+                                    🚗 <span class="font-bold" x-text="(formData.brand || 'Marca') + ' ' + (formData.model || '')"></span> - 💰 $<span x-text="formatNumber(formData.price || 0)"></span>
+                                    <span class="block text-slate-500 text-[11px] mt-1" x-text="formData.description || ''"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: CUENTAS VINCULADAS -->
+            <section x-show="currentTab === 'integrations'" x-cloak class="space-y-6 max-w-5xl mx-auto">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Cuentas e Integraciones Meta</h3>
+                    <p class="text-xs text-slate-500">Gestión de Tokens de Acceso OAuth2 para publicación automática.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <!-- Card Facebook -->
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-xl bg-brand-fb/10 flex items-center justify-center text-brand-fb text-2xl">
+                                        <i class="fa-brands fa-facebook"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 text-base">Facebook Pages & Catalog</h4>
+                                        <span class="text-xs text-slate-500">v18.0 Graph API</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white rounded-xl text-xs space-y-1 border border-slate-200">
+                                    <div class="text-slate-500 flex justify-between">
+                                        <span>Página Vinculada:</span>
+                                        <strong class="text-slate-800">Juan Motors Official</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <button @click="toggleConnection('facebook')" 
+                                        :class="connections.facebook ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' : 'bg-brand-fb text-white hover:bg-blue-600'"
+                                        class="w-full py-2.5 rounded-xl text-xs font-bold transition border flex items-center justify-center gap-2">
+                                    <i class="fa-brands fa-facebook"></i>
+                                    <span x-text="connections.facebook ? 'Desconectar Facebook' : 'Conectar Facebook Page'"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Card Instagram -->
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-xl bg-brand-ig/10 flex items-center justify-center text-brand-ig text-2xl">
+                                        <i class="fa-brands fa-instagram"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 text-base">Instagram Business API</h4>
+                                        <span class="text-xs text-slate-500">Publishing API</span>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white rounded-xl text-xs space-y-1 border border-slate-200">
+                                    <div class="text-slate-500 flex justify-between">
+                                        <span>Cuenta Business:</span>
+                                        <strong class="text-slate-800">@juanmotors_official</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <button @click="toggleConnection('instagram')" 
+                                        :class="connections.instagram ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' : 'bg-brand-ig text-white hover:bg-rose-600'"
+                                        class="w-full py-2.5 rounded-xl text-xs font-bold transition border flex items-center justify-center gap-2">
+                                    <i class="fa-brands fa-instagram"></i>
+                                    <span x-text="connections.instagram ? 'Desconectar Instagram' : 'Conectar Instagram Business'"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: HISTORIAL DE LOGS -->
+            <section x-show="currentTab === 'history'" x-cloak class="space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4">Registro de Transacciones de Publicación</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-700">
+                            <thead class="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">Vehículo</th>
+                                    <th class="p-3">Plataforma</th>
+                                    <th class="p-3">Fecha</th>
+                                    <th class="p-3">Estado</th>
+                                    <th class="p-3">Respuesta API</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <template x-for="log in logs" :key="log.id">
+                                    <tr class="hover:bg-slate-50/80">
+                                        <td class="p-3 font-semibold text-slate-900" x-text="log.carTitle"></td>
+                                        <td class="p-3">
+                                            <span x-show="log.platform === 'facebook'" class="text-brand-fb font-bold text-xs"><i class="fa-brands fa-facebook"></i> Facebook</span>
+                                            <span x-show="log.platform === 'instagram'" class="text-brand-ig font-bold text-xs"><i class="fa-brands fa-instagram"></i> Instagram</span>
+                                        </td>
+                                        <td class="p-3 text-xs text-slate-500" x-text="log.date"></td>
+                                        <td class="p-3">
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                HTTP 200 OK
+                                            </span>
+                                        </td>
+                                        <td class="p-3 font-mono text-xs text-slate-400 truncate max-w-xs" x-text="log.response"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: AJUSTES -->
+            <section x-show="currentTab === 'settings'" x-cloak class="max-w-3xl mx-auto space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Configuración de credenciales Meta App</h3>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">App ID de Meta Developer</label>
+                        <input type="text" value="783249823984293" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-600 font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">App Secret Key</label>
+                        <input type="password" value="************************" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-600 font-mono">
+                    </div>
+                    <div class="pt-2">
+                        <button @click="addToast('Ajustes guardados correctamente', 'success')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs transition">
+                            Guardar Ajustes
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        function autoApp() {
+            return {
+                sidebarOpen: false,
+                currentTab: 'catalog',
+                previewTab: 'fb',
+                isSyncing: false,
+                isPublishing: false,
+                searchQuery: '',
+                filterStatus: 'all',
+
+                connections: {
+                    facebook: true,
+                    instagram: true
+                },
+
+                toasts: [],
+
+                formData: {
+                    brand: 'Ford',
+                    model: 'Mustang GT',
+                    year: 2022,
+                    price: 48000,
+                    mileage: 18000,
+                    transmission: 'Automática',
+                    fuel: 'Gasolina',
+                    location: 'Santiago, Chile',
+                    description: 'Impecable Mustang GT V8 5.0L. Mantenciones al día en concesionario. Tapiz de cuero, Apple CarPlay.',
+                    images: [
+                        'https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=800&q=80'
+                    ],
+                    targetFB: true,
+                    targetIG: true
+                },
+
+                cars: [
+                    {
+                        id: 1,
+                        title: 'BMW M3 Competition 2021',
+                        brand: 'BMW',
+                        model: 'M3',
+                        year: 2021,
+                        price: 75000,
+                        mileage: 22000,
+                        transmission: 'Automática',
+                        description: 'BMW M3 en condición de exhibición. Motor Biturbo 510 HP, frenos cerámicos.',
+                        images: ['https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80'],
+                        publishedFB: true,
+                        publishedIG: true
+                    },
+                    {
+                        id: 2,
+                        title: 'Porsche 911 Carrera 2020',
+                        brand: 'Porsche',
+                        model: '911',
+                        year: 2020,
+                        price: 110000,
+                        mileage: 15000,
+                        transmission: 'Automática',
+                        description: 'Porsche 911 Carrera S. Color Gris Nardo, escape deportivo de fábrica.',
+                        images: ['https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=800&q=80'],
+                        publishedFB: true,
+                        publishedIG: false
+                    },
+                    {
+                        id: 3,
+                        title: 'Audi Q8 S-Line 2022',
+                        brand: 'Audi',
+                        model: 'Q8',
+                        year: 2022,
+                        price: 68000,
+                        mileage: 30000,
+                        transmission: 'Automática',
+                        description: 'SUV de lujo, tracción Quattro, suspensión neumática adaptativa.',
+                        images: ['https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?auto=format&fit=crop&w=800&q=80'],
+                        publishedFB: false,
+                        publishedIG: true
+                    }
+                ],
+
+                logs: [
+                    { id: 101, carTitle: 'BMW M3 Competition 2021', platform: 'facebook', date: '2026-10-08 14:20', response: '{"status": "published", "fb_id": "893247923"}' },
+                    { id: 102, carTitle: 'BMW M3 Competition 2021', platform: 'instagram', date: '2026-10-08 14:21', response: '{"status": "published", "ig_media_id": "179834293"}' }
+                ],
+
+                initApp() {
+                    this.addToast('Bienvenido al Gestor de Publicaciones JASG', 'info');
+                },
+
+                getTabTitle() {
+                    const titles = {
+                        'catalog': 'Catálogo de Vehículos',
+                        'publish': 'Publicar Vehículo en Redes',
+                        'integrations': 'Cuentas Vinculadas Meta',
+                        'history': 'Historial de Publicaciones',
+                        'settings': 'Ajustes del Sistema'
+                    };
+                    return titles[this.currentTab] || 'Dashboard';
+                },
+
+                formatNumber(val) {
+                    return new Intl.NumberFormat('en-US').format(val || 0);
+                },
+
+                addImageDemo() {
+                    const sampleImages = [
+                        'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
+                        'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80'
+                    ];
+                    const nextImg = sampleImages[this.formData.images.length % sampleImages.length];
+                    this.formData.images.push(nextImg);
+                    this.addToast('Imagen agregada', 'info');
+                },
+
+                removeImage(index) {
+                    this.formData.images.splice(index, 1);
+                },
+
+                toggleConnection(platform) {
+                    this.connections[platform] = !this.connections[platform];
+                    const state = this.connections[platform] ? 'activada' : 'desactivada';
+                    this.addToast(`Conexión con ${platform.toUpperCase()} ${state}`, this.connections[platform] ? 'success' : 'error');
+                },
+
+                syncAllAccounts() {
+                    this.isSyncing = true;
+                    setTimeout(() => {
+                        this.isSyncing = false;
+                        this.addToast('Conexiones con Meta API sincronizadas', 'success');
+                    }, 1200);
+                },
+
+                publishCar() {
+                    if (!this.formData.brand || !this.formData.model || !this.formData.price) {
+                        this.addToast('Ingresa los campos obligatorios del vehículo', 'error');
+                        return;
+                    }
+
+                    if (!this.formData.targetFB && !this.formData.targetIG) {
+                        this.addToast('Selecciona al menos un canal de publicación', 'error');
+                        return;
+                    }
+
+                    this.isPublishing = true;
+
+                    setTimeout(() => {
+                        const newCar = {
+                            id: Date.now(),
+                            title: `${this.formData.brand} ${this.formData.model} ${this.formData.year}`,
+                            brand: this.formData.brand,
+                            model: this.formData.model,
+                            year: this.formData.year,
+                            price: this.formData.price,
+                            mileage: this.formData.mileage,
+                            transmission: this.formData.transmission,
+                            description: this.formData.description,
+                            images: [...this.formData.images],
+                            publishedFB: this.formData.targetFB && this.connections.facebook,
+                            publishedIG: this.formData.targetIG && this.connections.instagram
+                        };
+
+                        this.cars.unshift(newCar);
+
+                        const now = new Date().toISOString().replace('T', ' ').substring(0, 16);
+                        if (newCar.publishedFB) {
+                            this.logs.unshift({ id: Date.now() + 1, carTitle: newCar.title, platform: 'facebook', date: now, response: '{"status":"published"}' });
+                        }
+                        if (newCar.publishedIG) {
+                            this.logs.unshift({ id: Date.now() + 2, carTitle: newCar.title, platform: 'instagram', date: now, response: '{"status":"published"}' });
+                        }
+
+                        this.isPublishing = false;
+                        this.addToast('¡Vehículo publicado correctamente!', 'success');
+                        this.currentTab = 'catalog';
+                    }, 1800);
+                },
+
+                quickRepublish(car) {
+                    this.addToast(`Re-publicando ${car.title}...`, 'info');
+                    setTimeout(() => {
+                        car.publishedFB = true;
+                        car.publishedIG = true;
+                        this.addToast('Vehículo sincronizado nuevamente', 'success');
+                    }, 1000);
+                },
+
+                deleteCar(id) {
+                    this.cars = this.cars.filter(c => c.id !== id);
+                    this.addToast('Auto eliminado del catálogo', 'info');
+                },
+
+                addToast(message, type = 'info') {
+                    const id = Date.now();
+                    this.toasts.push({ id, message, type, visible: true });
+                    setTimeout(() => {
+                        this.removeToast(id);
+                    }, 3500);
+                },
+
+                removeToast(id) {
+                    this.toasts = this.toasts.filter(t => t.id !== id);
+                },
+
+                get filteredCars() {
+                    return this.cars.filter(car => {
+                        const matchesSearch = car.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                                              car.brand.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        
+                        if (this.filterStatus === 'published') return matchesSearch && (car.publishedFB || car.publishedIG);
+                        if (this.filterStatus === 'fb_only') return matchesSearch && car.publishedFB;
+                        if (this.filterStatus === 'ig_only') return matchesSearch && car.publishedIG;
+                        if (this.filterStatus === 'draft') return matchesSearch && !car.publishedFB && !car.publishedIG;
+                        return matchesSearch;
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
