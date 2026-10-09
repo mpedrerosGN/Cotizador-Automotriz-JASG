@@ -18,11 +18,11 @@ create policy "Usuarios autenticados pueden consultar datos compartidos"
 
 drop policy if exists "Usuarios autenticados pueden crear datos compartidos" on public.datos_compartidos;
 create policy "Usuarios autenticados pueden crear datos compartidos"
-  on public.datos_compartidos for insert to authenticated with check (auth.uid() = creado_por);
+  on public.datos_compartidos for insert to authenticated with check (auth.uid() is not null);
 
 drop policy if exists "Usuarios autenticados pueden actualizar datos compartidos" on public.datos_compartidos;
 create policy "Usuarios autenticados pueden actualizar datos compartidos"
-  on public.datos_compartidos for update to authenticated using (true) with check (true);
+  on public.datos_compartidos for update to authenticated using (auth.uid() is not null) with check (auth.uid() is not null);
 
 drop policy if exists "Usuarios autenticados pueden eliminar datos compartidos" on public.datos_compartidos;
 create policy "Usuarios autenticados pueden eliminar datos compartidos"
