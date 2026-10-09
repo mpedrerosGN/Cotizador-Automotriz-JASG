@@ -9,6 +9,9 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="jasg-storage.js?v=1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js?v=1"></script>
+    <script src="jasg-cloud.js?v=2"></script>
     <script defer src="jasg-brand.js?v=2"></script>
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -343,6 +346,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             renderAppointments();
             updateStats();
+            window.jasgCloud?.listar('agendamientos').then(rows => {
+                const shared = rows.find(row => row.id === 'all');
+                if (shared?.items) { appointments = shared.items; localStorage.setItem('taller_appointments', JSON.stringify(appointments)); renderAppointments(); updateStats(); }
+                else if (appointments.length) window.jasgCloud?.guardar('agendamientos', 'all', { items: appointments });
+            }).catch(error => console.error('No se pudieron cargar las citas compartidas', error));
         });
 
         // Toast Notification
@@ -481,6 +489,7 @@
 
         function saveAndRefresh() {
             localStorage.setItem('taller_appointments', JSON.stringify(appointments));
+            window.jasgCloud?.guardar('agendamientos', 'all', { items: appointments });
             renderAppointments();
             updateStats();
         }

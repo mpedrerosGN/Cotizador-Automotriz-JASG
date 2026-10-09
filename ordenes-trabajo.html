@@ -9,6 +9,9 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="jasg-storage.js?v=1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js?v=1"></script>
+    <script src="jasg-cloud.js?v=2"></script>
     <script defer src="jasg-brand.js?v=2"></script>
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -546,6 +549,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             renderOTs();
             updateStats();
+            window.jasgCloud?.listar('ordenes_trabajo').then(rows => {
+                const shared = rows.find(row => row.id === 'all');
+                if (shared?.items) { workOrders = shared.items; localStorage.setItem('taller_work_orders', JSON.stringify(workOrders)); renderOTs(); updateStats(); }
+                else if (workOrders.length) window.jasgCloud?.guardar('ordenes_trabajo', 'all', { items: workOrders });
+            }).catch(error => console.error('No se pudieron cargar las órdenes compartidas', error));
         });
 
         // Toast Notification
@@ -802,6 +810,7 @@
 
         function saveAndRefresh() {
             localStorage.setItem('taller_work_orders', JSON.stringify(workOrders));
+            window.jasgCloud?.guardar('ordenes_trabajo', 'all', { items: workOrders });
             renderOTs();
             updateStats();
         }

@@ -1,7 +1,7 @@
 -- Datos compartidos entre computador, celular y otros usuarios autenticados.
 create table if not exists public.datos_compartidos (
   id uuid primary key default gen_random_uuid(),
-  modulo text not null check (modulo in ('clientes', 'vehiculos', 'cotizaciones')),
+  modulo text not null check (modulo in ('clientes', 'vehiculos', 'cotizaciones', 'agendamientos', 'inventario', 'ordenes_trabajo')),
   registro_id text not null,
   datos jsonb not null default '{}'::jsonb,
   creado_por uuid not null default auth.uid() references auth.users(id) on delete cascade,
@@ -9,6 +9,10 @@ create table if not exists public.datos_compartidos (
   actualizado_en timestamptz not null default now(),
   unique (modulo, registro_id)
 );
+
+alter table public.datos_compartidos drop constraint if exists datos_compartidos_modulo_check;
+alter table public.datos_compartidos add constraint datos_compartidos_modulo_check
+  check (modulo in ('clientes', 'vehiculos', 'cotizaciones', 'agendamientos', 'inventario', 'ordenes_trabajo'));
 
 alter table public.datos_compartidos enable row level security;
 

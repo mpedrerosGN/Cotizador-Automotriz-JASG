@@ -9,6 +9,9 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="jasg-storage.js?v=1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js?v=1"></script>
+    <script src="jasg-cloud.js?v=2"></script>
     <script defer src="jasg-brand.js?v=2"></script>
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -399,6 +402,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             renderInventory();
             renderMovements();
+            window.jasgCloud?.listar('inventario').then(rows => {
+                const shared = rows.find(row => row.id === 'all');
+                if (shared?.inventory) { inventory = shared.inventory; movements = shared.movements || []; localStorage.setItem('taller_inventory', JSON.stringify(inventory)); localStorage.setItem('taller_movements', JSON.stringify(movements)); renderInventory(); renderMovements(); }
+                else if (inventory.length) window.jasgCloud?.guardar('inventario', 'all', { inventory, movements });
+            }).catch(error => console.error('No se pudo cargar el inventario compartido', error));
         });
 
         // Switch between Inventory and Movements tabs
@@ -530,6 +538,7 @@
 
         function saveAndRefreshInventory() {
             localStorage.setItem('taller_inventory', JSON.stringify(inventory));
+            window.jasgCloud?.guardar('inventario', 'all', { inventory, movements });
             renderInventory();
         }
 
