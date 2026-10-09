@@ -2140,8 +2140,18 @@
 
                 async syncQuoteToCloud(quote) {
                     if (!window.jasgCloud) return;
-                    const result = await window.jasgCloud.guardar('cotizaciones', quote.id, quote);
-                    if (result.error) console.error('No se pudo sincronizar la cotización', result.error);
+                    try {
+                        const result = await window.jasgCloud.guardar('cotizaciones', quote.id, quote);
+                        if (result.error) {
+                            console.error('No se pudo sincronizar la cotización', result.error);
+                            this.showToast('No se pudo guardar en la nube. Revisa tu sesión.', 'fa-triangle-exclamation text-amber-400');
+                        } else {
+                            this.showToast('Cotización guardada y sincronizada', 'fa-cloud-arrow-up text-emerald-400');
+                        }
+                    } catch (error) {
+                        console.error('Error de conexión al sincronizar la cotización', error);
+                        this.showToast('Error de conexión con la base de datos', 'fa-triangle-exclamation text-amber-400');
+                    }
                 },
 
                 async deleteQuoteFromCloud(id) {
