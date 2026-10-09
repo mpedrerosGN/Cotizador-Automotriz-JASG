@@ -1980,6 +1980,7 @@
 
                     this.savedQuotes.unshift(newQuote);
                     this.saveStoredData();
+                    this.syncQuoteToCloud(newQuote);
                     this.showToast('¡Cotización guardada en el historial con éxito!', 'fa-floppy-disk text-emerald-400');
                 },
 
@@ -2007,14 +2008,17 @@
                     if (confirm('¿Eliminar esta cotización del historial?')) {
                         this.savedQuotes = this.savedQuotes.filter(q => q.id !== id);
                         this.saveStoredData();
+                        this.deleteQuoteFromCloud(id);
                         this.showToast('Cotización eliminada del historial');
                     }
                 },
 
                 clearHistory() {
                     if (confirm('¿Estás seguro de vaciar todo el historial de cotizaciones guardadas?')) {
+                        const ids = this.savedQuotes.map(q => q.id);
                         this.savedQuotes = [];
                         this.saveStoredData();
+                        ids.forEach((id) => this.deleteQuoteFromCloud(id));
                         this.showToast('Historial vaciado');
                     }
                 },
@@ -2134,6 +2138,35 @@
                     }
                 },
 
+                async syncQuoteToCloud(quote) {
+                    if (!window.jasgCloud) return;
+                    const result = await window.jasgCloud.guardar('cotizaciones', quote.id, quote);
+                    if (result.error) console.error('No se pudo sincronizar la cotización', result.error);
+                },
+
+                async deleteQuoteFromCloud(id) {
+                    if (!window.jasgCloud) return;
+                    const result = await window.jasgCloud.eliminar('cotizaciones', id);
+                    if (result.error) console.error('No se pudo eliminar la cotización compartida', result.error);
+                },
+
+                async loadCloudQuotes() {
+                    if (!window.jasgCloud) return;
+                    try {
+                        const cloudQuotes = await window.jasgCloud.listar('cotizaciones');
+                        if (cloudQuotes.length) {
+                            const localById = new Map(this.savedQuotes.map((quote) => [String(quote.id), quote]));
+                            cloudQuotes.forEach((quote) => localById.set(String(quote.id), quote));
+                            this.savedQuotes = Array.from(localById.values()).sort((a, b) => Number(b.id) - Number(a.id));
+                            localStorage.setItem('jasg_saved_quotes', JSON.stringify(this.savedQuotes));
+                        } else if (this.savedQuotes.length) {
+                            await Promise.all(this.savedQuotes.map((quote) => this.syncQuoteToCloud(quote)));
+                        }
+                    } catch (error) {
+                        console.error('No se pudieron cargar las cotizaciones compartidas', error);
+                    }
+                },
+
                 saveSettings() {
                     this.saveStoredData();
                     this.showToast('Configuración guardada correctamente', 'fa-gear text-cyan-400');
@@ -2185,6 +2218,7 @@
                         }
 
                         this.quoteMeta.number = 'COT-' + String(this.quoteCounter).padStart(4, '0');
+                        this.loadCloudQuotes();
                     } catch (e) {
                         console.error('Error cargando localStorage', e);
                     }
