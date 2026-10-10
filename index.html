@@ -181,6 +181,11 @@
             .print-logo i {
                 font-size: 40pt !important;
             }
+            .print-logo img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+            }
             .terms-page {
                 page-break-before: always !important;
                 break-before: page !important;
@@ -1248,7 +1253,7 @@
                                 <img :src="company.customIcon" class="w-full h-full object-cover">
                             </template>
                             <template x-if="!company.customIcon">
-                                <i class="fa-solid fa-car text-white text-4xl"></i>
+                                <img src="assets/jasg-logo.jpeg" class="w-full h-full object-contain bg-white" alt="Logo JASG Automotriz">
                             </template>
                         </div>
                         <div>
