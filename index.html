@@ -177,8 +177,8 @@
                 width: 100% !important;
             }
             .print-logo {
-                width: 28mm !important;
-                height: 28mm !important;
+                width: 34mm !important;
+                height: 34mm !important;
             }
             .print-logo i {
                 font-size: 40pt !important;
@@ -1248,10 +1248,10 @@
             <div class="jasg-preview-card bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-10 max-w-4xl mx-auto font-sans text-slate-800 printable-card">
                 
                 <!-- Printable Document Header Bar -->
-                <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 text-white p-6 rounded-2xl mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 shadow-md avoid-break">
+                <div class="bg-gradient-to-r from-slate-950 via-slate-800 to-amber-700 text-white p-6 rounded-2xl mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 shadow-md avoid-break">
                     <!-- Brand & Logo -->
-                    <div class="flex items-center space-x-4">
-                        <div class="print-logo w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-white/20 shadow-md overflow-hidden">
+                    <div class="flex flex-1 min-w-0 items-center space-x-5">
+                        <div class="print-logo w-32 h-32 bg-gradient-to-br from-amber-300 to-amber-600 rounded-2xl flex items-center justify-center shrink-0 border border-white/40 shadow-md overflow-hidden">
                             <template x-if="company.customIcon">
                                 <img :src="company.customIcon" class="w-full h-full object-cover">
                             </template>
@@ -1259,8 +1259,8 @@
                                 <img src="assets/jasg-logo.jpeg" class="w-full h-full object-contain bg-white" alt="Logo JASG Automotriz">
                             </template>
                         </div>
-                        <div>
-                            <h2 class="text-2xl font-black tracking-tight text-white" x-text="company.name">JASG Automotriz</h2>
+                        <div class="min-w-0">
+                            <h2 class="text-3xl font-black tracking-tight text-white" x-text="company.name">JASG Automotriz</h2>
                             <p class="text-xs text-blue-200 mt-0.5 font-bold" x-show="company.rut" x-text="'RUT: ' + company.rut"></p>
                             <p class="text-xs text-slate-300 mt-0.5" x-text="company.address"></p>
                             <p class="text-xs text-slate-300" x-text="'Teléfono: ' + company.phone + ' | Email: ' + company.email"></p>
@@ -1268,7 +1268,7 @@
                     </div>
 
                     <!-- Quote Document Meta Box -->
-                    <div class="bg-white/10 p-4 rounded-xl backdrop-blur-md border border-white/20 text-left sm:text-right min-w-[180px] pdf-internal-number">
+                    <div class="bg-white/10 p-4 rounded-xl backdrop-blur-md border border-white/20 text-left sm:text-right min-w-[210px] pdf-internal-number">
                         <span class="inline-block bg-emerald-500 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-1">COTIZACIÓN</span>
                         <h3 class="pdf-hide-correlative text-xl font-black text-yellow-300 font-mono tracking-wide" x-text="quoteMeta.number">COT-0001</h3>
                         <p class="text-xs text-slate-200 mt-1">Fecha: <strong x-text="quoteMeta.date"></strong></p>
