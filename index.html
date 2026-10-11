@@ -1270,7 +1270,7 @@
                     <!-- Quote Document Meta Box -->
                     <div class="bg-white/10 p-4 rounded-xl backdrop-blur-md border border-white/20 text-left sm:text-right min-w-[180px] pdf-internal-number">
                         <span class="inline-block bg-emerald-500 text-slate-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full mb-1">COTIZACIÓN</span>
-                        <h3 class="text-xl font-black text-yellow-300 font-mono tracking-wide" aria-hidden="true">&nbsp;</h3>
+                        <h3 class="pdf-hide-correlative text-xl font-black text-yellow-300 font-mono tracking-wide" x-text="quoteMeta.number">COT-0001</h3>
                         <p class="text-xs text-slate-200 mt-1">Fecha: <strong x-text="quoteMeta.date"></strong></p>
                         <p class="text-xs text-slate-200">Validez: <strong x-text="quoteMeta.validDays + ' días'"></strong></p>
                     </div>
