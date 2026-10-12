@@ -150,6 +150,11 @@
         .app-shell header nav button.bg-blue-600 { background-color: #2563eb !important; }
         .print-only { display: none; }
         .pdf-internal-number { display: block; }
+        .jasg-preview-card:not(.terms-page) > div:first-child h2 { font-size: 1.75rem; }
+        .jasg-preview-card:not(.terms-page) > div:first-child p { font-size: 0.85rem; line-height: 1.35; }
+        .jasg-preview-card:not(.terms-page) table { font-size: 0.95rem; }
+        .jasg-preview-card:not(.terms-page) .bg-blue-50\/60,
+        .jasg-preview-card:not(.terms-page) .bg-amber-50\/60 { font-size: 0.95rem; line-height: 1.35; }
         @media print {
             .no-print { display: none !important; }
             .app-shell { display: block !important; min-height: 0 !important; }
@@ -262,21 +267,21 @@
             }
 
             .printable-card:not(.terms-page) .print-logo {
-                width: 32mm !important;
-                height: 32mm !important;
+                width: 38mm !important;
+                height: 38mm !important;
                 border-radius: 5mm !important;
                 background: white !important;
                 border: 2px solid #d4a72c !important;
             }
 
             .printable-card:not(.terms-page) > div:first-child h2 {
-                font-size: 20pt !important;
+                font-size: 23pt !important;
                 line-height: 1.1 !important;
             }
 
             .printable-card:not(.terms-page) > div:first-child p,
             .printable-card:not(.terms-page) > div:first-child .pdf-internal-number {
-                font-size: 9pt !important;
+                font-size: 10.5pt !important;
                 line-height: 1.35 !important;
             }
 
@@ -287,7 +292,7 @@
             }
 
             .printable-card:not(.terms-page) table {
-                font-size: 9.5pt !important;
+                font-size: 10.5pt !important;
                 border: 1px solid #cbd5e1 !important;
             }
 
