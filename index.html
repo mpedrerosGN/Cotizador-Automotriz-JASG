@@ -1838,7 +1838,6 @@
                     const vehicleName = `${this.vehicle.make || 'Vehiculo'}-${this.vehicle.model || 'Sin-modelo'}`;
                     const fileName = [
                         'JASG-Cotizacion',
-                        cleanPart(this.quoteMeta.number, 'COT'),
                         cleanPart(this.quoteMeta.date, 'fecha'),
                         cleanPart(clientName, 'Cliente'),
                         cleanPart(vehicleName, 'Vehiculo')
