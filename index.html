@@ -166,6 +166,8 @@
                 color: black !important; 
                 padding: 0 !important; 
                 margin: 0 !important; 
+                width: 100% !important;
+                min-width: 0 !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
@@ -243,6 +245,21 @@
                 padding: 0 !important;
                 font-size: 10.5pt !important;
                 color: #1e293b !important;
+                width: 100% !important;
+                max-width: none !important;
+                overflow: visible !important;
+                box-shadow: none !important;
+            }
+
+            .printable-card:not(.terms-page) * {
+                box-sizing: border-box !important;
+            }
+
+            .printable-card:not(.terms-page) .avoid-break,
+            .printable-card:not(.terms-page) table,
+            .printable-card:not(.terms-page) tr {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
             }
 
             .printable-card:not(.terms-page) > div:first-child {
@@ -1811,10 +1828,29 @@
                 preparePrint() {
                     const termsPage = document.querySelector('.terms-page');
                     const appShell = document.querySelector('.app-shell');
+                    const previousTitle = document.title;
+                    const cleanPart = (value, fallback) => String(value || fallback)
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                        .replace(/[^a-zA-Z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '')
+                        .slice(0, 35);
+                    const clientName = this.client.type === 'company' ? this.client.companyName : this.client.name;
+                    const vehicleName = `${this.vehicle.make || 'Vehiculo'}-${this.vehicle.model || 'Sin-modelo'}`;
+                    const fileName = [
+                        'JASG-Cotizacion',
+                        cleanPart(this.quoteMeta.number, 'COT'),
+                        cleanPart(this.quoteMeta.date, 'fecha'),
+                        cleanPart(clientName, 'Cliente'),
+                        cleanPart(vehicleName, 'Vehiculo')
+                    ].join('-');
+                    document.title = fileName;
                     if (termsPage) {
                         termsPage.classList.toggle('terms-disabled', !this.showTermsInPrint);
                         if (appShell) appShell.appendChild(termsPage);
                     }
+                    window.addEventListener('afterprint', () => {
+                        document.title = previousTitle;
+                    }, { once: true });
                     window.print();
                 },
 
