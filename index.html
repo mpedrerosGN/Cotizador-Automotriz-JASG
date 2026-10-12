@@ -262,6 +262,17 @@
                 page-break-inside: avoid !important;
             }
 
+            .print-client-vehicle-grid {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+                gap: 4mm !important;
+                width: 100% !important;
+            }
+
+            .print-client-vehicle-grid > * {
+                min-width: 0 !important;
+            }
+
             .printable-card:not(.terms-page) > div:first-child {
                 background: linear-gradient(135deg, #111111 0%, #262626 58%, #8f6b16 100%) !important;
                 border-radius: 0 !important;
@@ -1316,7 +1327,7 @@
                 </div>
 
                 <!-- Client & Vehicle Details Grid (Dinámico para Persona Natural o Empresa) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 avoid-break">
+                <div class="print-client-vehicle-grid grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 avoid-break">
                     <!-- Datos Cliente Card -->
                     <div class="p-4 bg-blue-50/60 rounded-xl border border-blue-100 text-xs">
                         <div class="flex items-center space-x-2 mb-2 pb-1 border-b border-blue-200/60">
