@@ -1222,7 +1222,7 @@
 
             </div>
 
-            <article :class="{ 'terms-disabled': !showTermsInPrint }" class="print-only printable-card terms-page bg-white text-slate-800 max-w-4xl mx-auto font-sans">
+            <article x-show="showTermsInPrint" :class="{ 'terms-disabled': !showTermsInPrint }" class="print-only printable-card terms-page bg-white text-slate-800 max-w-4xl mx-auto font-sans">
                 <header class="border-b-2 border-slate-900 pb-3 mb-3">
                     <div class="flex items-center justify-between gap-4">
                         <div>
