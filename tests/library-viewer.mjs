@@ -37,10 +37,16 @@ export async function verifyLibraryViewer({ executablePath } = {}) {
     assert.equal(await page.locator('#folder-entries button').count(), 2);
     await page.locator('#folder-entries').getByRole('button', { name: 'Base de datos · Kia', exact: true }).click();
     assert.equal(await page.locator('#folder-entries').getByRole('button', { name: 'G. D.S -KIA', exact: true }).count(), 1);
+    await page.locator('#folder-path').getByRole('button', { name: 'Manuales y diagramas', exact: true }).click();
+    assert.equal(await page.locator('#folder-entries button').count(), 23);
+    await page.locator('#browse-pdfs').click();
+    await page.locator('#folder-filter').fill('Mazda 3 2004');
+    await page.locator('#folder-entries').getByRole('button', { name: 'Mazda 3 2004.pdf', exact: true }).click();
+    assert.match(await page.locator('#drive-viewer').getAttribute('src'), /1rubNN91Hqk1IpUMF48tSQFRDM_5h-ZU6\/preview$/);
     await page.setViewportSize({ width: 390, height: 844 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     assert.deepEqual(errors, []);
     const coverage = await page.coverage.stopJSCoverage();
-    return { passed: ['Native folders', 'Nested navigation', 'Folder search', 'Inline PDF', 'No new tab', 'Expanded view and Escape', 'Return and unload', 'Empty results', 'Kia folders', 'Mobile overflow'], coverage: coverage.map(({ url, text, ranges }) => ({ url, bytes: text.length, used: ranges.reduce((sum, range) => sum + range.end - range.start, 0) })) };
+    return { passed: ['Native folders', 'Nested navigation', 'Folder search', 'Inline PDF', 'No new tab', 'Expanded view and Escape', 'Return and unload', 'Empty results', 'Kia folders', 'Mobile overflow'], coverage: coverage.filter(entry => entry.url.includes('biblioteca-navegacion.js')).map(entry => ({ url: entry.url, bytes: entry.source?.length, functions: entry.functions.map(fn => ({ name: fn.functionName, called: fn.ranges[0].count > 0 })) })) };
   } finally { await browser.close(); }
 }
