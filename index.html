@@ -1048,7 +1048,7 @@
                                     <td class="py-3 px-3">
                                         <input type="number" min="0" step="any" x-model.number="item.laborCost" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-xs">
                                     </td>
-                                    <td class="py-3 px-3 text-right font-extrabold text-slate-900 text-xs sm:text-sm whitespace-nowrap" x-text="formatMoney((item.laborCost + item.partsCost) * item.quantity)"></td>
+                                    <td class="py-3 px-3 text-right font-extrabold text-slate-900 text-xs sm:text-sm whitespace-nowrap" x-text="formatMoney(item.laborCost * item.quantity)"></td>
                                     <td class="py-3 px-2 text-center">
                                         <button @click="removeItem(index)" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-2 rounded-lg transition" title="Eliminar Ítem">
                                             <i class="fa-solid fa-trash-can"></i>
@@ -1393,7 +1393,7 @@
                                     <td class="py-3 px-2 text-center font-bold text-slate-700" x-text="item.quantity"></td>
                                     <td class="py-3 px-3 text-right text-slate-600 font-medium" x-text="formatMoney(item.laborCost * item.quantity)"></td>
                                     <td class="pdf-exclude-parts py-3 px-3 text-right text-slate-600 font-medium" x-text="formatMoney(item.partsCost * item.quantity)"></td>
-                                    <td class="py-3 px-3 text-right font-extrabold text-slate-900" x-text="formatMoney((item.laborCost + item.partsCost) * item.quantity)"></td>
+                                    <td class="py-3 px-3 text-right font-extrabold text-slate-900" x-text="formatMoney(item.laborCost * item.quantity)"></td>
                                 </tr>
                             </template>
                         </tbody>
@@ -1788,6 +1788,11 @@
                 init() {
                     this.quoteMeta.date = this.getFormattedNow();
                     this.loadStoredData();
+                    this.items = this.items.map((item) => ({
+                        ...item,
+                        title: String(item.title || '').toLowerCase(),
+                        partsCost: 0
+                    }));
                 },
 
                 getNextCounterFromNumber(rawNumber) {
@@ -1914,7 +1919,7 @@
                         title: preset.title,
                         quantity: 1,
                         laborCost: preset.laborCost,
-                        partsCost: preset.partsCost
+                        partsCost: 0
                     });
                     this.showToast('Ítem añadido a la cotización');
                 },
@@ -1986,7 +1991,7 @@
                 },
 
                 calculateSubtotalParts() {
-                    return this.items.reduce((acc, item) => acc + (Number(item.partsCost) * Number(item.quantity)), 0);
+                    return 0;
                 },
 
                 calculateRawSubtotal() {
@@ -2093,7 +2098,11 @@
                     }
                     this.client = { ...loadedClient };
                     this.vehicle = { ...(q.vehicle || {}) };
-                    this.items = JSON.parse(JSON.stringify(q.items || []));
+                    this.items = JSON.parse(JSON.stringify(q.items || [])).map((item) => ({
+                        ...item,
+                        title: String(item.title || '').toLowerCase(),
+                        partsCost: 0
+                    }));
                     this.images = JSON.parse(JSON.stringify(q.images || []));
                     this.quoteMeta.notes = q.meta?.notes || this.quoteMeta.notes;
                     this.quoteMeta.discountPercent = q.meta?.discountPercent || 0;
@@ -2311,6 +2320,11 @@
                             const parsedCustom = JSON.parse(customCat);
                             this.catalog = [...this.catalog.filter(c => !c.isCustom), ...parsedCustom];
                         }
+                        this.catalog = this.catalog.map((item) => ({
+                            ...item,
+                            title: String(item.title || '').toLowerCase(),
+                            partsCost: 0
+                        }));
 
                         const storedCounter = localStorage.getItem('jasg_quote_counter');
                         if (storedCounter) {
