@@ -1790,7 +1790,7 @@
                     this.loadStoredData();
                     this.items = this.items.map((item) => ({
                         ...item,
-                        title: String(item.title || '').toLowerCase(),
+                        title: this.toTitleCase(item.title),
                         partsCost: 0
                     }));
                 },
@@ -1800,6 +1800,10 @@
                     const match = rawNumber.match(/(\d+)/);
                     const parsed = match ? Number(match[1]) : 1;
                     return Number.isFinite(parsed) ? parsed : 1;
+                },
+
+                toTitleCase(value) {
+                    return String(value || '').toLocaleLowerCase('es-CL').replace(/(^|[\s/-])[a-záéíóúñü]/g, (match) => match.toLocaleUpperCase('es-CL'));
                 },
 
                 handleCompanyIconUpload(event) {
@@ -1916,7 +1920,7 @@
                 addItemFromCatalog(preset) {
                     this.items.push({
                         id: Date.now() + Math.random(),
-                        title: preset.title,
+                        title: this.toTitleCase(preset.title),
                         quantity: 1,
                         laborCost: preset.laborCost,
                         partsCost: 0
@@ -2100,7 +2104,7 @@
                     this.vehicle = { ...(q.vehicle || {}) };
                     this.items = JSON.parse(JSON.stringify(q.items || [])).map((item) => ({
                         ...item,
-                        title: String(item.title || '').toLowerCase(),
+                        title: this.toTitleCase(item.title),
                         partsCost: 0
                     }));
                     this.images = JSON.parse(JSON.stringify(q.images || []));
@@ -2322,7 +2326,7 @@
                         }
                         this.catalog = this.catalog.map((item) => ({
                             ...item,
-                            title: String(item.title || '').toLowerCase(),
+                            title: this.toTitleCase(item.title),
                             partsCost: 0
                         }));
 
