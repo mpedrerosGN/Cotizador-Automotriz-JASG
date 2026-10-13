@@ -421,9 +421,17 @@
             }
             .terms-page.terms-disabled {
                 display: none !important;
+                page-break-before: auto !important;
+                break-before: auto !important;
             }
             .print-only.terms-page.terms-disabled {
                 display: none !important;
+                page-break-before: auto !important;
+                break-before: auto !important;
+            }
+
+            .printable-card:not(.terms-page) {
+                min-height: 0 !important;
             }
 
             .terms-page header {
