@@ -151,6 +151,15 @@
         .print-only { display: none; }
         .pdf-internal-number { display: block; }
         .jasg-preview-card .pdf-exclude-parts { display: none !important; }
+        @media print {
+            body.printing-quote-without-terms .terms-page {
+                display: none !important;
+                page-break-before: auto !important;
+                break-before: auto !important;
+                page-break-after: auto !important;
+                break-after: auto !important;
+            }
+        }
         .jasg-preview-card .bank-details-card {
             background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%) !important;
             border: 1px solid #d4a72c !important;
@@ -1911,6 +1920,7 @@
                         cleanPart(vehicleName, 'Vehiculo')
                     ].join('-');
                     document.title = fileName;
+                    if (!this.showTermsInPrint) document.body.classList.add('printing-quote-without-terms');
                     if (termsPage) {
                         if (this.showTermsInPrint) {
                             termsPage.classList.remove('terms-disabled');
@@ -1924,6 +1934,7 @@
                     }
                     window.addEventListener('afterprint', () => {
                         document.title = previousTitle;
+                        document.body.classList.remove('printing-quote-without-terms');
                         if (termsPage) {
                             termsPage.style.removeProperty('display');
                             termsPage.style.removeProperty('page-break-before');
