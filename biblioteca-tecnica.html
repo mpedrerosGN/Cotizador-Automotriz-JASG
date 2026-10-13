@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca Técnica | JASG Automotriz</title>
+  <link rel="stylesheet" href="biblioteca-tecnica.css?v=1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js?v=1"></script>
+  <script src="auth.js?v=1"></script>
+  <script defer src="biblioteca-tecnica.js?v=1"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="index.html"><img src="assets/jasg-logo.jpeg" alt="Logo JASG"><span>JASG Automotriz<small>MÓDULOS DEL TALLER</small></span></a>
+    <nav aria-label="Módulos">
+      <a href="index.html">Cotizador</a><a href="planificador.html">Planificador</a>
+      <a href="agendamientos.html">Agendamientos</a><a href="ordenes-trabajo.html">Órdenes</a>
+      <a href="inventario.html">Inventario</a><a href="tasador.html">Tasador</a>
+      <a href="monitor.html">Monitor</a><a href="gestor-publicaciones.html">Gestor de Publicaciones</a>
+      <a href="finanzas.html">Finanzas</a><a href="biblioteca-tecnica.html" aria-current="page">Biblioteca Técnica</a>
+    </nav>
+    <p class="sidebar-note">Información técnica,<br>siempre a mano.</p>
+  </aside>
+  <main>
+    <header class="page-header"><div><p class="eyebrow">JASG AUTOMOTRIZ · VERSIÓN DE PRUEBA</p><h1>Biblioteca Técnica</h1><p>Manuales, diagramas y consultas para el taller.</p></div><a class="button secondary" href="index.html">Volver al cotizador</a></header>
+    <section class="hero" aria-labelledby="hero-title"><div><span class="pill">MANUALES Y DIAGRAMAS</span><h2 id="hero-title">Encuentra la información.<br>Prepara el siguiente paso.</h2><p>Explora tu carpeta compartida o guarda una referencia para consultarla después.</p></div><div class="hero-actions"><button id="explore-root" class="button gold">Explorar Drive</button><button id="go-assistant" class="button translucent">Preparar una consulta →</button></div></section>
+    <div class="workspace">
+      <div class="library-column">
+        <section class="panel" aria-labelledby="catalog-title">
+          <div class="section-heading"><div><p class="eyebrow">TU MATERIAL TÉCNICO</p><h2 id="catalog-title">Carpetas y referencias</h2></div><button id="add-reference" class="button primary">+ Guardar enlace</button></div>
+          <div class="filters"><label>Buscar carpeta o referencia<input id="search" type="search" placeholder="Ej.: Kia, diésel, pinout…" maxlength="120"></label><label>Categoría<select id="category"><option value="">Todas</option><option>Manuales</option><option>Diagramas</option><option>Marcas</option><option>Maquinaria y diésel</option><option>Cursos</option><option>Diagnóstico</option><option>Otros</option></select></label></div>
+          <div class="catalog-meta"><label class="check"><input id="favorites-only" type="checkbox"> Solo favoritos</label><span id="result-count" role="status"></span></div>
+          <p class="hint">Busca en los títulos y datos de estas referencias, no dentro del contenido de todos los manuales. Los accesos iniciales corresponden a las carpetas visibles en tu Drive.</p>
+          <div id="catalog" class="catalog"></div>
+          <p id="empty" class="empty" hidden>No hay coincidencias. Prueba otra búsqueda o guarda un enlace de Drive.</p>
+          <p class="local-note">Tus enlaces añadidos y favoritos se guardan solo en este navegador. Aún no se sincronizan entre equipos.</p>
+        </section>
+        <section id="viewer-section" class="panel viewer-panel" aria-labelledby="viewer-title">
+          <div class="section-heading"><div><p class="eyebrow">CONSULTA DE DOCUMENTOS</p><h2 id="viewer-title">Manuales y diagramas</h2></div><a id="open-drive" class="button secondary" target="_blank" rel="noopener noreferrer" href="https://drive.google.com/drive/folders/1Wd0gj7JMWbTdCI-xlNMncZOEuvIKl1jI">Abrir en Drive ↗</a></div>
+          <p id="viewer-help" class="hint">Pulsa «Cargar visor» para consultar la carpeta. Si Google pide iniciar sesión o no muestra el archivo, utiliza «Abrir en Drive».</p>
+          <div id="viewer-placeholder" class="viewer-placeholder"><span class="folder-symbol" aria-hidden="true">▤</span><h3>Tu biblioteca de Drive</h3><p>Consulta el contenido original, sin duplicar tus archivos.</p><button id="load-viewer" class="button primary">Cargar visor</button></div>
+          <iframe id="drive-viewer" title="Visor de la biblioteca técnica de Google Drive" referrerpolicy="strict-origin-when-cross-origin" hidden></iframe>
+          <p class="hint">Google administra los permisos y la disponibilidad del visor. Algunos archivos o subcarpetas se abren en una pestaña nueva.</p>
+        </section>
+      </div>
+      <section id="assistant" class="panel assistant-panel" aria-labelledby="assistant-title">
+        <div class="assistant-heading"><span class="assistant-icon" aria-hidden="true">✦</span><div><p class="eyebrow">APOYO PARA EL TALLER</p><h2 id="assistant-title">Asistente JASG</h2></div></div>
+        <p class="status-badge">Preparador de consultas · conexión IA pendiente</p>
+        <p class="hint">Completa los datos y copia la consulta para usarla en ChatGPT. Esta versión no envía mensajes ni analiza automáticamente tu Drive.</p>
+        <form id="assistant-form">
+          <div class="form-grid"><label>Marca<input name="make" placeholder="Ej.: Kia" maxlength="80"></label><label>Modelo<input name="model" placeholder="Ej.: Sportage" maxlength="100"></label><label>Año<input name="year" inputmode="numeric" placeholder="Ej.: 2019" maxlength="4" pattern="[0-9]{4}"></label><label>Motor / versión<input name="engine" placeholder="Ej.: 2.0 diésel" maxlength="100"></label></div>
+          <label>Referencia para consultar<select id="reference" name="reference"></select></label>
+          <label>¿Qué necesitas resolver?<textarea id="question" name="question" rows="5" maxlength="3000" required placeholder="Describe el síntoma, código de falla o diagrama que necesitas…"></textarea></label>
+          <div class="suggestions" aria-label="Ejemplos de consulta"><button type="button" data-question="Necesito localizar el diagrama eléctrico y la identificación de conectores para este vehículo.">Diagrama eléctrico</button><button type="button" data-question="Necesito un procedimiento de diagnóstico para el siguiente código de falla: ">Código de falla</button><button type="button" data-question="Necesito identificar el manual y la página con el procedimiento de mantenimiento para este vehículo.">Mantenimiento</button></div>
+          <button class="button primary full" type="submit">Preparar consulta</button>
+        </form>
+        <div id="prepared" hidden><label>Consulta lista para copiar<textarea id="prompt-output" rows="10" readonly></textarea></label><div class="prompt-actions"><button id="copy-prompt" class="button primary">Copiar consulta</button><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" class="button secondary">Abrir ChatGPT ↗</a></div><p class="hint">Pega la consulta en ChatGPT. Si no puede abrir el enlace, adjunta el manual o las páginas relevantes allí. No se ha enviado nada desde este módulo.</p></div>
+      </section>
+    </div>
+    <footer>JASG Automotriz · Biblioteca Técnica <span>Primera versión para pruebas</span></footer>
+  </main>
+  <dialog id="reference-dialog" aria-labelledby="dialog-title"><form id="reference-form"><div class="section-heading"><h2 id="dialog-title">Guardar referencia</h2><button type="button" id="close-dialog" class="icon-button" aria-label="Cerrar">×</button></div><p class="hint">Guarda el enlace de un archivo o carpeta de Google Drive. El documento permanece en Drive.</p><label>Título<input name="title" required maxlength="150" placeholder="Ej.: Manual de taller Kia Sportage"></label><label>Enlace de Google Drive<input name="url" type="url" required maxlength="1000" placeholder="https://drive.google.com/…"></label><div class="form-grid"><label>Categoría<select name="category"><option>Manuales</option><option>Diagramas</option><option>Marcas</option><option>Maquinaria y diésel</option><option>Cursos</option><option>Diagnóstico</option><option>Otros</option></select></label><label>Marca / modelo / año<input name="vehicle" maxlength="150" placeholder="Ej.: Kia Sportage 2019"></label></div><p id="form-error" class="form-error" role="alert"></p><button class="button primary full" type="submit">Guardar en este navegador</button></form></dialog>
+  <div id="notice" class="notice" role="status" hidden></div>
+</body>
+</html>
