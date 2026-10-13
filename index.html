@@ -266,6 +266,11 @@
                 page-break-inside: avoid !important;
             }
 
+            .printable-card:not(.terms-page) .pdf-flow-section {
+                break-inside: auto !important;
+                page-break-inside: auto !important;
+            }
+
             .print-client-vehicle-grid {
                 display: grid !important;
                 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
@@ -1419,7 +1424,7 @@
                 </div>
 
                 <!-- BLOQUE CONTENEDOR UNIFICADO ANTICORTE PARA TOTALES, OBSERVACIONES Y FIRMAS -->
-                <div class="avoid-break mt-6 pt-6 border-t-2 border-slate-200 space-y-6">
+                <div class="pdf-flow-section avoid-break mt-6 pt-6 border-t-2 border-slate-200 space-y-6">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                         <!-- DATOS BANCARIOS -->
