@@ -1894,6 +1894,8 @@
                 preparePrint() {
                     const termsPage = document.querySelector('.terms-page');
                     const appShell = document.querySelector('.app-shell');
+                    const termsParent = termsPage ? termsPage.parentNode : null;
+                    const termsNextSibling = termsPage ? termsPage.nextSibling : null;
                     const previousTitle = document.title;
                     const cleanPart = (value, fallback) => String(value || fallback)
                         .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -1916,8 +1918,7 @@
                             termsPage.style.removeProperty('page-break-before');
                         } else {
                             termsPage.classList.add('terms-disabled');
-                            termsPage.style.setProperty('display', 'none', 'important');
-                            termsPage.style.setProperty('page-break-before', 'auto', 'important');
+                            termsPage.remove();
                         }
                         if (appShell) appShell.appendChild(termsPage);
                     }
@@ -1926,6 +1927,9 @@
                         if (termsPage) {
                             termsPage.style.removeProperty('display');
                             termsPage.style.removeProperty('page-break-before');
+                            if (!termsPage.parentNode && termsParent) {
+                                termsParent.insertBefore(termsPage, termsNextSibling);
+                            }
                         }
                     }, { once: true });
                     window.print();
