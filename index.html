@@ -238,7 +238,11 @@
 
             @page {
                 size: A4;
-                margin: 9mm;
+                margin: 6mm;
+            }
+
+            .pdf-exclude-parts {
+                display: none !important;
             }
 
             .printable-card:not(.terms-page) {
@@ -276,7 +280,7 @@
             .printable-card:not(.terms-page) > div:first-child {
                 background: linear-gradient(135deg, #111111 0%, #262626 58%, #8f6b16 100%) !important;
                 border-radius: 0 !important;
-                padding: 9mm !important;
+                padding: 5mm !important;
                 margin-bottom: 6mm !important;
                 border-bottom: 4px solid #d4a72c !important;
                 position: relative !important;
@@ -295,8 +299,8 @@
             }
 
             .printable-card:not(.terms-page) .print-logo {
-                width: 38mm !important;
-                height: 38mm !important;
+                width: 30mm !important;
+                height: 30mm !important;
                 border-radius: 5mm !important;
                 background: white !important;
                 border: 2px solid #d4a72c !important;
@@ -309,7 +313,7 @@
 
             .printable-card:not(.terms-page) > div:first-child p,
             .printable-card:not(.terms-page) > div:first-child .pdf-internal-number {
-                font-size: 10.5pt !important;
+                font-size: 8.8pt !important;
                 line-height: 1.35 !important;
             }
 
@@ -320,7 +324,7 @@
             }
 
             .printable-card:not(.terms-page) table {
-                font-size: 10.5pt !important;
+                font-size: 8.5pt !important;
                 border: 1px solid #cbd5e1 !important;
             }
 
@@ -331,7 +335,7 @@
 
             .printable-card:not(.terms-page) table th,
             .printable-card:not(.terms-page) table td {
-                padding: 2.8mm 2.5mm !important;
+                padding: 1.8mm 1.8mm !important;
                 vertical-align: top !important;
             }
 
@@ -1380,7 +1384,7 @@
                                 <th class="py-3 px-3 rounded-l-lg">Descripción del Servicio / Repuesto</th>
                                 <th class="py-3 px-2 text-center w-16">Cant.</th>
                                 <th class="py-3 px-3 text-right w-28">Mano Obra</th>
-                                <th class="py-3 px-3 text-right w-28">Repuestos</th>
+                                <th class="pdf-exclude-parts py-3 px-3 text-right w-28">Repuestos</th>
                                 <th class="py-3 px-3 text-right w-28 rounded-r-lg">Subtotal</th>
                             </tr>
                         </thead>
@@ -1390,7 +1394,7 @@
                                     <td class="py-3 px-3 font-bold text-slate-900" x-text="item.title"></td>
                                     <td class="py-3 px-2 text-center font-bold text-slate-700" x-text="item.quantity"></td>
                                     <td class="py-3 px-3 text-right text-slate-600 font-medium" x-text="formatMoney(item.laborCost * item.quantity)"></td>
-                                    <td class="py-3 px-3 text-right text-slate-600 font-medium" x-text="formatMoney(item.partsCost * item.quantity)"></td>
+                                    <td class="pdf-exclude-parts py-3 px-3 text-right text-slate-600 font-medium" x-text="formatMoney(item.partsCost * item.quantity)"></td>
                                     <td class="py-3 px-3 text-right font-extrabold text-slate-900" x-text="formatMoney((item.laborCost + item.partsCost) * item.quantity)"></td>
                                 </tr>
                             </template>
@@ -1433,7 +1437,7 @@
                                 <span class="font-medium">Subtotal Mano Obra:</span>
                                 <span class="font-bold text-white text-sm" x-text="formatMoney(calculateSubtotalLabor())"></span>
                             </div>
-                            <div class="flex justify-between items-center text-slate-300">
+                            <div class="pdf-exclude-parts flex justify-between items-center text-slate-300">
                                 <span class="font-medium">Subtotal Repuestos:</span>
                                 <span class="font-bold text-white text-sm" x-text="formatMoney(calculateSubtotalParts())"></span>
                             </div>
@@ -1652,8 +1656,8 @@
                 quoteCounter: 1,
                 editingQuoteId: null,
                 
-                showImagesInPrint: true,
-                showTermsInPrint: true,
+                showImagesInPrint: false,
+                showTermsInPrint: false,
                 images: [],
 
                 showAddCatalogModal: false,
