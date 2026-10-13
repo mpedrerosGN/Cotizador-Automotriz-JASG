@@ -183,20 +183,22 @@
         .jasg-preview-card .quote-total-card .text-blue-300 { color: #a87900 !important; }
         .jasg-preview-card .pdf-flow-section > .grid {
             align-items: stretch !important;
+            grid-auto-rows: minmax(0, 1fr) !important;
         }
         .jasg-preview-card .pdf-flow-section > .grid > div {
             display: flex !important;
             flex-direction: column !important;
             height: 100% !important;
         }
+        .jasg-preview-card .pdf-flow-section > .grid > div:nth-child(2) {
+            box-sizing: border-box !important;
+            padding-top: 1.5rem !important;
+        }
         .jasg-preview-card .pdf-flow-section .bank-details-card,
         .jasg-preview-card .pdf-flow-section .quote-total-card {
             flex: 1 1 auto !important;
-            height: 100% !important;
+            height: auto !important;
             box-sizing: border-box !important;
-        }
-        .jasg-preview-card .pdf-flow-section .quote-total-card {
-            margin-top: 1.8rem !important;
         }
         .jasg-preview-card:not(.terms-page) > div:first-child h2 { font-size: 1.75rem; }
         .jasg-preview-card:not(.terms-page) > div:first-child p { font-size: 0.85rem; line-height: 1.35; }
