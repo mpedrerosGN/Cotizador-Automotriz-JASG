@@ -1011,7 +1011,7 @@
                             <i class="fa-solid fa-calculator text-base"></i>
                         </div>
                         <div>
-                            <h2 class="font-bold text-slate-800 text-base">Detalle de Trabajos y Repuestos</h2>
+                            <h2 class="font-bold text-slate-800 text-base">Detalle de Trabajos</h2>
                             <p class="text-xs text-slate-500">Edita o personaliza la lista de ítems para el presupuesto</p>
                         </div>
                     </div>
@@ -1031,7 +1031,6 @@
                                 <th class="py-3 px-3 min-w-[200px]">Descripción del Trabajo / Repuesto</th>
                                 <th class="py-3 px-2 w-16 text-center">Cant.</th>
                                 <th class="py-3 px-3 w-36">Mano de Obra (<span x-text="currency"></span>)</th>
-                                <th class="py-3 px-3 w-36">Repuestos (<span x-text="currency"></span>)</th>
                                 <th class="py-3 px-3 w-32 text-right">Subtotal (<span x-text="currency"></span>)</th>
                                 <th class="py-3 px-2 w-12 text-center rounded-r-xl">Acción</th>
                             </tr>
@@ -1049,9 +1048,6 @@
                                     <td class="py-3 px-3">
                                         <input type="number" min="0" step="any" x-model.number="item.laborCost" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-xs">
                                     </td>
-                                    <td class="py-3 px-3">
-                                        <input type="number" min="0" step="any" x-model.number="item.partsCost" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-xs">
-                                    </td>
                                     <td class="py-3 px-3 text-right font-extrabold text-slate-900 text-xs sm:text-sm whitespace-nowrap" x-text="formatMoney((item.laborCost + item.partsCost) * item.quantity)"></td>
                                     <td class="py-3 px-2 text-center">
                                         <button @click="removeItem(index)" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-2 rounded-lg transition" title="Eliminar Ítem">
@@ -1061,7 +1057,7 @@
                                 </tr>
                             </template>
                             <tr x-show="items.length === 0">
-                                <td colspan="7" class="py-10 text-center text-slate-400 italic bg-slate-50/50 rounded-xl">
+                                <td colspan="6" class="py-10 text-center text-slate-400 italic bg-slate-50/50 rounded-xl">
                                     <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-300 block"></i>
                                     No hay trabajos agregados. Selecciona del catálogo arriba o haz clic en "Añadir Personalizado".
                                 </td>
@@ -1131,10 +1127,6 @@
                         <div class="flex justify-between text-xs text-slate-300">
                             <span>Subtotal Mano de Obra:</span>
                             <span class="font-bold text-white" x-text="formatMoney(calculateSubtotalLabor())"></span>
-                        </div>
-                        <div class="flex justify-between text-xs text-slate-300">
-                            <span>Subtotal Repuestos:</span>
-                            <span class="font-bold text-white" x-text="formatMoney(calculateSubtotalParts())"></span>
                         </div>
                         <div class="flex justify-between text-xs text-slate-300 border-t pt-2 border-slate-800">
                             <span>Subtotal Bruto:</span>
@@ -1998,7 +1990,7 @@
                 },
 
                 calculateRawSubtotal() {
-                    return this.calculateSubtotalLabor() + this.calculateSubtotalParts();
+                    return this.calculateSubtotalLabor();
                 },
 
                 calculateDiscountAmount() {
