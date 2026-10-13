@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biblioteca Técnica | JASG Automotriz</title>
-  <link rel="stylesheet" href="biblioteca-tecnica.css?v=1">
+  <link rel="stylesheet" href="biblioteca-tecnica.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-client.js?v=1"></script>
   <script src="auth.js?v=1"></script>
-  <script defer src="biblioteca-tecnica.js?v=1"></script>
+  <script defer src="biblioteca-indice.js?v=2"></script>
+  <script defer src="biblioteca-navegacion.js?v=2"></script>
+  <script defer src="biblioteca-tecnica.js?v=2"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -38,10 +40,18 @@
         </section>
         <section id="viewer-section" class="panel viewer-panel" aria-labelledby="viewer-title">
           <div class="section-heading"><div><p class="eyebrow">CONSULTA DE DOCUMENTOS</p><h2 id="viewer-title">Manuales y diagramas</h2></div><a id="open-drive" class="button secondary" target="_blank" rel="noopener noreferrer" href="https://drive.google.com/drive/folders/1Wd0gj7JMWbTdCI-xlNMncZOEuvIKl1jI">Abrir en Drive ↗</a></div>
-          <p id="viewer-help" class="hint">Pulsa «Cargar visor» para consultar la carpeta. Si Google pide iniciar sesión o no muestra el archivo, utiliza «Abrir en Drive».</p>
+          <p id="viewer-help" class="hint">Abre una carpeta y selecciona un PDF para leerlo aquí, sin salir de la biblioteca.</p>
+          <div class="viewer-toolbar"><button id="browse-pdfs" class="button primary">Ver PDFs disponibles</button><button id="viewer-back" class="button secondary" hidden>← Volver a la carpeta</button><button id="expand-viewer" class="button secondary" hidden>Ampliar visor</button></div>
+          <div id="folder-browser" hidden>
+            <nav id="folder-path" aria-label="Ruta de carpetas"></nav>
+            <label>Buscar en esta carpeta<input id="folder-filter" type="search" maxlength="120" placeholder="Nombre de carpeta o manual…"></label>
+            <p id="folder-status" class="hint" role="status"></p>
+            <div id="folder-entries"></div>
+            <p id="folder-empty" class="empty" hidden>No hay coincidencias en esta carpeta.</p>
+          </div>
           <div id="viewer-placeholder" class="viewer-placeholder"><span class="folder-symbol" aria-hidden="true">▤</span><h3>Tu biblioteca de Drive</h3><p>Consulta el contenido original, sin duplicar tus archivos.</p><button id="load-viewer" class="button primary">Cargar visor</button></div>
-          <iframe id="drive-viewer" title="Visor de la biblioteca técnica de Google Drive" referrerpolicy="strict-origin-when-cross-origin" hidden></iframe>
-          <p class="hint">Google administra los permisos y la disponibilidad del visor. Algunos archivos o subcarpetas se abren en una pestaña nueva.</p>
+          <iframe id="drive-viewer" title="Visor de la biblioteca técnica de Google Drive" allow="fullscreen" referrerpolicy="strict-origin-when-cross-origin" hidden></iframe>
+          <p class="hint">Los PDFs se muestran con el visor integrado de Google, que controla sus permisos. Si no carga, usa «Abrir en Drive». Los ZIP, RAR e instaladores no son PDFs. El listado de carpetas es un índice parcial del 13/10/2026, no una sincronización en vivo.</p>
         </section>
       </div>
       <section id="assistant" class="panel assistant-panel" aria-labelledby="assistant-title">

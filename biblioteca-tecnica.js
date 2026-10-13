@@ -137,18 +137,32 @@
     $('reference').value = allReferences().some(ref => ref.id === previous) ? previous : ROOT.id;
   }
 
-  function showReference(ref, scroll = true) {
+  function selectReference(ref, preview = false) {
     const link = driveLink(ref.url);
     selected = ref;
     $('viewer-title').textContent = ref.title;
     $('open-drive').href = link.url;
     $('drive-viewer').title = `Visor de Drive: ${ref.title}`;
-    $('drive-viewer').src = link.embed;
-    $('drive-viewer').hidden = false;
+    if (preview) {
+      $('drive-viewer').src = link.embed;
+      $('drive-viewer').hidden = false;
+    }
     $('viewer-placeholder').hidden = true;
     render();
+    if (![...$('reference').options].some(option => option.value === ref.id)) $('reference').add(new Option(ref.title, ref.id));
     $('reference').value = ref.id;
     $('prepared').hidden = true;
+    $('viewer-help').textContent = preview ? 'Lee el documento aquí. Puedes ampliar el visor; Google controla el zoom, las páginas y los permisos del archivo.' : 'Abre las subcarpetas y selecciona un PDF para leerlo aquí.';
+  }
+  const navigation = window.createLibraryNavigation({
+    roots: folders, root: ROOT, onSelect: selectReference,
+    onUnknownFolder: ref => {
+      $('drive-viewer').src = driveLink(ref.url).embed;
+      $('drive-viewer').hidden = false;
+    }
+  });
+  function showReference(ref, scroll = true) {
+    navigation.show(ref);
     if (scroll) $('viewer-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -193,7 +207,7 @@
     const data = new FormData(event.currentTarget);
     const question = String(data.get('question')).trim();
     if (!question) { notify('Describe la consulta que necesitas resolver.'); $('question').focus(); return; }
-    const ref = allReferences().find(item => item.id === data.get('reference')) || ROOT;
+    const ref = allReferences().find(item => item.id === data.get('reference')) || (selected.id === data.get('reference') ? selected : ROOT);
     const detail = (name, fallback) => String(data.get(name) || '').trim() || fallback;
     $('prompt-output').value = [
       'Ayúdame como asistente técnico de JASG Automotriz.',

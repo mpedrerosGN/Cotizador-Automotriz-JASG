@@ -26,7 +26,8 @@ export async function verifyTechnicalLibrary({ executablePath } = {}) {
     await page.locator('#favorites-only').check();
     assert.equal(await page.locator('.reference-card').count(), 1, 'Favorites survive reload');
     await page.getByRole('button', { name: 'Consultar', exact: true }).click();
-    assert.match(await page.locator('#drive-viewer').getAttribute('src'), /embeddedfolderview\?id=1uNe0JGTpjqhrjDuF9d93MyX9on4_OLXH/);
+    assert.equal(await page.locator('#folder-browser').isVisible(), true);
+    assert.equal(await page.locator('#drive-viewer').getAttribute('src'), null);
 
     await page.locator('#add-reference').click();
     await page.locator('#reference-form [name=title]').fill('Manual de prueba');

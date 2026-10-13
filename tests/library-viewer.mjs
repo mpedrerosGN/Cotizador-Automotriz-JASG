@@ -43,10 +43,36 @@ export async function verifyLibraryViewer({ executablePath } = {}) {
     await page.locator('#folder-filter').fill('Mazda 3 2004');
     await page.locator('#folder-entries').getByRole('button', { name: 'Mazda 3 2004.pdf', exact: true }).click();
     assert.match(await page.locator('#drive-viewer').getAttribute('src'), /1rubNN91Hqk1IpUMF48tSQFRDM_5h-ZU6\/preview$/);
+    await page.locator('#question').fill('¿Qué manual seleccioné?');
+    await page.getByRole('button', { name: 'Preparar consulta', exact: true }).click();
+    assert.ok((await page.locator('#prompt-output').inputValue()).includes('1rubNN91Hqk1IpUMF48tSQFRDM_5h-ZU6'));
+    await page.locator('#add-reference').click();
+    await page.locator('#reference-form [name=title]').fill('Carpeta fuera del índice');
+    await page.locator('#reference-form [name=url]').fill('https://drive.google.com/drive/folders/unknownfolder12345?resourcekey=test-key');
+    await page.getByRole('button', { name: 'Guardar en este navegador', exact: true }).click();
+    await page.locator('#search').fill('Carpeta fuera del índice');
+    await page.getByRole('button', { name: 'Consultar', exact: true }).click();
+    assert.match(await page.locator('#folder-status').textContent(), /aún no está indexada/);
+    assert.match(await page.locator('#drive-viewer').getAttribute('src'), /unknownfolder12345&resourcekey=test-key/);
     await page.setViewportSize({ width: 390, height: 844 });
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     assert.deepEqual(errors, []);
     const coverage = await page.coverage.stopJSCoverage();
-    return { passed: ['Native folders', 'Nested navigation', 'Folder search', 'Inline PDF', 'No new tab', 'Expanded view and Escape', 'Return and unload', 'Empty results', 'Kia folders', 'Mobile overflow'], coverage: coverage.filter(entry => entry.url.includes('biblioteca-navegacion.js')).map(entry => ({ url: entry.url, bytes: entry.source?.length, functions: entry.functions.map(fn => ({ name: fn.functionName, called: fn.ranges[0].count > 0 })) })) };
+    const navigationCoverage = coverage.filter(entry => entry.url.includes('biblioteca-navegacion.js')).map(entry => {
+      const functions = entry.functions;
+      const ranges = functions.flatMap(fn => fn.ranges);
+      const boundaries = [...new Set(ranges.flatMap(range => [range.startOffset, range.endOffset]))].sort((a, b) => a - b);
+      let used = 0;
+      let total = 0;
+      for (let index = 0; index < boundaries.length - 1; index++) {
+        const start = boundaries[index];
+        const end = boundaries[index + 1];
+        const containing = ranges.filter(range => range.startOffset <= start && range.endOffset >= end).sort((a, b) => (a.endOffset - a.startOffset) - (b.endOffset - b.startOffset));
+        if (containing.length) { total += end - start; if (containing[0].count > 0) used += end - start; }
+      }
+      return { functions: functions.filter(fn => fn.ranges[0].count > 0).length / functions.length * 100, executedBytes: Number((used / total * 100).toFixed(1)) };
+    });
+    assert.ok(navigationCoverage.every(result => result.functions >= 80 && result.executedBytes >= 80));
+    return { passed: ['Native folders', 'Nested navigation', 'Folder search', 'Inline PDF', 'No new tab', 'Expanded view and Escape', 'Return and unload', 'Empty results', 'Kia folders', 'PDF catalog', 'Selected PDF in assistant prompt', 'Unindexed folder fallback with resource key', 'Mobile overflow'], coverage: navigationCoverage };
   } finally { await browser.close(); }
 }
