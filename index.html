@@ -181,24 +181,23 @@
         .jasg-preview-card .quote-total-card .text-slate-700 { color: #475569 !important; }
         .jasg-preview-card .quote-total-card .text-emerald-400,
         .jasg-preview-card .quote-total-card .text-blue-300 { color: #a87900 !important; }
-        .jasg-preview-card .pdf-flow-section > .grid {
-            align-items: stretch !important;
-            grid-auto-rows: minmax(0, 1fr) !important;
+        /* El título tiene su propia fila; las dos tarjetas comparten la siguiente. */
+        .quote-summary-grid {
+            align-items: stretch;
         }
-        .jasg-preview-card .pdf-flow-section > .grid > div {
-            display: flex !important;
-            flex-direction: column !important;
-            height: 100% !important;
+        .quote-summary-heading {
+            grid-column: 1 / -1;
         }
-        .jasg-preview-card .pdf-flow-section > .grid > div:nth-child(2) {
-            box-sizing: border-box !important;
-            padding-top: 1.5rem !important;
+        .quote-summary-grid > .bank-details-card,
+        .quote-summary-grid > .quote-total-card {
+            min-width: 0;
+            margin: 0;
         }
-        .jasg-preview-card .pdf-flow-section .bank-details-card,
-        .jasg-preview-card .pdf-flow-section .quote-total-card {
-            flex: 1 1 auto !important;
-            height: auto !important;
-            box-sizing: border-box !important;
+        .print-signatures {
+            align-items: start;
+        }
+        .print-signatures > div {
+            min-width: 0;
         }
         .jasg-preview-card:not(.terms-page) > div:first-child h2 { font-size: 1.75rem; }
         .jasg-preview-card:not(.terms-page) > div:first-child p { font-size: 0.85rem; line-height: 1.35; }
@@ -208,6 +207,20 @@
         @media print {
             .no-print { display: none !important; }
             .app-shell { display: block !important; min-height: 0 !important; }
+            html, body {
+                /* min-h-screen más los márgenes del editor provocaba una hoja vacía. */
+                height: auto !important;
+                min-height: 0 !important;
+            }
+            main, .jasg-preview {
+                display: block !important;
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            main > :not(.jasg-preview) { display: none !important; }
+            .jasg-preview > .printable-card { margin: 0 !important; }
 
             .print-only:not(.terms-page),
             .terms-page:not(.terms-disabled) { display: block !important; }
@@ -288,7 +301,7 @@
             }
 
             @page {
-                size: A4;
+                size: auto;
                 margin: 6mm;
             }
 
@@ -311,15 +324,22 @@
             }
 
             .printable-card:not(.terms-page) .avoid-break,
-            .printable-card:not(.terms-page) table,
             .printable-card:not(.terms-page) tr {
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
             }
 
             .printable-card:not(.terms-page) .pdf-flow-section {
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                margin-top: 4mm !important;
+                padding-top: 3mm !important;
+            }
+            .quote-items {
+                overflow: visible !important;
                 break-inside: auto !important;
                 page-break-inside: auto !important;
+                margin: 0 !important;
             }
 
             .print-client-vehicle-grid {
@@ -327,10 +347,18 @@
                 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
                 gap: 4mm !important;
                 width: 100% !important;
+                margin-bottom: 4mm !important;
             }
 
             .print-client-vehicle-grid > * {
                 min-width: 0 !important;
+            }
+            .quote-summary-grid {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            }
+            .quote-summary-grid > .bank-details-card,
+            .quote-summary-grid > .quote-total-card {
+                box-shadow: none !important;
             }
 
             .printable-card:not(.terms-page) > div:first-child {
@@ -392,7 +420,7 @@
 
             .printable-card:not(.terms-page) table th,
             .printable-card:not(.terms-page) table td {
-                padding: 1.8mm 1.8mm !important;
+                padding: 1.5mm 1.8mm !important;
                 vertical-align: top !important;
             }
 
@@ -405,7 +433,7 @@
             .printable-card:not(.terms-page) .bg-blue-50\/60,
             .printable-card:not(.terms-page) .bg-amber-50\/60 {
                 border: 1px solid #cbd5e1 !important;
-                padding: 4mm !important;
+                padding: 2.5mm !important;
                 background: #f8fafc !important;
             }
 
@@ -460,19 +488,23 @@
             }
 
             .printable-card:not(.terms-page) {
-                min-height: 0 !important;
-                page-break-after: avoid !important;
-                break-after: avoid-page !important;
+                display: flex !important;
+                flex-direction: column !important;
+                /* La hoja crece si hace falta; 1 mm absorbe el redondeo de impresión. */
+                min-height: calc(100vh - 1mm) !important;
+                page-break-after: auto !important;
+                break-after: auto !important;
+            }
+            .printable-card:not(.terms-page) > * {
+                flex-shrink: 0;
             }
 
             .print-signatures {
-                position: fixed !important;
-                left: 12mm !important;
-                right: 12mm !important;
-                bottom: 7mm !important;
-                margin: 0 !important;
-                padding-top: 3mm !important;
-                background: white !important;
+                position: static !important;
+                margin-top: auto !important;
+                padding: 8mm 8mm 3mm !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
             }
 
             .terms-page header {
@@ -1458,7 +1490,7 @@
                 </div>
 
                 <!-- Printable Items Table -->
-                <div class="overflow-x-auto my-4 avoid-break">
+                <div class="quote-items overflow-x-auto my-4">
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="bg-slate-900 text-white font-bold">
@@ -1501,18 +1533,16 @@
                     </div>
                 </div>
 
-                <!-- BLOQUE CONTENEDOR UNIFICADO ANTICORTE PARA TOTALES, OBSERVACIONES Y FIRMAS -->
-                <div class="pdf-flow-section avoid-break mt-6 pt-6 border-t-2 border-slate-200 space-y-6">
+                <!-- Datos bancarios y totales en una misma fila de altura compartida -->
+                <div class="pdf-flow-section avoid-break mt-6 pt-6 border-t-2 border-slate-200">
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div class="quote-summary-grid grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
                         <!-- DATOS BANCARIOS -->
-                        <div class="text-xs text-slate-600 space-y-2">
-                            <h5 class="font-bold text-slate-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                                <i class="fa-solid fa-shield-halved text-blue-600"></i>
-                                <span>DATOS BANCARIOS:</span>
-                            </h5>
-                            <p class="bank-details-card whitespace-pre-line leading-relaxed text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200/70" x-text="quoteMeta.notes"></p>
-                        </div>
+                        <h5 class="quote-summary-heading font-bold text-slate-800 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                            <span>DATOS BANCARIOS:</span>
+                        </h5>
+                        <p class="bank-details-card whitespace-pre-line leading-relaxed text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200/70" x-text="quoteMeta.notes"></p>
 
                         <!-- Total Breakdown Box Fix -->
                         <div class="quote-total-card text-xs bg-slate-900 text-white p-5 rounded-2xl shadow-md border border-slate-800 space-y-2.5 w-full">
@@ -1539,20 +1569,20 @@
                         </div>
                     </div>
 
-                    <!-- Signatures -->
-                    <div class="print-signatures pt-8 grid grid-cols-2 gap-12 text-center text-xs text-slate-500">
-                        <div>
-                            <div class="border-b border-slate-400 w-3/4 mx-auto mb-2"></div>
-                            <p class="font-bold text-slate-800" x-text="company.name"></p>
-                            <p class="text-[11px] text-slate-400">Firma / Sello Taller</p>
-                        </div>
-                        <div>
-                            <div class="border-b border-slate-400 w-3/4 mx-auto mb-2"></div>
-                            <p class="font-bold text-slate-800" x-text="client.type === 'company' ? (client.companyName || 'Firma Empresa') : (client.name || 'Firma Cliente')"></p>
-                            <p class="text-[11px] text-slate-400">Conformidad Cliente</p>
-                        </div>
-                    </div>
+                </div>
 
+                <!-- Firmas en el flujo de la cotización: no se repiten en otras hojas. -->
+                <div class="print-signatures pt-14 grid grid-cols-2 gap-12 text-center text-xs text-slate-500">
+                    <div>
+                        <div class="border-b border-slate-400 w-3/4 mx-auto mb-2"></div>
+                        <p class="font-bold text-slate-800" x-text="company.name"></p>
+                        <p class="text-[11px] text-slate-400">Firma / Sello Taller</p>
+                    </div>
+                    <div>
+                        <div class="border-b border-slate-400 w-3/4 mx-auto mb-2"></div>
+                        <p class="font-bold text-slate-800" x-text="client.type === 'company' ? (client.companyName || 'Firma Empresa') : (client.name || 'Firma Cliente')"></p>
+                        <p class="text-[11px] text-slate-400">Conformidad Cliente</p>
+                    </div>
                 </div>
 
             </div>
@@ -1962,11 +1992,11 @@
                             termsPage.classList.remove('terms-disabled');
                             termsPage.style.removeProperty('display');
                             termsPage.style.removeProperty('page-break-before');
+                            if (appShell) appShell.appendChild(termsPage);
                         } else {
                             termsPage.classList.add('terms-disabled');
                             termsPage.remove();
                         }
-                        if (appShell) appShell.appendChild(termsPage);
                     }
                     window.addEventListener('afterprint', () => {
                         document.title = previousTitle;
@@ -1974,7 +2004,7 @@
                         if (termsPage) {
                             termsPage.style.removeProperty('display');
                             termsPage.style.removeProperty('page-break-before');
-                            if (!termsPage.parentNode && termsParent) {
+                            if (termsParent) {
                                 termsParent.insertBefore(termsPage, termsNextSibling);
                             }
                         }
