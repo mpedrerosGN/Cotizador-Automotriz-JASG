@@ -1910,11 +1910,23 @@
                     ].join('-');
                     document.title = fileName;
                     if (termsPage) {
-                        termsPage.classList.toggle('terms-disabled', !this.showTermsInPrint);
+                        if (this.showTermsInPrint) {
+                            termsPage.classList.remove('terms-disabled');
+                            termsPage.style.removeProperty('display');
+                            termsPage.style.removeProperty('page-break-before');
+                        } else {
+                            termsPage.classList.add('terms-disabled');
+                            termsPage.style.setProperty('display', 'none', 'important');
+                            termsPage.style.setProperty('page-break-before', 'auto', 'important');
+                        }
                         if (appShell) appShell.appendChild(termsPage);
                     }
                     window.addEventListener('afterprint', () => {
                         document.title = previousTitle;
+                        if (termsPage) {
+                            termsPage.style.removeProperty('display');
+                            termsPage.style.removeProperty('page-break-before');
+                        }
                     }, { once: true });
                     window.print();
                 },
