@@ -994,11 +994,11 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Valor Mano de Obra (<span x-text="currency"></span>)</label>
-                                <input type="number" min="0" x-model.number="newPreset.laborCost" placeholder="0" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                                <input type="text" inputmode="numeric" :value="formatInputNumber(newPreset.laborCost)" @input="newPreset.laborCost = parseInputNumber($event.target.value)" placeholder="0" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Valor Repuestos (<span x-text="currency"></span>)</label>
-                                <input type="number" min="0" x-model.number="newPreset.partsCost" placeholder="0" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                                <input type="text" inputmode="numeric" :value="formatInputNumber(newPreset.partsCost)" @input="newPreset.partsCost = parseInputNumber($event.target.value)" placeholder="0" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold">
                             </div>
                         </div>
 
@@ -1056,7 +1056,7 @@
                                         <input type="number" min="1" x-model.number="item.quantity" class="w-14 px-1.5 py-1.5 text-center bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-xs">
                                     </td>
                                     <td class="py-3 px-3">
-                                        <input type="number" min="0" step="any" x-model.number="item.laborCost" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-xs">
+                                        <input type="text" inputmode="numeric" :value="formatInputNumber(item.laborCost)" @input="item.laborCost = parseInputNumber($event.target.value)" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-xs">
                                     </td>
                                     <td class="py-3 px-3 text-right font-extrabold text-slate-900 text-xs sm:text-sm whitespace-nowrap" x-text="formatMoney(item.laborCost * item.quantity)"></td>
                                     <td class="py-3 px-2 text-center">
@@ -1890,6 +1890,16 @@
                 formatMoney(val) {
                     if (isNaN(val)) return this.currency + ' 0';
                     return this.currency + ' ' + Math.round(val).toLocaleString('es-CL');
+                },
+
+                formatInputNumber(val) {
+                    const number = Number(val) || 0;
+                    return number.toLocaleString('es-CL');
+                },
+
+                parseInputNumber(val) {
+                    const raw = String(val || '').replace(/[^0-9]/g, '');
+                    return raw ? Number(raw) : 0;
                 },
 
                 formatPlateInput(val) {
