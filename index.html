@@ -1854,6 +1854,10 @@
                 init() {
                     this.quoteMeta.date = this.getFormattedNow();
                     this.loadStoredData();
+                    if (!this.quoteMeta.notes.includes('TIPO DE CUENTA')) {
+                        this.quoteMeta.notes += '\nTIPO DE CUENTA: Cuenta Corriente';
+                        this.saveStoredData();
+                    }
                     this.items = this.items.map((item) => ({
                         ...item,
                         title: this.toTitleCase(item.title),
@@ -2211,6 +2215,9 @@
                     }));
                     this.images = JSON.parse(JSON.stringify(q.images || []));
                     this.quoteMeta.notes = q.meta?.notes || this.quoteMeta.notes;
+                    if (!this.quoteMeta.notes.includes('TIPO DE CUENTA')) {
+                        this.quoteMeta.notes += '\nTIPO DE CUENTA: Cuenta Corriente';
+                    }
                     this.quoteMeta.discountPercent = q.meta?.discountPercent || 0;
                     this.taxRate = q.taxRate !== undefined ? q.taxRate : 19;
                     this.currency = q.currency || '$';
