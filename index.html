@@ -151,6 +151,15 @@
         .print-only { display: none; }
         .pdf-internal-number { display: block; }
         .jasg-preview-card .pdf-exclude-parts { display: none !important; }
+        .jasg-preview-card .bank-details-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%) !important;
+            border: 1px solid #d4a72c !important;
+            border-left: 4px solid #d4a72c !important;
+            border-radius: 0.9rem !important;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+            color: #334155 !important;
+            font-size: 0.82rem !important;
+        }
         .jasg-preview-card:not(.terms-page) > div:first-child h2 { font-size: 1.75rem; }
         .jasg-preview-card:not(.terms-page) > div:first-child p { font-size: 0.85rem; line-height: 1.35; }
         .jasg-preview-card:not(.terms-page) table { font-size: 0.95rem; }
@@ -1379,7 +1388,8 @@
                     <table class="w-full text-left text-xs border-collapse">
                         <thead>
                             <tr class="bg-slate-900 text-white font-bold">
-                                <th class="py-3 px-3 rounded-l-lg">Descripción del Servicio / Repuesto</th>
+                                <th class="py-3 px-2 text-center w-10">#</th>
+                                <th class="py-3 px-3">Descripción del Servicio / Repuesto</th>
                                 <th class="py-3 px-2 text-center w-16">Cant.</th>
                                 <th class="py-3 px-3 text-right w-28">Mano Obra</th>
                                 <th class="pdf-exclude-parts py-3 px-3 text-right w-28">Repuestos</th>
@@ -1387,8 +1397,9 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200">
-                            <template x-for="item in items" :key="item.id">
+                            <template x-for="(item, index) in items" :key="item.id">
                                 <tr class="hover:bg-slate-50 avoid-break">
+                                    <td class="py-3 px-2 text-center font-bold text-slate-500" x-text="index + 1"></td>
                                     <td class="py-3 px-3 font-bold text-slate-900" x-text="item.title"></td>
                                     <td class="py-3 px-2 text-center font-bold text-slate-700" x-text="item.quantity"></td>
                                     <td class="py-3 px-3 text-right text-slate-600 font-medium" x-text="formatMoney(item.laborCost * item.quantity)"></td>
@@ -1426,7 +1437,7 @@
                                 <i class="fa-solid fa-shield-halved text-blue-600"></i>
                                 <span>DATOS BANCARIOS:</span>
                             </h5>
-                            <p class="whitespace-pre-line leading-relaxed text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200/70" x-text="quoteMeta.notes"></p>
+                            <p class="bank-details-card whitespace-pre-line leading-relaxed text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-200/70" x-text="quoteMeta.notes"></p>
                         </div>
 
                         <!-- Total Breakdown Box Fix -->
