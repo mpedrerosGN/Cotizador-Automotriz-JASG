@@ -115,7 +115,7 @@
                     </div>
                     <div class="grid grid-cols-2 gap-3 shrink-0">
                         <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="remates.length"></div><div class="text-[10px] text-slate-300 uppercase">Remates</div></div>
-                        <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="vehicleTotalsLoading ? '...' : totalVehicleCount"></div><div class="text-[10px] text-slate-300 uppercase">Vehiculos totales</div></div>
+                        <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="vehicleTotalsLoading || totalVehicleCount === null ? '...' : totalVehicleCount"></div><div class="text-[10px] text-slate-300 uppercase">Vehiculos totales</div></div>
                     </div>
                 </section>
 
@@ -223,8 +223,10 @@
                 loadingAuctions: false,
                 loadingVehicles: false,
                 vehicleTotalsLoading: false,
-                totalVehicleCount: 0,
+                totalVehicleCount: null,
                 globalVehiclesLoading: false,
+                globalCatalogLoaded: false,
+                globalCatalogScheduled: false,
                 allVehicles: [],
                 loadError: '',
                 remates: [
@@ -247,7 +249,7 @@
                 })),
                 get filteredVehicles() {
                     const query = this.search.trim().toLowerCase();
-                    if (query && this.globalVehiclesLoading) return [];
+                    if (query && (!this.globalCatalogLoaded || this.globalVehiclesLoading)) return [];
                     const source = query ? this.allVehicles : this.vehicles;
                     return source.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query));
                 },
@@ -312,7 +314,19 @@
                 },
                 init() {
                     if (window.jasgRequireAuth) window.jasgRequireAuth();
+                    this.$watch('search', value => {
+                        if (String(value || '').trim()) this.prepareGlobalSearch();
+                    });
                     this.loadRemoteAuctions();
+                },
+                prepareGlobalSearch() {
+                    this.globalCatalogScheduled = true;
+                    this.loadRemoteVehicleTotals();
+                },
+                scheduleGlobalCatalog() {
+                    if (this.globalCatalogScheduled || this.globalCatalogLoaded || this.globalVehiclesLoading) return;
+                    this.globalCatalogScheduled = true;
+                    setTimeout(() => this.loadRemoteVehicleTotals(), 5000);
                 },
                 async fetchRemoteText(url, attempts = 3, responseFormat = 'markdown') {
                     const target = url.replace(/^https?:\/\//i, '');
@@ -362,10 +376,12 @@
                     return (await this.getAuctionVehicles(auction)).length;
                 },
                 updateTotalVehicleCount() {
+                    if (!this.vehicleTotalsLoading && !this.globalCatalogLoaded) return;
                     this.totalVehicleCount = this.remates.reduce((total, auction) => total + (Number(auction.vehicleCount) || 0), 0);
                 },
                 async loadRemoteVehicleTotals() {
                     if (this.vehicleTotalsLoading || !this.remates.length) return;
+                    this.globalCatalogScheduled = true;
                     this.vehicleTotalsLoading = true;
                     this.globalVehiclesLoading = true;
                     this.allVehicles = [];
@@ -383,6 +399,7 @@
                             this.updateTotalVehicleCount();
                         }
                     } finally {
+                        this.globalCatalogLoaded = true;
                         this.vehicleTotalsLoading = false;
                         this.globalVehiclesLoading = false;
                         this.updateTotalVehicleCount();
@@ -426,7 +443,6 @@
                         if (!this.remates.length) throw new Error('No se encontraron remates publicados');
                         this.rematePage = 1;
                         this.selectAuction(this.remates[0]);
-                        this.loadRemoteVehicleTotals();
                     } catch (error) {
                         this.loadError = 'No se pudo leer el catálogo completo de Karcal en este momento.';
                         this.selectedAuction = this.remates[0]?.id || '';
@@ -479,6 +495,7 @@
                         console.warn(this.loadError, error);
                     } finally {
                         this.loadingVehicles = false;
+                        this.scheduleGlobalCatalog();
                     }
                 },
                 async repairVehicleImage(vehicle) {
