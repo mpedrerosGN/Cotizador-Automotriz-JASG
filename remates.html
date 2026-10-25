@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
     <title>Remates de Vehículos - JASG Automotriz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -188,7 +190,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                         <template x-for="vehicle in filteredVehicles" :key="vehicle.id">
                             <article class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition overflow-hidden">
-                                <div class="h-36 bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center relative overflow-hidden"><img x-show="vehicle.imageUrl" :src="vehicle.imageUrl" :alt="vehicle.make + ' ' + vehicle.model" @error="vehicle.imageUrl = ''" class="w-full h-full object-cover"><i x-show="!vehicle.imageUrl" class="fa-solid fa-car-side text-5xl text-white/20"></i><span class="absolute top-3 left-3 bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-1 rounded-lg" x-text="vehicle.auctionDate"></span></div>
+                                <div class="h-36 bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center relative overflow-hidden"><img x-show="vehicle.imageUrl" :src="vehicle.imageUrl" :alt="vehicle.make + ' ' + vehicle.model" loading="lazy" referrerpolicy="no-referrer" @error="repairVehicleImage(vehicle)" class="w-full h-full object-cover"><i x-show="!vehicle.imageUrl" class="fa-solid fa-car-side text-5xl text-white/20"></i><span class="absolute top-3 left-3 bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-1 rounded-lg" x-text="vehicle.auctionDate"></span></div>
                                 <div class="p-4"><div class="flex items-start justify-between gap-3"><div><p class="text-[10px] uppercase tracking-widest text-blue-600 font-black" x-text="vehicle.make"></p><h3 class="text-base font-black text-slate-900" x-text="vehicle.model"></h3></div><span class="text-xs font-bold text-slate-500" x-text="vehicle.year"></span></div><div class="mt-4 flex items-end justify-between gap-3"><div><p class="text-[10px] text-slate-400 uppercase font-bold">Valor inicial</p><p class="text-lg font-black text-emerald-600" x-text="formatMoney(vehicle.initialValue)"></p></div><button @click="openVehicle(vehicle)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-eye"></i> Ver auto</button></div></div>
                             </article>
                         </template>
@@ -470,6 +472,23 @@
                         console.warn(this.loadError, error);
                     } finally {
                         this.loadingVehicles = false;
+                    }
+                },
+                async repairVehicleImage(vehicle) {
+                    if (vehicle.imageRetrying || vehicle.imageRetried) return;
+                    const previousImage = vehicle.imageUrl;
+                    vehicle.imageRetried = true;
+                    vehicle.imageRetrying = true;
+                    vehicle.imageUrl = '';
+                    try {
+                        const markdown = await this.fetchRemoteText(vehicle.detailUrl);
+                        const image = markdown.match(/https?:\/\/[^)\s]+\/imagenes\/[^)\s]+\.(?:jpg|jpeg|png|webp)(?:[?#]|$)/i)?.[0];
+                        const normalizedImage = this.normalizeRemoteUrl(image || '');
+                        if (normalizedImage && normalizedImage !== previousImage) vehicle.imageUrl = normalizedImage;
+                    } catch (error) {
+                        console.warn('No se pudo recuperar la imagen del lote', vehicle.detailUrl, error);
+                    } finally {
+                        vehicle.imageRetrying = false;
                     }
                 },
                 async loadImagesForVehicles(vehicles) {
