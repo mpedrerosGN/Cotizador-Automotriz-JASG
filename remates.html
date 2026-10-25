@@ -99,8 +99,9 @@
                         <h2 class="text-2xl font-black">Encuentra oportunidades para tus clientes</h2>
                         <p class="text-sm text-slate-300 mt-1 max-w-2xl">Revisa remates de vehículos siniestrados y utiliza esta información como apoyo para tasaciones, reparaciones y compras.</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-3 shrink-0">
+                    <div class="grid grid-cols-3 gap-3 shrink-0">
                         <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="remates.length"></div><div class="text-[10px] text-slate-300 uppercase">Remates</div></div>
+                        <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="vehicleTotalsLoading ? '...' : totalVehicleCount"></div><div class="text-[10px] text-slate-300 uppercase">Vehiculos totales</div></div>
                         <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="filteredVehicles.length"></div><div class="text-[10px] text-slate-300 uppercase">Vehículos</div></div>
                     </div>
                 </section>
@@ -207,6 +208,8 @@
                 remoteImagesLoading: false,
                 loadingAuctions: false,
                 loadingVehicles: false,
+                vehicleTotalsLoading: false,
+                totalVehicleCount: 0,
                 loadError: '',
                 remates: [
                     { id: '2026-04-09', title: '09/04/2026 - Autos siniestrados', date: '09/04/2026' },
@@ -302,6 +305,41 @@
                 normalizeRemoteUrl(url) {
                     return String(url || '').replace(/^http:\/\//i, 'https://');
                 },
+                async getAuctionMarkdown(auction) {
+                    if (!auction.markdownPromise) auction.markdownPromise = this.fetchRemoteText(auction.url);
+                    return auction.markdownPromise;
+                },
+                async getAuctionVehicleCount(auction) {
+                    if (typeof auction.vehicleCount === 'number') return auction.vehicleCount;
+                    const markdown = await this.getAuctionMarkdown(auction);
+                    const links = [...markdown.matchAll(/\]\((https?:\/\/[^)]+\/lote-\d+-\d+\/index\.html)\)/gi)]
+                        .map(match => this.normalizeRemoteUrl(match[1]));
+                    auction.vehicleCount = new Set(links).size;
+                    return auction.vehicleCount;
+                },
+                updateTotalVehicleCount() {
+                    this.totalVehicleCount = this.remates.reduce((total, auction) => total + (Number(auction.vehicleCount) || 0), 0);
+                },
+                async loadRemoteVehicleTotals() {
+                    if (this.vehicleTotalsLoading || !this.remates.length) return;
+                    this.vehicleTotalsLoading = true;
+                    this.totalVehicleCount = 0;
+                    const batchSize = 6;
+                    try {
+                        for (let index = 0; index < this.remates.length; index += batchSize) {
+                            const batch = this.remates.slice(index, index + batchSize);
+                            await Promise.all(batch.map(auction => this.getAuctionVehicleCount(auction).catch(error => {
+                                auction.vehicleCount = 0;
+                                console.warn('No se pudo contar el listado de vehiculos', auction.url, error);
+                                return 0;
+                            })));
+                            this.updateTotalVehicleCount();
+                        }
+                    } finally {
+                        this.vehicleTotalsLoading = false;
+                        this.updateTotalVehicleCount();
+                    }
+                },
                 getAuctionLabel(markdown, matchIndex) {
                     const beforeLink = markdown.slice(Math.max(0, matchIndex - 420), matchIndex);
                     const lines = beforeLink.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -334,6 +372,7 @@
                         if (!this.remates.length) throw new Error('No se encontraron remates publicados');
                         this.rematePage = 1;
                         this.selectAuction(this.remates[0]);
+                        this.loadRemoteVehicleTotals();
                     } catch (error) {
                         this.loadError = 'No se pudo leer el catálogo completo de Karcal en este momento.';
                         this.selectedAuction = this.remates[0]?.id || '';
@@ -377,12 +416,13 @@
                     this.loadingVehicles = true;
                     this.loadError = '';
                     try {
-                        const markdown = await this.fetchRemoteText(auction.url);
+                        const markdown = await this.getAuctionMarkdown(auction);
                         const links = [...markdown.matchAll(/\]\((https?:\/\/[^)]+\/lote-\d+-\d+\/index\.html)\)/gi)]
                             .map(match => ({ url: this.normalizeRemoteUrl(match[1]), index: match.index || 0 }));
                         const unique = new Map(links.map(item => [item.url, item]));
                         this.vehicles = [...unique.values()].map(item => this.parseVehicleFromMarkdown(markdown, item.url, auction, item.index));
                         auction.vehicleCount = this.vehicles.length;
+                        this.updateTotalVehicleCount();
                         await this.loadImagesForVehicles(this.vehicles);
                     } catch (error) {
                         this.vehicles = [];
