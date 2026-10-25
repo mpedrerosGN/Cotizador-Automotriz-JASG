@@ -569,6 +569,7 @@
                 <a href="ordenes-trabajo.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-clipboard-list"></i> Órdenes</a>
                 <a href="inventario.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
                 <a href="tasador.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-car-side"></i> Tasador</a>
+                <a href="remates.html" title="Remates de Vehículos" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-gavel"></i> Remates</a>
                 <a href="monitor.html" title="Monitor" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-display"></i> Monitor</a>
                 <a href="gestor-publicaciones.html" title="Gestor de Publicaciones" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-bullhorn"></i> Gestor de Publicaciones</a>
                 <a href="finanzas.html" class="w-max shrink-0 whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-xl font-bold text-slate-200 hover:bg-slate-800 transition-all lg:w-full lg:gap-3 lg:px-4 lg:py-3 lg:rounded-2xl"><i class="fa-solid fa-wallet"></i> Finanzas</a>
@@ -1939,17 +1940,51 @@
                     }
                 },
 
-                handleImageUpload(event) {
+                async imageFileToDataUrl(file) {
+                    const originalDataUrl = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = () => reject(reader.error || new Error('No se pudo leer la imagen'));
+                        reader.readAsDataURL(file);
+                    });
+
+                    // Reducir el tamaño evita que localStorage o Supabase trunquen la cotización.
+                    try {
+                        const image = await new Promise((resolve, reject) => {
+                            const preview = new Image();
+                            preview.onload = () => resolve(preview);
+                            preview.onerror = () => reject(new Error('El archivo no es una imagen válida'));
+                            preview.src = originalDataUrl;
+                        });
+                        const maxSize = 1600;
+                        const scale = Math.min(1, maxSize / Math.max(image.naturalWidth, image.naturalHeight));
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+                        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+                        canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+                        return canvas.toDataURL('image/jpeg', 0.82);
+                    } catch (error) {
+                        console.warn('No se pudo optimizar la imagen; se usará el archivo original', error);
+                        return originalDataUrl;
+                    }
+                },
+
+                async handleImageUpload(event) {
                     const files = event.target.files;
                     if (files) {
-                        for (let i = 0; i < files.length; i++) {
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                this.images.push({ data: e.target.result });
-                            };
-                            reader.readAsDataURL(files[i]);
+                        for (const file of files) {
+                            try {
+                                const data = await this.imageFileToDataUrl(file);
+                                if (typeof data === 'string' && data.startsWith('data:image/')) {
+                                    this.images.push({ data });
+                                }
+                            } catch (error) {
+                                console.error('No se pudo adjuntar la imagen', error);
+                                this.showToast('No se pudo adjuntar una imagen', 'fa-triangle-exclamation text-rose-400');
+                            }
                         }
                         this.showToast('Imágenes adjuntadas correctamente', 'fa-camera text-cyan-400');
+                        event.target.value = '';
                     }
                 },
 
@@ -2136,12 +2171,14 @@
                     }
                     this.showAddCatalogModal = false;
                     this.saveStoredData();
+                    this.syncCatalogToCloud();
                 },
 
                 deleteCatalogItem(id) {
                     if (confirm('¿Estás seguro de eliminar este ítem del catálogo?')) {
                         this.catalog = this.catalog.filter(p => p.id !== id);
                         this.saveStoredData();
+                        this.syncCatalogToCloud();
                         this.showToast('Ítem eliminado del catálogo');
                     }
                 },
@@ -2432,6 +2469,44 @@
                     if (result.error) console.error('No se pudo eliminar la cotización compartida', result.error);
                 },
 
+                async syncCatalogToCloud() {
+                    if (!window.jasgCloud) return;
+                    try {
+                        const customItems = this.catalog.filter(item => item.isCustom);
+                        const result = await window.jasgCloud.guardar('catalogo', 'compartido', { items: customItems });
+                        if (result.error) {
+                            console.error('No se pudo sincronizar el catálogo', result.error);
+                        }
+                    } catch (error) {
+                        console.error('No se pudo sincronizar el catálogo', error);
+                    }
+                },
+
+                async loadCloudCatalog() {
+                    if (!window.jasgCloud) return;
+                    try {
+                        const cloudCatalog = await window.jasgCloud.listar('catalogo');
+                        const shared = cloudCatalog.find(record => record.id === 'compartido');
+                        if (!shared || !Array.isArray(shared.items)) {
+                            // Un navegador nuevo no debe reemplazar el catálogo remoto con una lista vacía.
+                            if (this.catalog.some(item => item.isCustom)) {
+                                await this.syncCatalogToCloud();
+                            }
+                            return;
+                        }
+
+                        const builtIn = this.catalog.filter(item => !item.isCustom);
+                        this.catalog = [...builtIn, ...shared.items.map(item => ({ ...item, isCustom: true }))].map(item => ({
+                            ...item,
+                            title: this.toTitleCase(item.title),
+                            partsCost: 0
+                        }));
+                        localStorage.setItem('jasg_custom_catalog', JSON.stringify(shared.items));
+                    } catch (error) {
+                        console.error('No se pudo cargar el catálogo compartido', error);
+                    }
+                },
+
                 async loadCloudQuotes() {
                     if (!window.jasgCloud) return;
                     try {
@@ -2507,6 +2582,7 @@
                         }
 
                         this.quoteMeta.number = 'COT-' + String(this.quoteCounter).padStart(4, '0');
+                        this.loadCloudCatalog();
                         this.loadCloudQuotes();
                     } catch (e) {
                         console.error('Error cargando localStorage', e);

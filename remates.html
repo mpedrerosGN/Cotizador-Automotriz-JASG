@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remates de Vehículos - JASG Automotriz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="jasg-brand.js?v=2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js?v=1"></script>
+    <script src="auth.js?v=1"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen" x-data="rematesApp()" x-init="init()">
+    <div class="flex min-h-screen flex-col lg:flex-row">
+        <aside class="w-full lg:w-64 lg:shrink-0 bg-slate-900 text-white border-b lg:border-b-0 lg:border-r border-slate-700/80 shadow-2xl">
+            <div class="px-4 py-3 lg:px-5 lg:py-6 border-b border-slate-700/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-lg overflow-hidden shrink-0">
+                        <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                        <i data-jasg-brand-fallback class="fa-solid fa-car-side text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <div class="text-lg font-black tracking-tight">JASG</div>
+                        <div class="text-[10px] text-slate-300 uppercase tracking-[0.2em]">Módulos</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 p-2 lg:block lg:space-y-2 lg:p-4">
+                <a href="index.html" class="module-link"><i class="fa-solid fa-file-invoice"></i> Cotizador</a>
+                <a href="planificador.html" class="module-link"><i class="fa-solid fa-list-check"></i> Planificador</a>
+                <a href="agendamientos.html" class="module-link"><i class="fa-solid fa-calendar-days"></i> Agendamientos</a>
+                <a href="ordenes-trabajo.html" class="module-link"><i class="fa-solid fa-clipboard-list"></i> Órdenes</a>
+                <a href="inventario.html" class="module-link"><i class="fa-solid fa-boxes-stacked"></i> Inventario</a>
+                <a href="tasador.html" class="module-link"><i class="fa-solid fa-car-side"></i> Tasador</a>
+                <a href="remates.html" aria-current="page" class="module-link active"><i class="fa-solid fa-gavel"></i> Remates</a>
+                <a href="monitor.html" class="module-link"><i class="fa-solid fa-display"></i> Monitor</a>
+                <a href="gestor-publicaciones.html" class="module-link"><i class="fa-solid fa-bullhorn"></i> Publicaciones</a>
+                <a href="finanzas.html" class="module-link"><i class="fa-solid fa-wallet"></i> Finanzas</a>
+                <a href="biblioteca-tecnica.html" class="module-link"><i class="fa-solid fa-book-open"></i> Biblioteca</a>
+            </nav>
+        </aside>
+
+        <div class="flex-1 min-w-0">
+            <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 bg-white p-1.5 rounded-2xl border-2 border-amber-400 shadow-lg flex items-center justify-center overflow-hidden">
+                            <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                            <i data-jasg-brand-fallback class="fa-solid fa-gavel text-amber-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-black text-slate-900">Remates de Vehículos</h1>
+                            <p class="text-xs text-slate-500">Consulta remates publicados y vehículos disponibles</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="https://antiguos.karcal.cl/" target="_blank" rel="noopener noreferrer" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Karcal
+                        </a>
+                        <button @click="resetFilters()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-rotate"></i> Restablecer
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+                <section class="bg-gradient-to-r from-slate-900 via-blue-950 to-blue-800 text-white rounded-2xl shadow-lg p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+                    <div>
+                        <div class="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-cyan-300 mb-2"><i class="fa-solid fa-link"></i> Fuente de información</div>
+                        <h2 class="text-2xl font-black">Encuentra oportunidades para tus clientes</h2>
+                        <p class="text-sm text-slate-300 mt-1 max-w-2xl">Revisa remates de vehículos siniestrados y utiliza esta información como apoyo para tasaciones, reparaciones y compras.</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 shrink-0">
+                        <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="remates.length"></div><div class="text-[10px] text-slate-300 uppercase">Remates</div></div>
+                        <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="filteredVehicles.length"></div><div class="text-[10px] text-slate-300 uppercase">Vehículos</div></div>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
+                    <div class="flex flex-col lg:flex-row lg:items-end gap-3">
+                        <label class="flex-1">
+                            <span class="block text-xs font-bold text-slate-700 mb-1.5">Buscar vehículo</span>
+                            <div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i><input x-model="search" type="search" placeholder="Marca, modelo o año..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+                        </label>
+                        <label class="w-full lg:w-64">
+                            <span class="block text-xs font-bold text-slate-700 mb-1.5">Remate</span>
+                            <select x-model="selectedAuction" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="all">Todos los remates</option><template x-for="auction in remates" :key="auction.id"><option :value="auction.id" x-text="auction.title"></option></template></select>
+                        </label>
+                    </div>
+                </section>
+
+                <section class="space-y-3">
+                    <div class="flex items-center justify-between"><div><h2 class="text-lg font-black text-slate-900">Vehículos publicados</h2><p class="text-xs text-slate-500">Base inicial del listado de Karcal para comenzar la integración</p></div><span class="text-xs font-bold text-slate-500" x-text="filteredVehicles.length + ' resultados'"></span></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <template x-for="vehicle in filteredVehicles" :key="vehicle.id">
+                            <article class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition overflow-hidden">
+                                <div class="h-36 bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center relative"><i class="fa-solid fa-car-side text-5xl text-white/20"></i><span class="absolute top-3 left-3 bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-1 rounded-lg" x-text="vehicle.auctionDate"></span></div>
+                                <div class="p-4"><div class="flex items-start justify-between gap-3"><div><p class="text-[10px] uppercase tracking-widest text-blue-600 font-black" x-text="vehicle.make"></p><h3 class="text-base font-black text-slate-900" x-text="vehicle.model"></h3></div><span class="text-xs font-bold text-slate-500" x-text="vehicle.year"></span></div><div class="mt-4 flex items-end justify-between gap-3"><div><p class="text-[10px] text-slate-400 uppercase font-bold">Valor inicial</p><p class="text-lg font-black text-emerald-600" x-text="formatMoney(vehicle.initialValue)"></p></div><a :href="vehicle.url" target="_blank" rel="noopener noreferrer" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-eye"></i> Ver auto</a></div></div>
+                            </article>
+                        </template>
+                    </div>
+                    <div x-show="filteredVehicles.length === 0" x-cloak class="bg-white rounded-2xl border border-dashed border-slate-300 p-10 text-center"><i class="fa-solid fa-car text-3xl text-slate-300"></i><p class="mt-3 text-sm font-bold text-slate-500">No encontramos vehículos con esos filtros.</p></div>
+                </section>
+
+                <section class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start"><i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i><div class="text-xs text-amber-900"><p class="font-bold">Integración en progreso</p><p class="mt-1">Esta primera versión prepara el módulo y mantiene el acceso a la fuente original. En el siguiente paso podemos agregar actualización automática, fotografías, detalle completo y envío del vehículo seleccionado al cotizador.</p></div></section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function rematesApp() {
+            const listingUrl = 'https://antiguos.karcal.cl/remate-30240/index.html';
+            return {
+                search: '',
+                selectedAuction: 'all',
+                remates: [
+                    { id: '2026-04-09', title: '09/04/2026 - Autos siniestrados', date: '09/04/2026' },
+                    { id: '2026-04-16', title: '16/04/2026 - Autos siniestrados', date: '16/04/2026' },
+                    { id: '2026-04-23', title: '23/04/2026 - Autos siniestrados', date: '23/04/2026' },
+                    { id: '2026-04-30', title: '30/04/2026 - Autos siniestrados', date: '30/04/2026' }
+                ],
+                vehicles: [
+                    ['PEUGEOT', '2008', 2024, 2200000], ['PEUGEOT', '208', 2020, 1600000], ['PEUGEOT', '2008', 2018, 1600000], ['SUZUKI', 'BALENO GLX', 2022, 1500000], ['TOYOTA', 'YARIS', 2018, 1300000], ['MITSUBISHI', 'LANCER R', 2012, 1300000], ['PORSCHE', 'MACAN GTS', 2022, 11700000], ['NISSAN', 'X TRAIL', 2024, 7300000], ['CHEVROLET', 'COLORADO DCAB', 2025, 3500000], ['CHEVROLET', 'SILVERADO AT10', 2025, 6900000], ['CHEVROLET', 'SILVERADO 4X4', 2023, 5700000], ['RAM', '1500', 2024, 5400000]
+                ].map((item, index) => ({ id: index + 1, make: item[0], model: item[1], year: item[2], initialValue: item[3], auctionDate: '09/04/2026', url: listingUrl })),
+                get filteredVehicles() {
+                    const query = this.search.trim().toLowerCase();
+                    return this.vehicles.filter(vehicle => {
+                        const matchesQuery = !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query);
+                        const matchesAuction = this.selectedAuction === 'all' || this.selectedAuction === '2026-04-09';
+                        return matchesQuery && matchesAuction;
+                    });
+                },
+                init() {
+                    if (window.jasgRequireAuth) window.jasgRequireAuth();
+                },
+                formatMoney(value) {
+                    return '$' + Number(value).toLocaleString('es-CL');
+                },
+                resetFilters() {
+                    this.search = '';
+                    this.selectedAuction = 'all';
+                }
+            };
+        }
+    </script>
+    <style>
+        .module-link { width: max-content; white-space: nowrap; display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; border-radius: 1rem; font-weight: 700; color: #e2e8f0; transition: all .2s; }
+        .module-link:hover { background: #1e293b; }
+        .module-link.active { background: #2563eb; color: white; box-shadow: 0 10px 18px rgba(37, 99, 235, .2); }
+        @media (min-width: 1024px) { .module-link { width: 100%; } }
+    </style>
+</body>
+</html>
