@@ -245,6 +245,7 @@
                 })),
                 get filteredVehicles() {
                     const query = this.search.trim().toLowerCase();
+                    if (query && this.globalVehiclesLoading) return [];
                     const source = query ? this.allVehicles : this.vehicles;
                     return source.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query));
                 },
