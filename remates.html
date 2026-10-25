@@ -123,6 +123,7 @@
                             <span class="block text-xs font-bold text-slate-700 mb-1.5">Buscar vehículo</span>
                             <div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i><input x-model="search" type="search" placeholder="Marca, modelo o año..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
                         </label>
+                        <p x-show="search.trim()" x-cloak class="text-[11px] text-slate-500 lg:pt-6" x-text="globalVehiclesLoading ? 'Buscando en todos los remates...' : filteredVehicles.length + ' coincidencias encontradas'"></p>
                     </div>
                 </section>
 
@@ -221,6 +222,8 @@
                 loadingVehicles: false,
                 vehicleTotalsLoading: false,
                 totalVehicleCount: 0,
+                globalVehiclesLoading: false,
+                allVehicles: [],
                 loadError: '',
                 remates: [
                     { id: '2026-04-09', title: '09/04/2026 - Autos siniestrados', date: '09/04/2026' },
@@ -242,7 +245,8 @@
                 })),
                 get filteredVehicles() {
                     const query = this.search.trim().toLowerCase();
-                    return this.vehicles.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query));
+                    const source = query ? this.allVehicles : this.vehicles;
+                    return source.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query));
                 },
                 get calendarYears() {
                     return [...new Set(this.remates.map(auction => Number(auction.date.split(/[/-]/)[2])).filter(Boolean))].sort((a, b) => b - a);
@@ -333,13 +337,25 @@
                     if (!auction.markdownPromise) auction.markdownPromise = this.fetchRemoteText(auction.url);
                     return auction.markdownPromise;
                 },
+                async getAuctionVehicles(auction) {
+                    if (auction.vehiclesPromise) return auction.vehiclesPromise;
+                    auction.vehiclesPromise = (async () => {
+                        const markdown = await this.getAuctionMarkdown(auction);
+                        const links = [...markdown.matchAll(/\]\((https?:\/\/[^)]+\/lote-\d+-\d+\/index\.html)\)/gi)]
+                            .map(match => ({ url: this.normalizeRemoteUrl(match[1]), index: match.index || 0 }));
+                        const unique = new Map(links.map(item => [item.url, item]));
+                        const vehicles = [...unique.values()].map(item => this.parseVehicleFromMarkdown(markdown, item.url, auction, item.index));
+                        auction.vehicles = vehicles;
+                        auction.vehicleCount = vehicles.length;
+                        return vehicles;
+                    })().catch(error => {
+                        delete auction.vehiclesPromise;
+                        throw error;
+                    });
+                    return auction.vehiclesPromise;
+                },
                 async getAuctionVehicleCount(auction) {
-                    if (typeof auction.vehicleCount === 'number') return auction.vehicleCount;
-                    const markdown = await this.getAuctionMarkdown(auction);
-                    const links = [...markdown.matchAll(/\]\((https?:\/\/[^)]+\/lote-\d+-\d+\/index\.html)\)/gi)]
-                        .map(match => this.normalizeRemoteUrl(match[1]));
-                    auction.vehicleCount = new Set(links).size;
-                    return auction.vehicleCount;
+                    return (await this.getAuctionVehicles(auction)).length;
                 },
                 updateTotalVehicleCount() {
                     this.totalVehicleCount = this.remates.reduce((total, auction) => total + (Number(auction.vehicleCount) || 0), 0);
@@ -347,20 +363,24 @@
                 async loadRemoteVehicleTotals() {
                     if (this.vehicleTotalsLoading || !this.remates.length) return;
                     this.vehicleTotalsLoading = true;
+                    this.globalVehiclesLoading = true;
+                    this.allVehicles = [];
                     this.totalVehicleCount = 0;
                     const batchSize = 12;
                     try {
                         for (let index = 0; index < this.remates.length; index += batchSize) {
                             const batch = this.remates.slice(index, index + batchSize);
-                            await Promise.all(batch.map(auction => this.getAuctionVehicleCount(auction).catch(error => {
+                            const batchVehicles = await Promise.all(batch.map(auction => this.getAuctionVehicles(auction).catch(error => {
                                 auction.vehicleCount = 0;
-                                console.warn('No se pudo contar el listado de vehiculos', auction.url, error);
-                                return 0;
-                            }).then(() => this.updateTotalVehicleCount())));
+                                console.warn('No se pudo cargar el listado de vehiculos', auction.url, error);
+                                return [];
+                            })));
+                            this.allVehicles = [...new Map([...this.allVehicles, ...batchVehicles.flat()].map(vehicle => [vehicle.id, vehicle])).values()];
                             this.updateTotalVehicleCount();
                         }
                     } finally {
                         this.vehicleTotalsLoading = false;
+                        this.globalVehiclesLoading = false;
                         this.updateTotalVehicleCount();
                     }
                 },
@@ -440,12 +460,7 @@
                     this.loadingVehicles = true;
                     this.loadError = '';
                     try {
-                        const markdown = await this.getAuctionMarkdown(auction);
-                        const links = [...markdown.matchAll(/\]\((https?:\/\/[^)]+\/lote-\d+-\d+\/index\.html)\)/gi)]
-                            .map(match => ({ url: this.normalizeRemoteUrl(match[1]), index: match.index || 0 }));
-                        const unique = new Map(links.map(item => [item.url, item]));
-                        this.vehicles = [...unique.values()].map(item => this.parseVehicleFromMarkdown(markdown, item.url, auction, item.index));
-                        auction.vehicleCount = this.vehicles.length;
+                        this.vehicles = await this.getAuctionVehicles(auction);
                         this.updateTotalVehicleCount();
                         await this.loadImagesForVehicles(this.vehicles);
                     } catch (error) {
