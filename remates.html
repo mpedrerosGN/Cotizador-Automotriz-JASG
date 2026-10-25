@@ -111,14 +111,40 @@
                             <span class="block text-xs font-bold text-slate-700 mb-1.5">Buscar vehículo</span>
                             <div class="relative"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i><input x-model="search" type="search" placeholder="Marca, modelo o año..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
                         </label>
-                        <label class="w-full lg:w-64">
-                            <span class="block text-xs font-bold text-slate-700 mb-1.5">Remate</span>
-                            <select x-model="selectedAuction" @change="onAuctionChange()" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Selecciona un remate</option><template x-for="auction in remates" :key="auction.id"><option :value="auction.id" x-text="auction.title"></option></template></select>
-                        </label>
                     </div>
                 </section>
 
                 <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div><h2 class="text-lg font-black text-slate-900">Calendario de remates</h2><p class="text-xs text-slate-500">Selecciona un año, mes y dia para consultar todos los remates publicados.</p></div>
+                        <div class="flex items-center gap-2">
+                            <button @click="previousMonth()" class="w-9 h-9 rounded-lg border border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600" aria-label="Mes anterior">‹</button>
+                            <select x-model.number="calendarMonth" class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-xs font-bold capitalize"><template x-for="(month, index) in monthNames" :key="month"><option :value="index" x-text="month"></option></template></select>
+                            <select x-model.number="calendarYear" class="px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-xs font-bold"><template x-for="year in calendarYears" :key="year"><option :value="year" x-text="year"></option></template></select>
+                            <button @click="nextMonth()" class="w-9 h-9 rounded-lg border border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600" aria-label="Mes siguiente">›</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black uppercase tracking-widest text-slate-400"><template x-for="weekday in weekdayNames" :key="weekday"><div class="py-2" x-text="weekday"></div></template></div>
+                    <div class="grid grid-cols-7 gap-1">
+                        <template x-for="cell in calendarDays" :key="cell.key">
+                            <div class="min-h-20 sm:min-h-24 rounded-xl border border-slate-100 bg-slate-50 p-1.5" :class="cell.day && cell.auctions.length ? 'border-blue-200 bg-blue-50/40' : ''">
+                                <template x-if="cell.day">
+                                    <button @click="selectCalendarDay(cell)" class="w-full h-full min-h-16 sm:min-h-20 text-left rounded-lg p-1.5 hover:bg-white transition" :class="selectedCalendarDate === cell.dateKey ? 'ring-2 ring-blue-500 bg-white' : ''">
+                                        <span class="flex items-center justify-between text-xs font-black text-slate-700"><span x-text="cell.day"></span><span x-show="cell.auctions.length" class="rounded-full bg-blue-600 text-white px-1.5 py-0.5 text-[9px]" x-text="cell.auctions.length"></span></span>
+                                        <span x-show="cell.auctions.length" class="block mt-2 text-[9px] leading-tight font-bold text-blue-700" x-text="cell.auctions[0].title.replace(cell.auctions[0].date + ' - ', '')"></span>
+                                        <span x-show="cell.auctions.length > 1" class="block mt-1 text-[9px] text-slate-500" x-text="'+' + (cell.auctions.length - 1) + ' mas'"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                    <div x-show="selectedDayAuctions.length" x-cloak class="border-t border-slate-200 pt-4">
+                        <div class="flex items-center justify-between gap-2 mb-3"><h3 class="text-sm font-black text-slate-900" x-text="selectedCalendarDate ? 'Remates del ' + selectedCalendarDate.split('-').reverse().join('/') : 'Remates del dia' "></h3><span class="text-xs text-slate-500" x-text="selectedDayAuctions.length + ' disponibles'"></span></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"><template x-for="auction in selectedDayAuctions" :key="auction.id"><button @click="selectAuction(auction)" class="text-left rounded-xl border p-3 transition" :class="selectedAuction === auction.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-blue-300 hover:bg-blue-50/50'"><span class="block text-[10px] uppercase tracking-widest font-black text-blue-600" x-text="auction.date"></span><span class="block mt-1 text-xs font-bold text-slate-800" x-text="auction.title.replace(auction.date + ' - ', '')"></span><span class="block mt-2 text-[10px] text-slate-500" x-text="auction.vehicleCount ? auction.vehicleCount + ' vehiculos' : 'Cargar listado de autos'"></span></button></template></div>
+                    </div>
+                </section>
+
+                <section x-show="false" x-cloak class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div><h2 class="text-lg font-black text-slate-900">Remates disponibles</h2><p class="text-xs text-slate-500">Explora todas las páginas publicadas por fecha y abre sus lotes.</p></div>
                         <span class="text-xs font-bold text-slate-500" x-text="remates.length + ' remates · página ' + rematePage + ' de ' + totalAuctionPages"></span>
@@ -169,6 +195,11 @@
             return {
                 search: '',
                 selectedAuction: '',
+                calendarYear: 2026,
+                calendarMonth: 3,
+                selectedCalendarDate: '',
+                monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+                weekdayNames: ['lun', 'mar', 'mie', 'jue', 'vie', 'sab', 'dom'],
                 rematePage: 1,
                 rematesPerPage: 5,
                 viewerOpen: false,
@@ -199,6 +230,28 @@
                     const query = this.search.trim().toLowerCase();
                     return this.vehicles.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query));
                 },
+                get calendarYears() {
+                    return [...new Set(this.remates.map(auction => Number(auction.date.split(/[/-]/)[2])).filter(Boolean))].sort((a, b) => b - a);
+                },
+                get calendarDays() {
+                    const firstDay = (new Date(this.calendarYear, this.calendarMonth, 1).getDay() + 6) % 7;
+                    const daysInMonth = new Date(this.calendarYear, this.calendarMonth + 1, 0).getDate();
+                    const cells = [];
+                    for (let index = 0; index < firstDay; index += 1) cells.push({ key: `blank-${index}`, day: 0, auctions: [] });
+                    for (let day = 1; day <= daysInMonth; day += 1) {
+                        const dateKey = `${this.calendarYear}-${String(this.calendarMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        cells.push({ key: dateKey, day, dateKey, auctions: this.remates.filter(auction => auction.dateKey === dateKey) });
+                    }
+                    return cells;
+                },
+                get selectedDayAuctions() {
+                    return this.remates.filter(auction => auction.dateKey === this.selectedCalendarDate);
+                },
+                toDateKey(value) {
+                    const parts = String(value || '').split(/[/-]/).map(item => item.trim());
+                    if (parts.length !== 3) return '';
+                    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                },
                 get totalAuctionPages() {
                     return Math.max(1, Math.ceil(this.remates.length / this.rematesPerPage));
                 },
@@ -208,12 +261,33 @@
                 },
                 selectAuction(auction) {
                     this.selectedAuction = auction.id;
+                    this.selectedCalendarDate = auction.dateKey || '';
+                    const parts = auction.date.split(/[/-]/).map(Number);
+                    if (parts.length === 3 && parts.every(Boolean)) {
+                        this.calendarYear = parts[2];
+                        this.calendarMonth = parts[1] - 1;
+                    }
                     this.loadSelectedAuction();
                 },
-                onAuctionChange() {
-                    const index = this.remates.findIndex(auction => auction.id === this.selectedAuction);
-                    if (index >= 0) this.rematePage = Math.floor(index / this.rematesPerPage) + 1;
-                    this.loadSelectedAuction();
+                selectCalendarDay(cell) {
+                    this.selectedCalendarDate = cell.dateKey || '';
+                    if (cell.auctions.length) this.selectAuction(cell.auctions[0]);
+                },
+                previousMonth() {
+                    if (this.calendarMonth === 0) {
+                        this.calendarMonth = 11;
+                        this.calendarYear -= 1;
+                    } else {
+                        this.calendarMonth -= 1;
+                    }
+                },
+                nextMonth() {
+                    if (this.calendarMonth === 11) {
+                        this.calendarMonth = 0;
+                        this.calendarYear += 1;
+                    } else {
+                        this.calendarMonth += 1;
+                    }
                 },
                 init() {
                     if (window.jasgRequireAuth) window.jasgRequireAuth();
@@ -228,8 +302,14 @@
                 normalizeRemoteUrl(url) {
                     return String(url || '').replace(/^http:\/\//i, 'https://');
                 },
-                getAuctionContext(markdown, matchIndex) {
-                    return markdown.slice(Math.max(0, matchIndex - 260), matchIndex + 220).replace(/\s+/g, ' ').trim();
+                getAuctionLabel(markdown, matchIndex) {
+                    const beforeLink = markdown.slice(Math.max(0, matchIndex - 420), matchIndex);
+                    const lines = beforeLink.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+                    const line = [...lines].reverse().find(item => /\d{2}[-/]\d{2}[-/]\d{4}/.test(item)) || '';
+                    const label = line.match(/^\[([^\]]+)\]/)?.[1] || line;
+                    const date = label.match(/\d{2}[-/]\d{2}[-/]\d{4}/)?.[0] || '';
+                    const description = label.replace(date, '').trim() || 'Autos publicados';
+                    return { date, description };
                 },
                 getVehicleContext(markdown, matchIndex) {
                     const marker = '[![Image';
@@ -247,19 +327,13 @@
                             .map(match => ({ url: this.normalizeRemoteUrl(match[1]), index: match.index || 0 }));
                         const unique = new Map(links.map(item => [item.url, item]));
                         this.remates = [...unique.values()].map((item, index) => {
-                            const context = this.getAuctionContext(markdown, item.index);
-                            const date = context.match(/\d{2}[-/]\d{2}[-/]\d{4}/)?.[0] || `Remate ${index + 1}`;
-                            const description = context
-                                .replace(date, '')
-                                .replace(/P(?:A|Á)GINA WEB.*$/i, '')
-                                .replace(/FECHA DEL REMATE:.*$/i, '')
-                                .trim() || 'Autos publicados';
-                            return { id: item.url, url: item.url, date, title: `${date} - ${description}` };
+                            const label = this.getAuctionLabel(markdown, item.index);
+                            const date = label.date || `01/01/${2020 + index}`;
+                            return { id: item.url, url: item.url, date, dateKey: this.toDateKey(date), title: `${date} - ${label.description}` };
                         });
                         if (!this.remates.length) throw new Error('No se encontraron remates publicados');
                         this.rematePage = 1;
-                        this.selectedAuction = this.remates[0].id;
-                        await this.loadSelectedAuction();
+                        this.selectAuction(this.remates[0]);
                     } catch (error) {
                         this.loadError = 'No se pudo leer el catálogo completo de Karcal en este momento.';
                         this.selectedAuction = this.remates[0]?.id || '';
