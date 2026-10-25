@@ -113,8 +113,29 @@
                         </label>
                         <label class="w-full lg:w-64">
                             <span class="block text-xs font-bold text-slate-700 mb-1.5">Remate</span>
-                            <select x-model="selectedAuction" @change="loadSelectedAuction()" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Selecciona un remate</option><template x-for="auction in remates" :key="auction.id"><option :value="auction.id" x-text="auction.title"></option></template></select>
+                            <select x-model="selectedAuction" @change="onAuctionChange()" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Selecciona un remate</option><template x-for="auction in remates" :key="auction.id"><option :value="auction.id" x-text="auction.title"></option></template></select>
                         </label>
+                    </div>
+                </section>
+
+                <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div><h2 class="text-lg font-black text-slate-900">Remates disponibles</h2><p class="text-xs text-slate-500">Explora todas las páginas publicadas por fecha y abre sus lotes.</p></div>
+                        <span class="text-xs font-bold text-slate-500" x-text="remates.length + ' remates · página ' + rematePage + ' de ' + totalAuctionPages"></span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+                        <template x-for="auction in paginatedRemates" :key="auction.id">
+                            <button @click="selectAuction(auction)" class="text-left rounded-xl border p-3 transition" :class="selectedAuction === auction.id ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50/50'">
+                                <span class="block text-[10px] uppercase tracking-widest font-black text-blue-600" x-text="auction.date"></span>
+                                <span class="block mt-1 text-xs font-bold text-slate-800 line-clamp-2" x-text="auction.title.replace(auction.date + ' - ', '')"></span>
+                                <span class="block mt-2 text-[10px] text-slate-500" x-text="auction.vehicleCount ? auction.vehicleCount + ' vehículos' : 'Abrir listado de autos'"></span>
+                            </button>
+                        </template>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-1 pt-1">
+                        <button @click="rematePage = Math.max(1, rematePage - 1)" :disabled="rematePage === 1" class="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-200 disabled:opacity-40">‹</button>
+                        <template x-for="page in totalAuctionPages" :key="page"><button @click="rematePage = page" class="min-w-8 px-2 py-1.5 rounded-lg text-xs font-bold border" :class="rematePage === page ? 'bg-blue-600 text-white border-blue-600' : 'border-slate-200 text-slate-600 hover:border-blue-300'" x-text="page"></button></template>
+                        <button @click="rematePage = Math.min(totalAuctionPages, rematePage + 1)" :disabled="rematePage === totalAuctionPages" class="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-200 disabled:opacity-40">›</button>
                     </div>
                 </section>
 
@@ -148,6 +169,8 @@
             return {
                 search: '',
                 selectedAuction: '',
+                rematePage: 1,
+                rematesPerPage: 5,
                 viewerOpen: false,
                 selectedVehicle: null,
                 remoteImagesLoading: false,
@@ -175,6 +198,22 @@
                 get filteredVehicles() {
                     const query = this.search.trim().toLowerCase();
                     return this.vehicles.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query));
+                },
+                get totalAuctionPages() {
+                    return Math.max(1, Math.ceil(this.remates.length / this.rematesPerPage));
+                },
+                get paginatedRemates() {
+                    const start = (this.rematePage - 1) * this.rematesPerPage;
+                    return this.remates.slice(start, start + this.rematesPerPage);
+                },
+                selectAuction(auction) {
+                    this.selectedAuction = auction.id;
+                    this.loadSelectedAuction();
+                },
+                onAuctionChange() {
+                    const index = this.remates.findIndex(auction => auction.id === this.selectedAuction);
+                    if (index >= 0) this.rematePage = Math.floor(index / this.rematesPerPage) + 1;
+                    this.loadSelectedAuction();
                 },
                 init() {
                     if (window.jasgRequireAuth) window.jasgRequireAuth();
@@ -218,6 +257,7 @@
                             return { id: item.url, url: item.url, date, title: `${date} - ${description}` };
                         });
                         if (!this.remates.length) throw new Error('No se encontraron remates publicados');
+                        this.rematePage = 1;
                         this.selectedAuction = this.remates[0].id;
                         await this.loadSelectedAuction();
                     } catch (error) {
@@ -312,6 +352,7 @@
                 },
                 resetFilters() {
                     this.search = '';
+                    this.rematePage = 1;
                     if (this.remates.length) {
                         this.selectedAuction = this.remates[0].id;
                         this.loadSelectedAuction();
