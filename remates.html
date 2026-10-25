@@ -314,14 +314,15 @@
                     if (window.jasgRequireAuth) window.jasgRequireAuth();
                     this.loadRemoteAuctions();
                 },
-                async fetchRemoteText(url, attempts = 3) {
+                async fetchRemoteText(url, attempts = 3, responseFormat = 'markdown') {
                     const target = url.replace(/^https?:\/\//i, '');
                     let lastError;
                     for (let attempt = 1; attempt <= attempts; attempt += 1) {
                         const controller = new AbortController();
                         const timeout = setTimeout(() => controller.abort(), 20000);
                         try {
-                            const response = await fetch('https://r.jina.ai/http://' + target, { signal: controller.signal });
+                            const headers = responseFormat === 'html' ? { 'X-Respond-With': 'html' } : undefined;
+                            const response = await fetch('https://r.jina.ai/http://' + target, { signal: controller.signal, headers });
                             if (!response.ok) throw new Error(`No se pudo leer ${url}`);
                             return await response.text();
                         } catch (error) {
@@ -396,6 +397,19 @@
                     const description = label.replace(date, '').trim() || 'Autos publicados';
                     return { date, description };
                 },
+                parseAuctionsFromHtml(html) {
+                    const links = [...html.matchAll(/<a[^>]+href=["']([^"']*remate-\d+\/index\.html)["'][^>]*>[\s\S]*?<\/a>/gi)]
+                        .map(match => ({ url: new URL(match[1], sourceUrl).href, index: match.index || 0 }));
+                    const unique = new Map(links.map(item => [item.url, item]));
+                    return [...unique.values()].map((item, index) => {
+                        const panelStart = html.lastIndexOf('class="panel panel-default"', item.index);
+                        const panel = html.slice(panelStart >= 0 ? panelStart : Math.max(0, item.index - 1400), item.index + 800);
+                        const titleMatch = panel.match(/<span>\s*(\d{2}\/\d{2}\/\d{4})\s*([^<]*?)<\/span>/i);
+                        const date = titleMatch?.[1] || `01/01/${2020 + index}`;
+                        const description = titleMatch?.[2]?.trim() || 'Autos publicados';
+                        return { id: item.url, url: item.url, date, dateKey: this.toDateKey(date), title: `${date} - ${description}` };
+                    });
+                },
                 getVehicleContext(markdown, matchIndex) {
                     const marker = '[![Image';
                     const start = markdown.lastIndexOf(marker, matchIndex);
@@ -407,15 +421,8 @@
                     this.loadingAuctions = true;
                     this.loadError = '';
                     try {
-                        const markdown = await this.fetchRemoteText(sourceUrl);
-                        const links = [...markdown.matchAll(/\[Ver listado de autos\]\((https?:\/\/[^)]+\/remate-\d+\/index\.html)\)/gi)]
-                            .map(match => ({ url: this.normalizeRemoteUrl(match[1]), index: match.index || 0 }));
-                        const unique = new Map(links.map(item => [item.url, item]));
-                        this.remates = [...unique.values()].map((item, index) => {
-                            const label = this.getAuctionLabel(markdown, item.index);
-                            const date = label.date || `01/01/${2020 + index}`;
-                            return { id: item.url, url: item.url, date, dateKey: this.toDateKey(date), title: `${date} - ${label.description}` };
-                        });
+                        const html = await this.fetchRemoteText(sourceUrl, 3, 'html');
+                        this.remates = this.parseAuctionsFromHtml(html);
                         if (!this.remates.length) throw new Error('No se encontraron remates publicados');
                         this.rematePage = 1;
                         this.selectAuction(this.remates[0]);
