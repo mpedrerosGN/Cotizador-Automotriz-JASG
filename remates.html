@@ -17,7 +17,7 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen" x-data="rematesApp()" x-init="init()">
+<body class="bg-slate-100 text-slate-800 min-h-screen" x-data="rematesApp()" x-init="init()" @keydown.escape.window="closeVehicleViewer()">
     <div class="flex min-h-screen flex-col lg:flex-row">
         <aside class="w-full lg:w-64 lg:shrink-0 bg-slate-900 text-white border-b lg:border-b-0 lg:border-r border-slate-700/80 shadow-2xl">
             <div class="px-4 py-3 lg:px-5 lg:py-6 border-b border-slate-700/70">
@@ -71,6 +71,27 @@
                 </div>
             </header>
 
+            <!-- Visor integrado de la ficha del lote -->
+            <div x-show="viewerOpen" x-cloak x-transition class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm p-2 sm:p-5 lg:p-8">
+                <div class="h-full max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+                    <div class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between gap-3 shrink-0">
+                        <div class="min-w-0">
+                            <p class="text-[10px] uppercase tracking-widest text-cyan-300 font-bold">Ficha de remate</p>
+                            <h2 class="font-black truncate" x-text="selectedVehicle ? selectedVehicle.make + ' ' + selectedVehicle.model : 'Detalle del vehículo'"></h2>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <a x-show="selectedVehicle" :href="selectedVehicle && selectedVehicle.detailUrl" target="_blank" rel="noopener noreferrer" class="hidden sm:flex bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg text-xs font-bold items-center gap-1.5"><i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir aparte</a>
+                            <button @click="closeVehicleViewer()" class="bg-rose-600 hover:bg-rose-500 px-3 py-2 rounded-lg text-xs font-bold"><i class="fa-solid fa-xmark mr-1"></i> Cerrar</button>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-slate-100 relative">
+                        <template x-if="selectedVehicle">
+                            <iframe :src="selectedVehicle.detailUrl" :title="'Ficha ' + selectedVehicle.make + ' ' + selectedVehicle.model" class="absolute inset-0 w-full h-full border-0 bg-white"></iframe>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
             <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
                 <section class="bg-gradient-to-r from-slate-900 via-blue-950 to-blue-800 text-white rounded-2xl shadow-lg p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
                     <div>
@@ -103,7 +124,7 @@
                         <template x-for="vehicle in filteredVehicles" :key="vehicle.id">
                             <article class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition overflow-hidden">
                                 <div class="h-36 bg-gradient-to-br from-slate-800 to-slate-950 flex items-center justify-center relative"><i class="fa-solid fa-car-side text-5xl text-white/20"></i><span class="absolute top-3 left-3 bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-1 rounded-lg" x-text="vehicle.auctionDate"></span></div>
-                                <div class="p-4"><div class="flex items-start justify-between gap-3"><div><p class="text-[10px] uppercase tracking-widest text-blue-600 font-black" x-text="vehicle.make"></p><h3 class="text-base font-black text-slate-900" x-text="vehicle.model"></h3></div><span class="text-xs font-bold text-slate-500" x-text="vehicle.year"></span></div><div class="mt-4 flex items-end justify-between gap-3"><div><p class="text-[10px] text-slate-400 uppercase font-bold">Valor inicial</p><p class="text-lg font-black text-emerald-600" x-text="formatMoney(vehicle.initialValue)"></p></div><a :href="vehicle.url" target="_blank" rel="noopener noreferrer" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-eye"></i> Ver auto</a></div></div>
+                                <div class="p-4"><div class="flex items-start justify-between gap-3"><div><p class="text-[10px] uppercase tracking-widest text-blue-600 font-black" x-text="vehicle.make"></p><h3 class="text-base font-black text-slate-900" x-text="vehicle.model"></h3></div><span class="text-xs font-bold text-slate-500" x-text="vehicle.year"></span></div><div class="mt-4 flex items-end justify-between gap-3"><div><p class="text-[10px] text-slate-400 uppercase font-bold">Valor inicial</p><p class="text-lg font-black text-emerald-600" x-text="formatMoney(vehicle.initialValue)"></p></div><button @click="openVehicle(vehicle)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-eye"></i> Ver auto</button></div></div>
                             </article>
                         </template>
                     </div>
@@ -121,6 +142,8 @@
             return {
                 search: '',
                 selectedAuction: 'all',
+                viewerOpen: false,
+                selectedVehicle: null,
                 remates: [
                     { id: '2026-04-09', title: '09/04/2026 - Autos siniestrados', date: '09/04/2026' },
                     { id: '2026-04-16', title: '16/04/2026 - Autos siniestrados', date: '16/04/2026' },
@@ -129,7 +152,16 @@
                 ],
                 vehicles: [
                     ['PEUGEOT', '2008', 2024, 2200000], ['PEUGEOT', '208', 2020, 1600000], ['PEUGEOT', '2008', 2018, 1600000], ['SUZUKI', 'BALENO GLX', 2022, 1500000], ['TOYOTA', 'YARIS', 2018, 1300000], ['MITSUBISHI', 'LANCER R', 2012, 1300000], ['PORSCHE', 'MACAN GTS', 2022, 11700000], ['NISSAN', 'X TRAIL', 2024, 7300000], ['CHEVROLET', 'COLORADO DCAB', 2025, 3500000], ['CHEVROLET', 'SILVERADO AT10', 2025, 6900000], ['CHEVROLET', 'SILVERADO 4X4', 2023, 5700000], ['RAM', '1500', 2024, 5400000]
-                ].map((item, index) => ({ id: index + 1, make: item[0], model: item[1], year: item[2], initialValue: item[3], auctionDate: '09/04/2026', url: listingUrl })),
+                ].map((item, index) => ({
+                    id: index + 1,
+                    make: item[0],
+                    model: item[1],
+                    year: item[2],
+                    initialValue: item[3],
+                    auctionDate: '09/04/2026',
+                    url: listingUrl,
+                    detailUrl: index === 0 ? 'https://antiguos.karcal.cl/remate-30240/lote-101480-1/index.html' : listingUrl
+                })),
                 get filteredVehicles() {
                     const query = this.search.trim().toLowerCase();
                     return this.vehicles.filter(vehicle => {
@@ -143,6 +175,14 @@
                 },
                 formatMoney(value) {
                     return '$' + Number(value).toLocaleString('es-CL');
+                },
+                openVehicle(vehicle) {
+                    this.selectedVehicle = vehicle;
+                    this.viewerOpen = true;
+                },
+                closeVehicleViewer() {
+                    this.viewerOpen = false;
+                    this.selectedVehicle = null;
                 },
                 resetFilters() {
                     this.search = '';
