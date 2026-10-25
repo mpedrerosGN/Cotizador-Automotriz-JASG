@@ -15,6 +15,18 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         [x-cloak] { display: none !important; }
+        #remates-calendar { padding: 1rem; gap: 0.75rem; }
+        #remates-calendar .calendar-weekdays { padding-top: 0.1rem; padding-bottom: 0.1rem; }
+        #remates-calendar .calendar-days { gap: 0.35rem; }
+        #remates-calendar .calendar-day-cell { min-height: 3.35rem; padding: 0.25rem; border-radius: 0.65rem; }
+        #remates-calendar .calendar-day-button { min-height: 2.8rem; padding: 0.35rem; border-radius: 0.5rem; }
+        #remates-calendar .calendar-day-title { display: none; }
+        @media (max-width: 640px) {
+            #remates-calendar { padding: 0.75rem; }
+            #remates-calendar .calendar-days { gap: 0.2rem; }
+            #remates-calendar .calendar-day-cell { min-height: 2.9rem; }
+            #remates-calendar .calendar-day-button { min-height: 2.4rem; padding: 0.25rem; }
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen" x-data="rematesApp()" x-init="init()" @keydown.escape.window="closeVehicleViewer()">
@@ -99,10 +111,9 @@
                         <h2 class="text-2xl font-black">Encuentra oportunidades para tus clientes</h2>
                         <p class="text-sm text-slate-300 mt-1 max-w-2xl">Revisa remates de vehículos siniestrados y utiliza esta información como apoyo para tasaciones, reparaciones y compras.</p>
                     </div>
-                    <div class="grid grid-cols-3 gap-3 shrink-0">
+                    <div class="grid grid-cols-2 gap-3 shrink-0">
                         <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="remates.length"></div><div class="text-[10px] text-slate-300 uppercase">Remates</div></div>
                         <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="vehicleTotalsLoading ? '...' : totalVehicleCount"></div><div class="text-[10px] text-slate-300 uppercase">Vehiculos totales</div></div>
-                        <div class="bg-white/10 rounded-xl px-4 py-3 border border-white/10"><div class="text-2xl font-black" x-text="filteredVehicles.length"></div><div class="text-[10px] text-slate-300 uppercase">Seleccionados</div></div>
                     </div>
                 </section>
 
@@ -115,7 +126,7 @@
                     </div>
                 </section>
 
-                <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
+                <section id="remates-calendar" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div><h2 class="text-lg font-black text-slate-900">Calendario de remates</h2><p class="text-xs text-slate-500">Selecciona un año, mes y dia para consultar todos los remates publicados.</p></div>
                         <div class="flex items-center gap-2">
@@ -125,14 +136,14 @@
                             <button @click="nextMonth()" class="w-9 h-9 rounded-lg border border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600" aria-label="Mes siguiente">›</button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black uppercase tracking-widest text-slate-400"><template x-for="weekday in weekdayNames" :key="weekday"><div class="py-2" x-text="weekday"></div></template></div>
-                    <div class="grid grid-cols-7 gap-1">
+                    <div class="calendar-weekdays grid grid-cols-7 gap-1 text-center text-[10px] font-black uppercase tracking-widest text-slate-400"><template x-for="weekday in weekdayNames" :key="weekday"><div class="py-2" x-text="weekday"></div></template></div>
+                    <div class="calendar-days grid grid-cols-7 gap-1">
                         <template x-for="cell in calendarDays" :key="cell.key">
-                            <div class="min-h-20 sm:min-h-24 rounded-xl border border-slate-100 bg-slate-50 p-1.5" :class="cell.day && cell.auctions.length ? 'border-blue-200 bg-blue-50/40' : ''">
+                            <div class="calendar-day-cell min-h-20 sm:min-h-24 rounded-xl border border-slate-100 bg-slate-50 p-1.5" :class="cell.day && cell.auctions.length ? 'border-blue-200 bg-blue-50/40' : ''">
                                 <template x-if="cell.day">
-                                    <button @click="selectCalendarDay(cell)" class="w-full h-full min-h-16 sm:min-h-20 text-left rounded-lg p-1.5 hover:bg-white transition" :class="selectedCalendarDate === cell.dateKey ? 'ring-2 ring-blue-500 bg-white' : ''">
+                                    <button @click="selectCalendarDay(cell)" class="calendar-day-button w-full h-full min-h-16 sm:min-h-20 text-left rounded-lg p-1.5 hover:bg-white transition" :class="selectedCalendarDate === cell.dateKey ? 'ring-2 ring-blue-500 bg-white' : ''">
                                         <span class="flex items-center justify-between text-xs font-black text-slate-700"><span x-text="cell.day"></span><span x-show="cell.auctions.length" class="rounded-full bg-blue-600 text-white px-1.5 py-0.5 text-[9px]" x-text="cell.auctions.length"></span></span>
-                                        <span x-show="cell.auctions.length" class="block mt-2 text-[9px] leading-tight font-bold text-blue-700" x-text="cell.auctions[0].title.replace(cell.auctions[0].date + ' - ', '')"></span>
+                                        <span x-show="cell.auctions.length" class="calendar-day-title block mt-2 text-[9px] leading-tight font-bold text-blue-700" x-text="cell.auctions[0].title.replace(cell.auctions[0].date + ' - ', '')"></span>
                                         <span x-show="cell.auctions.length > 1" class="block mt-1 text-[9px] text-slate-500" x-text="'+' + (cell.auctions.length - 1) + ' mas'"></span>
                                     </button>
                                 </template>
@@ -296,11 +307,24 @@
                     if (window.jasgRequireAuth) window.jasgRequireAuth();
                     this.loadRemoteAuctions();
                 },
-                async fetchRemoteText(url) {
+                async fetchRemoteText(url, attempts = 3) {
                     const target = url.replace(/^https?:\/\//i, '');
-                    const response = await fetch('https://r.jina.ai/http://' + target);
-                    if (!response.ok) throw new Error(`No se pudo leer ${url}`);
-                    return response.text();
+                    let lastError;
+                    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+                        const controller = new AbortController();
+                        const timeout = setTimeout(() => controller.abort(), 20000);
+                        try {
+                            const response = await fetch('https://r.jina.ai/http://' + target, { signal: controller.signal });
+                            if (!response.ok) throw new Error(`No se pudo leer ${url}`);
+                            return await response.text();
+                        } catch (error) {
+                            lastError = error;
+                            if (attempt < attempts) await new Promise(resolve => setTimeout(resolve, 350 * attempt));
+                        } finally {
+                            clearTimeout(timeout);
+                        }
+                    }
+                    throw lastError || new Error(`No se pudo leer ${url}`);
                 },
                 normalizeRemoteUrl(url) {
                     return String(url || '').replace(/^http:\/\//i, 'https://');
@@ -324,7 +348,7 @@
                     if (this.vehicleTotalsLoading || !this.remates.length) return;
                     this.vehicleTotalsLoading = true;
                     this.totalVehicleCount = 0;
-                    const batchSize = 6;
+                    const batchSize = 12;
                     try {
                         for (let index = 0; index < this.remates.length; index += batchSize) {
                             const batch = this.remates.slice(index, index + batchSize);
@@ -332,7 +356,7 @@
                                 auction.vehicleCount = 0;
                                 console.warn('No se pudo contar el listado de vehiculos', auction.url, error);
                                 return 0;
-                            })));
+                            }).then(() => this.updateTotalVehicleCount())));
                             this.updateTotalVehicleCount();
                         }
                     } finally {
