@@ -254,7 +254,10 @@
                     return source.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query));
                 },
                 get calendarYears() {
-                    return [...new Set(this.remates.map(auction => Number(auction.date.split(/[/-]/)[2])).filter(Boolean))].sort((a, b) => b - a);
+                    return [...new Set(this.remates
+                        .map(auction => Number(String(auction.dateKey || '').slice(0, 4)))
+                        .filter(year => Number.isInteger(year) && year >= 1900 && year <= 2100))]
+                        .sort((a, b) => b - a);
                 },
                 get calendarDays() {
                     const firstDay = (new Date(this.calendarYear, this.calendarMonth, 1).getDay() + 6) % 7;
@@ -418,11 +421,16 @@
                     const links = [...html.matchAll(/<a[^>]+href=["']([^"']*remate-\d+\/index\.html)["'][^>]*>[\s\S]*?<\/a>/gi)]
                         .map(match => ({ url: new URL(match[1], sourceUrl).href, index: match.index || 0 }));
                     const unique = new Map(links.map(item => [item.url, item]));
-                    return [...unique.values()].map((item, index) => {
+                    return [...unique.values()].map(item => {
                         const panelStart = html.lastIndexOf('class="panel panel-default"', item.index);
                         const panel = html.slice(panelStart >= 0 ? panelStart : Math.max(0, item.index - 1400), item.index + 800);
-                        const titleMatch = panel.match(/<span>\s*(\d{2}\/\d{2}\/\d{4})\s*([^<]*?)<\/span>/i);
-                        const date = titleMatch?.[1] || `01/01/${2020 + index}`;
+                        const titleMatch = panel.match(/<span>\s*(\d{2}[-/]\d{2}[-/]\d{2,4})\s*([^<]*?)<\/span>/i);
+                        const dateMatch = panel.match(/(?:^|[^\d])(\d{2})[-/](\d{2})[-/](\d{4})(?!\d)/);
+                        const titleDateParts = titleMatch?.[1].match(/^(\d{2})[-/](\d{2})[-/](\d{2,4})$/);
+                        const titleDate = titleDateParts
+                            ? `${titleDateParts[1]}/${titleDateParts[2]}/${titleDateParts[3].length === 2 ? `20${titleDateParts[3]}` : titleDateParts[3]}`
+                            : '';
+                        const date = titleDate || (dateMatch ? `${dateMatch[1]}/${dateMatch[2]}/${dateMatch[3]}` : '');
                         const description = titleMatch?.[2]?.trim() || 'Autos publicados';
                         return { id: item.url, url: item.url, date, dateKey: this.toDateKey(date), title: `${date} - ${description}` };
                     });
