@@ -148,9 +148,19 @@
                         <template x-if="selectedVehicle && selectedVehicle.source === 'reyco'">
                             <div class="h-full overflow-y-auto p-4 sm:p-8">
                                 <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,.75fr)] gap-5">
-                                    <div class="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-950 to-slate-950 min-h-[18rem] sm:min-h-[26rem] flex items-center justify-center overflow-hidden shadow-lg">
-                                        <img x-show="selectedVehicle.imageUrl" :src="selectedVehicle.imageUrl" :alt="selectedVehicle.make + ' ' + selectedVehicle.model" referrerpolicy="no-referrer" @error="selectedVehicle.imageUrl = ''" class="w-full h-full max-h-[34rem] object-contain">
-                                        <div x-show="!selectedVehicle.imageUrl" class="text-center text-white/60 p-8"><i class="fa-solid fa-car-side text-6xl mb-4"></i><p class="text-sm font-bold">Imagen no disponible</p></div>
+                                    <div>
+                                        <div class="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-950 to-slate-950 min-h-[18rem] sm:min-h-[26rem] flex items-center justify-center overflow-hidden shadow-lg relative">
+                                            <img x-show="selectedVehicle.images && selectedVehicle.images.length" :src="selectedVehicle.images && selectedVehicle.images.length ? selectedVehicle.images[selectedVehicleImageIndex] : selectedVehicle.imageUrl" :alt="selectedVehicle.make + ' ' + selectedVehicle.model" referrerpolicy="no-referrer" class="w-full h-full max-h-[34rem] object-contain">
+                                            <div x-show="!selectedVehicle.images || !selectedVehicle.images.length" class="text-center text-white/60 p-8"><i class="fa-solid fa-car-side text-6xl mb-4"></i><p class="text-sm font-bold">Imagen no disponible</p></div>
+                                            <button x-show="selectedVehicle.images && selectedVehicle.images.length > 1" @click="changeSelectedVehicleImage(-1)" type="button" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-violet-900 shadow flex items-center justify-center" aria-label="Imagen anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                                            <button x-show="selectedVehicle.images && selectedVehicle.images.length > 1" @click="changeSelectedVehicleImage(1)" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white text-violet-900 shadow flex items-center justify-center" aria-label="Imagen siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+                                            <span x-show="selectedVehicle.images && selectedVehicle.images.length" class="absolute right-3 bottom-3 rounded-full bg-slate-950/70 text-white px-2.5 py-1 text-[11px] font-bold" x-text="(selectedVehicleImageIndex + 1) + ' / ' + selectedVehicle.images.length"></span>
+                                        </div>
+                                        <div x-show="selectedVehicle.images && selectedVehicle.images.length > 1" class="mt-3 grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2">
+                                            <template x-for="(image, imageIndex) in selectedVehicle.images" :key="image + imageIndex">
+                                                <button @click="selectedVehicleImageIndex = imageIndex" type="button" class="h-16 rounded-lg overflow-hidden border-2 bg-slate-900" :class="selectedVehicleImageIndex === imageIndex ? 'border-violet-500' : 'border-transparent opacity-70 hover:opacity-100'"><img :src="image" :alt="'Imagen ' + (imageIndex + 1)" class="w-full h-full object-cover"></button>
+                                            </template>
+                                        </div>
                                     </div>
                                     <div class="rounded-2xl border border-violet-200 bg-white p-5 sm:p-6 shadow-lg self-start">
                                         <span class="source-pill source-pill-reyco"><i class="fa-solid fa-gavel"></i> Reyco</span>
@@ -159,6 +169,16 @@
                                         <div class="grid grid-cols-2 gap-3 mt-6">
                                             <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">Año</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.year || '—'"></p></div>
                                             <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">Fecha</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.auctionDate || '—'"></p></div>
+                                        </div>
+                                        <div class="flex flex-wrap items-center gap-2 mt-4">
+                                            <span class="rounded-md bg-emerald-600 text-white px-2 py-1 text-[10px] font-black uppercase" x-text="selectedVehicle.working === 'Si' ? 'Funcionando' : (selectedVehicle.working || 'Sin información')"></span>
+                                            <span class="rounded-md bg-slate-100 text-slate-600 px-2 py-1 text-[10px] font-bold" x-show="selectedVehicle.lotNumber" x-text="'Lote ' + selectedVehicle.lotNumber"></span>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-3 mt-3">
+                                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">KILOMETRAJE</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.kilometers ? Number(selectedVehicle.kilometers).toLocaleString('es-CL') + ' km' : '-' "></p></div>
+                                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">COMBUSTIBLE</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.fuel || '-' "></p></div>
+                                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">PATENTE</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.plate || '-' "></p></div>
+                                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">CHATARRA</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.scrap || '-' "></p></div>
                                         </div>
                                         <div class="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-4"><p class="text-[10px] uppercase text-emerald-700 font-bold">Valor inicial</p><p class="mt-1 text-2xl font-black text-emerald-700" x-text="formatMoney(selectedVehicle.initialValue)"></p></div>
                                         <a :href="selectedVehicle.detailUrl" target="_blank" rel="noopener noreferrer" class="mt-5 w-full bg-violet-600 hover:bg-violet-700 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver ficha original de Reyco</a>
@@ -333,6 +353,7 @@
                 rematesPerPage: 5,
                 viewerOpen: false,
                 selectedVehicle: null,
+                selectedVehicleImageIndex: 0,
                 remoteImagesLoading: false,
                 loadingAuctions: false,
                 loadingVehicles: false,
@@ -492,6 +513,9 @@
                         ? Math.round(numericPrice)
                         : Number(String(item.starting_price || '0').replace(/[^\d]/g, '')) || 0;
                     const lotId = item.id_loteo || item.id_bien || index;
+                    const patentMatch = String(item.name || '').match(/Patente:\s*([^\s]+)/i);
+                    const fuelLabels = { DIE: 'Diesel', GAS: 'Gasolina', HIB: 'Híbrido', ELE: 'Eléctrico' };
+                    const kilometers = Number(item.kilometers);
                     return {
                         id: `reyco-${lotId}-${item.id_bien || index}`,
                         make: String(item.brand || 'REYCO').trim(),
@@ -504,6 +528,13 @@
                             ? `https://rematesreyco.cl/detalles-auto/?id_loteo=${encodeURIComponent(item.id_loteo)}`
                             : 'https://rematesreyco.cl/',
                         imageUrl: images[0] || '',
+                        images,
+                        lotNumber: item.numeroLote || '',
+                        kilometers: Number.isFinite(kilometers) ? Math.round(kilometers) : item.kilometers || '',
+                        fuel: fuelLabels[String(item.fuel_type || '').toUpperCase()] || item.fuel_type || '',
+                        plate: String(item.plate || item.patente || patentMatch?.[1] || '').trim(),
+                        working: item.estafuncionando || '',
+                        scrap: item.eschatarra || (item.esChatarra ? 'Si' : 'No'),
                         source: 'reyco'
                     };
                 },
@@ -753,7 +784,13 @@
                 },
                 openVehicle(vehicle) {
                     this.selectedVehicle = vehicle;
+                    this.selectedVehicleImageIndex = 0;
                     this.viewerOpen = true;
+                },
+                changeSelectedVehicleImage(step) {
+                    const images = this.selectedVehicle && Array.isArray(this.selectedVehicle.images) ? this.selectedVehicle.images : [];
+                    if (images.length < 2) return;
+                    this.selectedVehicleImageIndex = (this.selectedVehicleImageIndex + step + images.length) % images.length;
                 },
                 closeVehicleViewer() {
                     this.viewerOpen = false;
