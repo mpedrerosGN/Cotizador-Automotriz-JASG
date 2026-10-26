@@ -82,6 +82,10 @@
                             <i class="fa-solid fa-cloud-arrow-down" :class="syncKarcalLoading ? 'animate-pulse' : ''"></i>
                             <span x-text="syncKarcalLoading ? 'Sincronizando...' : 'Sincronizar Karcal'"></span>
                         </button>
+                        <button @click="syncReyco()" :disabled="reycoSyncing" class="bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-down" :class="reycoSyncing ? 'animate-pulse' : ''"></i>
+                            <span x-text="reycoSyncing ? 'Sincronizando...' : 'Sincronizar Reyco'"></span>
+                        </button>
                         <button @click="resetFilters()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2">
                             <i class="fa-solid fa-rotate"></i> Restablecer
                         </button>
@@ -207,6 +211,27 @@
                     <div x-show="filteredVehicles.length === 0" x-cloak class="bg-white rounded-2xl border border-dashed border-slate-300 p-10 text-center"><i class="fa-solid fa-car text-3xl text-slate-300"></i><p class="mt-3 text-sm font-bold text-slate-500">No encontramos vehículos con esos filtros.</p></div>
                 </section>
 
+                <section x-show="reycoSyncing || reycoVehicles.length || reycoError" x-cloak class="space-y-3">
+                    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
+                        <div><h2 class="text-lg font-black text-violet-950">Vehículos Reyco</h2><p class="text-xs text-slate-500">Catálogo independiente de Karcal, sincronizado desde Reyco.</p></div>
+                        <span class="text-xs font-bold text-violet-700" x-text="reycoSyncing ? 'Sincronizando...' : filteredReycoVehicles.length + ' resultados'"></span>
+                    </div>
+                    <div class="bg-violet-50 border border-violet-200 rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div class="relative flex-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-violet-400 text-sm"></i><input x-model="reycoSearch" type="search" placeholder="Buscar en Reyco: marca, modelo o año..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-violet-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"></div>
+                        <p class="text-[11px] text-violet-800" x-show="reycoMessage" x-text="reycoMessage"></p>
+                    </div>
+                    <div x-show="reycoError" class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-sm text-rose-800" x-text="reycoError"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <template x-for="vehicle in filteredReycoVehicles" :key="vehicle.id">
+                            <article class="bg-white rounded-2xl border border-violet-200 shadow-sm hover:shadow-md hover:border-violet-400 transition overflow-hidden">
+                                <div class="h-36 bg-gradient-to-br from-violet-900 to-slate-950 flex items-center justify-center relative overflow-hidden"><img x-show="vehicle.imageUrl" :src="vehicle.imageUrl" :alt="vehicle.make + ' ' + vehicle.model" loading="lazy" referrerpolicy="no-referrer" @error="vehicle.imageUrl = ''" class="w-full h-full object-cover"><i x-show="!vehicle.imageUrl" class="fa-solid fa-car-side text-5xl text-white/20"></i><span class="absolute top-3 left-3 bg-violet-300 text-violet-950 text-[10px] font-black px-2 py-1 rounded-lg" x-text="vehicle.auctionDate"></span></div>
+                                <div class="p-4"><div class="flex items-start justify-between gap-3"><div><p class="text-[10px] uppercase tracking-widest text-violet-600 font-black" x-text="vehicle.make"></p><h3 class="text-base font-black text-slate-900" x-text="vehicle.model"></h3></div><span class="text-xs font-bold text-slate-500" x-text="vehicle.year"></span></div><div class="mt-4 flex items-end justify-between gap-3"><div><p class="text-[10px] text-slate-400 uppercase font-bold">Valor inicial</p><p class="text-lg font-black text-emerald-600" x-text="formatMoney(vehicle.initialValue)"></p></div><button @click="openVehicle(vehicle)" class="bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-eye"></i> Ver auto</button></div></div>
+                            </article>
+                        </template>
+                    </div>
+                    <div x-show="!reycoSyncing && filteredReycoVehicles.length === 0" x-cloak class="bg-white rounded-2xl border border-dashed border-violet-300 p-8 text-center"><i class="fa-solid fa-car text-3xl text-violet-200"></i><p class="mt-3 text-sm font-bold text-violet-700">No encontramos vehículos Reyco con ese criterio.</p></div>
+                </section>
+
                 <section class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start"><i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i><div class="text-xs text-amber-900"><p class="font-bold">Catálogo conectado por fecha</p><p class="mt-1">Los remates se leen desde el listado histórico de Karcal. Al elegir una fecha se cargan sus lotes, fichas y fotografías sin dejar fechas vacías en el selector.</p></div></section>
             </main>
         </div>
@@ -216,8 +241,10 @@
         function rematesApp() {
             const sourceUrl = 'https://antiguos.karcal.cl/';
             const fallbackListingUrl = 'https://antiguos.karcal.cl/remate-30240/index.html';
+            const reycoApiUrl = 'https://rematesreyco.cl/querywebreyco/cartRemate.php';
             return {
                 search: '',
+                reycoSearch: '',
                 selectedAuction: '',
                 calendarYear: 2026,
                 calendarMonth: 3,
@@ -233,6 +260,10 @@
                 loadingVehicles: false,
                 syncKarcalLoading: false,
                 syncKarcalMessage: '',
+                reycoSyncing: false,
+                reycoMessage: '',
+                reycoError: '',
+                reycoVehicles: [],
                 vehicleTotalsLoading: false,
                 totalVehicleCount: null,
                 globalVehiclesLoading: false,
@@ -263,6 +294,10 @@
                     if (query && (!this.globalCatalogLoaded || this.globalVehiclesLoading)) return [];
                     const source = query ? this.allVehicles : this.vehicles;
                     return source.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query));
+                },
+                get filteredReycoVehicles() {
+                    const query = this.reycoSearch.trim().toLowerCase();
+                    return this.reycoVehicles.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year}`.toLowerCase().includes(query));
                 },
                 get calendarYears() {
                     return [...new Set(this.remates
@@ -351,6 +386,60 @@
                         console.warn(this.loadError, error);
                     } finally {
                         this.syncKarcalLoading = false;
+                    }
+                },
+                parseReycoPayload(payload) {
+                    const jsonStart = String(payload || '').indexOf('[');
+                    if (jsonStart < 0) throw new Error('La respuesta de Reyco no contiene un catálogo válido');
+                    const data = JSON.parse(String(payload).slice(jsonStart));
+                    if (!Array.isArray(data)) throw new Error('El catálogo de Reyco no tiene el formato esperado');
+                    return data;
+                },
+                parseReycoVehicle(item, index) {
+                    const images = Array.isArray(item.Imagenes)
+                        ? item.Imagenes
+                            .slice()
+                            .sort((left, right) => Number(left.im_orden || 999) - Number(right.im_orden || 999))
+                            .map(image => this.normalizeRemoteUrl(image.im_urlimagen || ''))
+                            .filter(Boolean)
+                        : [];
+                    const numericPrice = Number(item.starting_price);
+                    const initialValue = Number.isFinite(numericPrice)
+                        ? Math.round(numericPrice)
+                        : Number(String(item.starting_price || '0').replace(/[^\d]/g, '')) || 0;
+                    const lotId = item.id_loteo || item.id_bien || index;
+                    return {
+                        id: `reyco-${lotId}-${item.id_bien || index}`,
+                        make: String(item.brand || 'REYCO').trim(),
+                        model: String(item.model || `Lote ${item.numeroLote || index + 1}`).trim(),
+                        year: item.year || '',
+                        initialValue,
+                        auctionDate: String(item.auction_date || 'Remate Reyco').trim(),
+                        url: 'https://rematesreyco.cl/',
+                        detailUrl: item.id_loteo
+                            ? `https://rematesreyco.cl/detalles-auto/?id_loteo=${encodeURIComponent(item.id_loteo)}`
+                            : 'https://rematesreyco.cl/',
+                        imageUrl: images[0] || '',
+                        source: 'reyco'
+                    };
+                },
+                async syncReyco() {
+                    if (this.reycoSyncing) return;
+                    this.reycoSyncing = true;
+                    this.reycoError = '';
+                    this.reycoMessage = '';
+                    try {
+                        const payload = await this.fetchRemoteText(reycoApiUrl, 3);
+                        const data = this.parseReycoPayload(payload);
+                        const vehicles = data.map((item, index) => this.parseReycoVehicle(item, index));
+                        if (!vehicles.length) throw new Error('Reyco no publicó vehículos disponibles');
+                        this.reycoVehicles = vehicles;
+                        this.reycoMessage = `Reyco sincronizado: ${vehicles.length} vehículos disponibles (${new Date().toLocaleString('es-CL')}).`;
+                    } catch (error) {
+                        this.reycoError = 'No se pudo sincronizar Reyco en este momento. Intenta nuevamente o abre su catálogo oficial.';
+                        console.warn(this.reycoError, error);
+                    } finally {
+                        this.reycoSyncing = false;
                     }
                 },
                 prepareGlobalSearch() {
@@ -588,6 +677,7 @@
                 },
                 resetFilters() {
                     this.search = '';
+                    this.reycoSearch = '';
                     this.syncKarcalMessage = '';
                     this.rematePage = 1;
                     if (this.remates.length) {
