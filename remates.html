@@ -42,6 +42,16 @@
         .source-pill { display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .55rem; border-radius: 999px; font-size: .65rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
         .source-pill-karcal { color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; }
         .source-pill-reyco { color: #6d28d9; background: #f5f3ff; border: 1px solid #ddd6fe; }
+        .source-switcher { border-color: #dbe4f0; box-shadow: 0 10px 25px rgba(15, 23, 42, .06); }
+        .source-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; padding: .35rem; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 1rem; }
+        .source-tab { min-height: 4rem; padding: .7rem .9rem; border: 1px solid transparent; border-radius: .8rem; text-align: left; color: #64748b; transition: all .2s; }
+        .source-tab:hover { color: #0f172a; background: #fff; }
+        .source-tab.active { background: #fff; color: #1d4ed8; border-color: #bfdbfe; box-shadow: 0 5px 14px rgba(37, 99, 235, .12); }
+        .source-tab.active.reyco { color: #6d28d9; border-color: #ddd6fe; box-shadow: 0 5px 14px rgba(124, 58, 237, .12); }
+        .source-tab-label { display: flex; align-items: center; gap: .5rem; font-size: .8rem; font-weight: 900; }
+        .source-tab-count { display: block; margin-top: .2rem; padding-left: 1.55rem; font-size: .68rem; font-weight: 700; color: #94a3b8; }
+        .source-tab.active .source-tab-count { color: #3b82f6; }
+        .source-tab.active.reyco .source-tab-count { color: #8b5cf6; }
         .vehicle-section article { box-shadow: 0 10px 24px rgba(15, 23, 42, .05); }
         .vehicle-section article:hover { transform: translateY(-2px); }
         .vehicle-section article > div:first-child { height: 10.5rem; }
@@ -50,6 +60,7 @@
         @media (max-width: 640px) {
             .header-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
             .header-actions > a, .header-actions > button { justify-content: center; padding-left: .65rem; padding-right: .65rem; }
+            .source-switcher { align-items: stretch; }
             #remates-calendar { padding: 0.75rem; }
             #remates-calendar .calendar-days { gap: 0.2rem; }
             #remates-calendar .calendar-day-cell { min-height: 3.1rem; }
@@ -149,12 +160,30 @@
                         <p class="text-sm text-slate-300 mt-1 max-w-2xl">Revisa remates de vehículos siniestrados y utiliza esta información como apoyo para tasaciones, reparaciones y compras.</p>
                     </div>
                     <div class="hero-metrics grid grid-cols-2 gap-3 shrink-0">
-                        <div class="metric-card rounded-xl px-4 py-3"><div class="text-2xl font-black" x-text="remates.length"></div><div class="text-[10px] text-slate-300 uppercase">Remates Karcal</div></div>
-                        <div class="metric-card rounded-xl px-4 py-3"><div class="text-2xl font-black" x-text="vehicleTotalsLoading || totalVehicleCount === null ? '...' : totalVehicleCount"></div><div class="text-[10px] text-slate-300 uppercase">Vehículos Karcal</div></div>
+                        <div class="metric-card rounded-xl px-4 py-3"><div class="text-2xl font-black" x-text="selectedSource === 'karcal' ? remates.length : (reycoVehicles.length ? 1 : '-')"></div><div class="text-[10px] text-slate-300 uppercase" x-text="selectedSource === 'karcal' ? 'Remates Karcal' : 'Catálogo Reyco'"></div></div>
+                        <div class="metric-card rounded-xl px-4 py-3"><div class="text-2xl font-black" x-text="selectedSource === 'karcal' ? (vehicleTotalsLoading || totalVehicleCount === null ? '...' : totalVehicleCount) : (reycoSyncing ? '...' : reycoVehicles.length)"></div><div class="text-[10px] text-slate-300 uppercase" x-text="selectedSource === 'karcal' ? 'Vehículos Karcal' : 'Vehículos Reyco'"></div></div>
                     </div>
                 </section>
 
-                <section class="filter-panel bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
+                <section class="source-switcher bg-white rounded-2xl border p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest font-black text-slate-400">Fuente activa</p>
+                        <h2 class="text-lg font-black text-slate-900 mt-1" x-text="selectedSource === 'karcal' ? 'Remates Karcal' : 'Remates Reyco'"></h2>
+                        <p class="text-xs text-slate-500 mt-1">Elige una fuente para consultar únicamente sus remates y vehículos.</p>
+                    </div>
+                    <div data-source-selector role="tablist" aria-label="Seleccionar fuente de remates" class="source-tabs w-full lg:w-[30rem]">
+                        <button type="button" role="tab" @click="selectSource('karcal')" :aria-selected="selectedSource === 'karcal'" :class="selectedSource === 'karcal' ? 'source-tab active' : 'source-tab'">
+                            <span class="source-tab-label"><i class="fa-solid fa-building-columns"></i> Karcal</span>
+                            <span class="source-tab-count" x-text="remates.length + ' remates disponibles'"></span>
+                        </button>
+                        <button type="button" role="tab" @click="selectSource('reyco')" :aria-selected="selectedSource === 'reyco'" :class="selectedSource === 'reyco' ? 'source-tab active reyco' : 'source-tab'">
+                            <span class="source-tab-label"><i class="fa-solid fa-gavel"></i> Reyco</span>
+                            <span class="source-tab-count" x-text="reycoSyncing ? 'Sincronizando catálogo...' : (reycoVehicles.length ? reycoVehicles.length + ' vehículos disponibles' : 'Cargar catálogo Reyco')"></span>
+                        </button>
+                    </div>
+                </section>
+
+                <section x-show="selectedSource === 'karcal'" x-cloak class="filter-panel bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
                     <div class="flex flex-col lg:flex-row lg:items-end gap-3">
                         <label class="flex-1">
                             <span class="flex items-center gap-2 text-xs font-bold text-slate-700 mb-1.5"><span class="source-pill source-pill-karcal"><i class="fa-solid fa-magnifying-glass"></i> Karcal</span>Buscar vehículo</span>
@@ -164,7 +193,7 @@
                     </div>
                 </section>
 
-                <section id="remates-calendar" class="calendar-panel bg-white rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <section x-show="selectedSource === 'karcal'" x-cloak id="remates-calendar" class="calendar-panel bg-white rounded-2xl border border-slate-200 shadow-sm space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div><h2 class="text-lg font-black text-slate-900">Calendario de remates</h2><p class="text-xs text-slate-500">Selecciona un año, mes y dia para consultar todos los remates publicados.</p></div>
                         <div class="flex items-center gap-2">
@@ -215,17 +244,17 @@
                     </div>
                 </section>
 
-                <div x-show="loadError" x-cloak class="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3 text-sm text-rose-800">
+                <div x-show="selectedSource === 'karcal' && loadError" x-cloak class="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3 text-sm text-rose-800">
                     <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
                     <div><p class="font-bold" x-text="loadError"></p><a href="https://antiguos.karcal.cl/" target="_blank" rel="noopener noreferrer" class="inline-block mt-1 underline font-semibold">Abrir el listado original de Karcal</a></div>
                 </div>
 
-                <div x-show="syncKarcalMessage" x-cloak class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3 text-sm text-emerald-800">
+                <div x-show="selectedSource === 'karcal' && syncKarcalMessage" x-cloak class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-start gap-3 text-sm text-emerald-800">
                     <i class="fa-solid fa-circle-check mt-0.5"></i>
                     <p class="font-bold" x-text="syncKarcalMessage"></p>
                 </div>
 
-                <section id="karcal-vehicles" class="vehicle-section karcal-section bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
+                <section id="karcal-vehicles" x-show="selectedSource === 'karcal'" x-cloak class="vehicle-section karcal-section bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
                     <div class="section-heading flex items-center justify-between"><div><div class="flex items-center gap-2 mb-1"><span class="source-pill source-pill-karcal"><i class="fa-solid fa-building-columns"></i> Karcal</span><span class="text-[11px] font-bold text-slate-400" x-text="loadingVehicles ? 'Actualizando...' : filteredVehicles.length + ' vehículos'"></span></div><h2 class="text-lg font-black text-slate-900">Vehículos publicados</h2><p class="text-xs text-slate-500" x-text="selectedAuction ? 'Vehículos del remate seleccionado' : 'Selecciona un remate para cargar sus lotes' "></p></div><span class="hidden sm:inline text-xs font-bold text-slate-500" x-text="loadingVehicles ? 'Cargando...' : filteredVehicles.length + ' resultados'"></span></div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                         <template x-for="vehicle in filteredVehicles" :key="vehicle.id">
@@ -238,10 +267,10 @@
                     <div x-show="filteredVehicles.length === 0" x-cloak class="bg-white rounded-2xl border border-dashed border-slate-300 p-10 text-center"><i class="fa-solid fa-car text-3xl text-slate-300"></i><p class="mt-3 text-sm font-bold text-slate-500">No encontramos vehículos con esos filtros.</p></div>
                 </section>
 
-                <section id="reyco-vehicles" x-show="reycoSyncing || reycoVehicles.length || reycoError" x-cloak class="vehicle-section reyco-section bg-white rounded-2xl border border-violet-200 shadow-sm p-4 sm:p-5 space-y-4">
+                <section id="reyco-vehicles" x-show="selectedSource === 'reyco'" x-cloak class="vehicle-section reyco-section bg-white rounded-2xl border border-violet-200 shadow-sm p-4 sm:p-5 space-y-4">
                     <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
                         <div class="section-heading"><div><div class="flex items-center gap-2 mb-1"><span class="source-pill source-pill-reyco"><i class="fa-solid fa-gavel"></i> Reyco</span><span class="text-[11px] font-bold text-violet-500">Catálogo independiente</span></div><h2 class="text-lg font-black text-violet-950">Vehículos Reyco</h2><p class="text-xs text-slate-500">Vehículos sincronizados sin mezclarlos con Karcal.</p></div></div>
-                        <span class="text-xs font-bold text-violet-700" x-text="reycoSyncing ? 'Sincronizando...' : filteredReycoVehicles.length + ' resultados'"></span>
+                        <div class="flex items-center gap-2"><span class="text-xs font-bold text-violet-700" x-text="reycoSyncing ? 'Sincronizando...' : filteredReycoVehicles.length + ' resultados'"></span><button type="button" @click="syncReyco()" :disabled="reycoSyncing" class="bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-rotate" :class="reycoSyncing ? 'animate-spin' : ''"></i> Actualizar</button></div>
                     </div>
                     <div class="bg-violet-50 border border-violet-200 rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center gap-3">
                         <div class="relative flex-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-violet-400 text-sm"></i><input x-model="reycoSearch" type="search" placeholder="Buscar en Reyco: marca, modelo o año..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-violet-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"></div>
@@ -256,10 +285,10 @@
                             </article>
                         </template>
                     </div>
-                    <div x-show="!reycoSyncing && filteredReycoVehicles.length === 0" x-cloak class="bg-white rounded-2xl border border-dashed border-violet-300 p-8 text-center"><i class="fa-solid fa-car text-3xl text-violet-200"></i><p class="mt-3 text-sm font-bold text-violet-700">No encontramos vehículos Reyco con ese criterio.</p></div>
+                    <div x-show="!reycoSyncing && filteredReycoVehicles.length === 0" x-cloak class="bg-white rounded-2xl border border-dashed border-violet-300 p-8 text-center"><i class="fa-solid fa-car text-3xl text-violet-200"></i><p class="mt-3 text-sm font-bold text-violet-700" x-text="reycoError ? reycoError : 'No hay vehículos cargados de Reyco.'"></p><button type="button" @click="syncReyco()" class="mt-3 bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-cloud-arrow-down mr-1"></i> Sincronizar Reyco</button></div>
                 </section>
 
-                <section class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start"><i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i><div class="text-xs text-amber-900"><p class="font-bold">Catálogo conectado por fecha</p><p class="mt-1">Los remates se leen desde el listado histórico de Karcal. Al elegir una fecha se cargan sus lotes, fichas y fotografías sin dejar fechas vacías en el selector.</p></div></section>
+                <section x-show="selectedSource === 'karcal'" x-cloak class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start"><i class="fa-solid fa-circle-info text-amber-600 mt-0.5"></i><div class="text-xs text-amber-900"><p class="font-bold">Catálogo conectado por fecha</p><p class="mt-1">Los remates se leen desde el listado histórico de Karcal. Al elegir una fecha se cargan sus lotes, fichas y fotografías sin dejar fechas vacías en el selector.</p></div></section>
             </main>
         </div>
     </div>
@@ -270,6 +299,7 @@
             const fallbackListingUrl = 'https://antiguos.karcal.cl/remate-30240/index.html';
             const reycoApiUrl = 'https://rematesreyco.cl/querywebreyco/cartRemate.php';
             return {
+                selectedSource: 'karcal',
                 search: '',
                 reycoSearch: '',
                 selectedAuction: '',
@@ -371,6 +401,12 @@
                 selectCalendarDay(cell) {
                     this.selectedCalendarDate = cell.dateKey || '';
                     if (cell.auctions.length) this.selectAuction(cell.auctions[0]);
+                },
+                selectSource(source) {
+                    this.selectedSource = source === 'reyco' ? 'reyco' : 'karcal';
+                    this.closeVehicleViewer();
+                    if (this.selectedSource === 'reyco' && !this.reycoVehicles.length && !this.reycoSyncing) this.syncReyco();
+                    if (this.selectedSource === 'karcal' && !this.vehicles.length && this.remates.length) this.loadSelectedAuction();
                 },
                 previousMonth() {
                     if (this.calendarMonth === 0) {
@@ -703,6 +739,7 @@
                     this.selectedVehicle = null;
                 },
                 resetFilters() {
+                    this.selectedSource = 'karcal';
                     this.search = '';
                     this.reycoSearch = '';
                     this.syncKarcalMessage = '';
