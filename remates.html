@@ -145,7 +145,28 @@
                         </div>
                     </div>
                     <div class="flex-1 bg-slate-100 relative">
-                        <template x-if="selectedVehicle">
+                        <template x-if="selectedVehicle && selectedVehicle.source === 'reyco'">
+                            <div class="h-full overflow-y-auto p-4 sm:p-8">
+                                <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,.75fr)] gap-5">
+                                    <div class="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-950 to-slate-950 min-h-[18rem] sm:min-h-[26rem] flex items-center justify-center overflow-hidden shadow-lg">
+                                        <img x-show="selectedVehicle.imageUrl" :src="selectedVehicle.imageUrl" :alt="selectedVehicle.make + ' ' + selectedVehicle.model" referrerpolicy="no-referrer" @error="selectedVehicle.imageUrl = ''" class="w-full h-full max-h-[34rem] object-contain">
+                                        <div x-show="!selectedVehicle.imageUrl" class="text-center text-white/60 p-8"><i class="fa-solid fa-car-side text-6xl mb-4"></i><p class="text-sm font-bold">Imagen no disponible</p></div>
+                                    </div>
+                                    <div class="rounded-2xl border border-violet-200 bg-white p-5 sm:p-6 shadow-lg self-start">
+                                        <span class="source-pill source-pill-reyco"><i class="fa-solid fa-gavel"></i> Reyco</span>
+                                        <p class="mt-5 text-[10px] uppercase tracking-widest text-violet-600 font-black" x-text="selectedVehicle.make"></p>
+                                        <h3 class="text-2xl font-black text-slate-900 leading-tight" x-text="selectedVehicle.model"></h3>
+                                        <div class="grid grid-cols-2 gap-3 mt-6">
+                                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">Año</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.year || '—'"></p></div>
+                                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">Fecha</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.auctionDate || '—'"></p></div>
+                                        </div>
+                                        <div class="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-4"><p class="text-[10px] uppercase text-emerald-700 font-bold">Valor inicial</p><p class="mt-1 text-2xl font-black text-emerald-700" x-text="formatMoney(selectedVehicle.initialValue)"></p></div>
+                                        <a :href="selectedVehicle.detailUrl" target="_blank" rel="noopener noreferrer" class="mt-5 w-full bg-violet-600 hover:bg-violet-700 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver ficha original de Reyco</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="selectedVehicle && selectedVehicle.source !== 'reyco'">
                             <iframe :src="selectedVehicle.detailUrl" :title="'Ficha ' + selectedVehicle.make + ' ' + selectedVehicle.model" class="absolute inset-0 w-full h-full border-0 bg-white"></iframe>
                         </template>
                     </div>
