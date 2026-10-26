@@ -179,8 +179,15 @@
                                             <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">COMBUSTIBLE</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.fuel || '-' "></p></div>
                                             <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">PATENTE</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.plate || '-' "></p></div>
                                             <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">CHATARRA</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.scrap || '-' "></p></div>
+                                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">LLAVES</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.keys || '-' "></p></div>
+                                            <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">CONDICIONADO</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.conditioned || '-' "></p></div>
                                         </div>
                                         <div class="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-4"><p class="text-[10px] uppercase text-emerald-700 font-bold">Valor inicial</p><p class="mt-1 text-2xl font-black text-emerald-700" x-text="formatMoney(selectedVehicle.initialValue)"></p></div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                                            <a x-show="selectedVehicle.certificateUrl" :href="selectedVehicle.certificateUrl" target="_blank" rel="noopener noreferrer" class="min-h-[62px] border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-wide flex items-center justify-center text-center gap-2"><i class="fa-solid fa-file-pdf text-red-600 text-base"></i> Certificados de anotaciones vigentes (CAV)</a>
+                                            <button x-show="!selectedVehicle.certificateUrl" type="button" disabled class="min-h-[62px] border border-slate-200 bg-slate-50 text-slate-400 px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-wide flex items-center justify-center text-center gap-2"><i class="fa-solid fa-spinner" :class="selectedVehicle.detailLoading ? 'animate-spin' : ''"></i><span x-text="selectedVehicle.detailLoading ? 'Cargando CAV...' : 'CAV no disponible'"></span></button>
+                                            <a href="https://webrematereyco.plataformagroup.cl/Registro/remateREL" target="_blank" rel="noopener noreferrer" class="min-h-[62px] bg-blue-950 hover:bg-blue-900 text-white px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-wide flex items-center justify-center text-center gap-2"><i class="fa-solid fa-gavel"></i> Inscríbete en remate online</a>
+                                        </div>
                                         <a :href="selectedVehicle.detailUrl" target="_blank" rel="noopener noreferrer" class="mt-5 w-full bg-violet-600 hover:bg-violet-700 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver ficha original de Reyco</a>
                                     </div>
                                 </div>
@@ -339,6 +346,7 @@
             const sourceUrl = 'https://antiguos.karcal.cl/';
             const fallbackListingUrl = 'https://antiguos.karcal.cl/remate-30240/index.html';
             const reycoApiUrl = 'https://rematesreyco.cl/querywebreyco/cartRemate.php';
+            const reycoDetailApiUrl = 'https://rematesreyco.cl/querywebreyco/cartDetails.php?id_loteo=';
             return {
                 selectedSource: 'karcal',
                 search: '',
@@ -535,6 +543,12 @@
                         plate: String(item.plate || item.patente || patentMatch?.[1] || '').trim(),
                         working: item.estafuncionando || '',
                         scrap: item.eschatarra || (item.esChatarra ? 'Si' : 'No'),
+                        lotId,
+                        keys: '',
+                        conditioned: '',
+                        certificateUrl: '',
+                        video: '',
+                        detailLoading: false,
                         source: 'reyco'
                     };
                 },
@@ -555,6 +569,41 @@
                         console.warn(this.reycoError, error);
                     } finally {
                         this.reycoSyncing = false;
+                    }
+                },
+                async loadReycoVehicleDetails(vehicle) {
+                    if (!vehicle || vehicle.source !== 'reyco' || !vehicle.lotId || vehicle.detailLoading || vehicle.detailLoaded) return;
+                    vehicle.detailLoading = true;
+                    try {
+                        const payload = await this.fetchRemoteText(reycoDetailApiUrl + encodeURIComponent(vehicle.lotId), 3);
+                        const detail = this.parseReycoPayload(payload)[0];
+                        if (!detail) throw new Error('La ficha de Reyco no devolvió datos');
+                        const detailImages = Array.isArray(detail.Imagenes)
+                            ? detail.Imagenes
+                                .slice()
+                                .sort((left, right) => Number(left.im_orden || 999) - Number(right.im_orden || 999))
+                                .map(image => this.normalizeRemoteUrl(image.im_urlimagen || ''))
+                                .filter(Boolean)
+                            : [];
+                        if (detailImages.length) {
+                            vehicle.images = detailImages;
+                            vehicle.imageUrl = detailImages[0];
+                        }
+                        vehicle.kilometers = detail.kilometers ?? vehicle.kilometers;
+                        vehicle.fuel = detail.combustibletipo || vehicle.fuel;
+                        vehicle.plate = detail.car_patente || vehicle.plate;
+                        vehicle.keys = detail.tienellaves || '';
+                        vehicle.conditioned = detail.escondicionado || '';
+                        vehicle.working = detail.estafuncionando || vehicle.working;
+                        vehicle.scrap = detail.eschatarra || vehicle.scrap;
+                        vehicle.certificateUrl = this.normalizeRemoteUrl(detail.certificates || '');
+                        vehicle.video = detail.video || '';
+                        vehicle.detailLoaded = true;
+                    } catch (error) {
+                        vehicle.detailError = 'No se pudo cargar el detalle adicional de Reyco.';
+                        console.warn(vehicle.detailError, error);
+                    } finally {
+                        vehicle.detailLoading = false;
                     }
                 },
                 prepareGlobalSearch() {
@@ -786,6 +835,7 @@
                     this.selectedVehicle = vehicle;
                     this.selectedVehicleImageIndex = 0;
                     this.viewerOpen = true;
+                    if (vehicle && vehicle.source === 'reyco') this.loadReycoVehicleDetails(vehicle);
                 },
                 changeSelectedVehicleImage(step) {
                     const images = this.selectedVehicle && Array.isArray(this.selectedVehicle.images) ? this.selectedVehicle.images : [];
