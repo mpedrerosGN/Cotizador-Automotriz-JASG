@@ -43,18 +43,21 @@
         .source-pill-karcal { color: #1d4ed8; background: #eff6ff; border: 1px solid #bfdbfe; }
         .source-pill-reyco { color: #6d28d9; background: #f5f3ff; border: 1px solid #ddd6fe; }
         .source-pill-manquehue { color: #9a3412; background: #fff7ed; border: 1px solid #fed7aa; }
+        .source-pill-macal { color: #0369a1; background: #f0f9ff; border: 1px solid #bae6fd; }
         .source-switcher { border-color: #dbe4f0; box-shadow: 0 10px 25px rgba(15, 23, 42, .06); }
-        .source-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; padding: .35rem; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 1rem; }
+        .source-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; padding: .35rem; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 1rem; }
         .source-tab { min-height: 4rem; padding: .7rem .9rem; border: 1px solid transparent; border-radius: .8rem; text-align: left; color: #64748b; transition: all .2s; }
         .source-tab:hover { color: #0f172a; background: #fff; }
         .source-tab.active { background: #fff; color: #1d4ed8; border-color: #bfdbfe; box-shadow: 0 5px 14px rgba(37, 99, 235, .12); }
         .source-tab.active.reyco { color: #6d28d9; border-color: #ddd6fe; box-shadow: 0 5px 14px rgba(124, 58, 237, .12); }
         .source-tab.active.manquehue { color: #c2410c; border-color: #fed7aa; box-shadow: 0 5px 14px rgba(234, 88, 12, .12); }
+        .source-tab.active.macal { color: #0369a1; border-color: #bae6fd; box-shadow: 0 5px 14px rgba(14, 165, 233, .12); }
         .source-tab-label { display: flex; align-items: center; gap: .5rem; font-size: .8rem; font-weight: 900; }
         .source-tab-count { display: block; margin-top: .2rem; padding-left: 1.55rem; font-size: .68rem; font-weight: 700; color: #94a3b8; }
         .source-tab.active .source-tab-count { color: #3b82f6; }
         .source-tab.active.reyco .source-tab-count { color: #8b5cf6; }
         .source-tab.active.manquehue .source-tab-count { color: #f97316; }
+        .source-tab.active.macal .source-tab-count { color: #0ea5e9; }
         .vehicle-section article { box-shadow: 0 10px 24px rgba(15, 23, 42, .05); }
         .vehicle-section article:hover { transform: translateY(-2px); }
         .vehicle-section article > div:first-child { height: 10.5rem; }
@@ -132,6 +135,10 @@
                             <i class="fa-solid fa-cloud-arrow-down" :class="manquehueSyncing ? 'animate-pulse' : ''"></i>
                             <span x-text="manquehueSyncing ? 'Sincronizando...' : 'Sincronizar Manquehue'"></span>
                         </button>
+                        <button @click="syncMacal()" :disabled="macalSyncing" class="bg-sky-600 hover:bg-sky-700 disabled:opacity-60 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-down" :class="macalSyncing ? 'animate-pulse' : ''"></i>
+                            <span x-text="macalSyncing ? 'Sincronizando...' : 'Sincronizar Macal'"></span>
+                        </button>
                         <button @click="resetFilters()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2">
                             <i class="fa-solid fa-rotate"></i> Restablecer
                         </button>
@@ -153,7 +160,7 @@
                         </div>
                     </div>
                     <div class="flex-1 bg-slate-100 relative">
-                        <template x-if="selectedVehicle && (selectedVehicle.source === 'reyco' || selectedVehicle.source === 'manquehue')">
+                        <template x-if="selectedVehicle && (selectedVehicle.source === 'reyco' || selectedVehicle.source === 'manquehue' || selectedVehicle.source === 'macal')">
                             <div class="h-full overflow-y-auto p-4 sm:p-8">
                                 <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,.75fr)] gap-5">
                                     <div>
@@ -171,7 +178,7 @@
                                         </div>
                                     </div>
                                     <div class="rounded-2xl border border-violet-200 bg-white p-5 sm:p-6 shadow-lg self-start">
-                                        <span :class="selectedVehicle.source === 'manquehue' ? 'source-pill source-pill-manquehue' : 'source-pill source-pill-reyco'"><i class="fa-solid fa-gavel"></i> <span x-text="selectedVehicle.source === 'manquehue' ? 'Manquehue' : 'Reyco'"></span></span>
+                                        <span :class="selectedVehicle.source === 'manquehue' ? 'source-pill source-pill-manquehue' : (selectedVehicle.source === 'macal' ? 'source-pill source-pill-macal' : 'source-pill source-pill-reyco')"><i class="fa-solid fa-gavel"></i> <span x-text="selectedVehicle.source === 'manquehue' ? 'Manquehue' : (selectedVehicle.source === 'macal' ? 'Macal' : 'Reyco')"></span></span>
                                         <p class="mt-5 text-[10px] uppercase tracking-widest text-violet-600 font-black" x-text="selectedVehicle.make"></p>
                                         <h3 class="text-2xl font-black text-slate-900 leading-tight" x-text="selectedVehicle.model"></h3>
                                         <div class="grid grid-cols-2 gap-3 mt-6">
@@ -190,13 +197,18 @@
                                             <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">LLAVES</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.keys || '-' "></p></div>
                                             <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><p class="text-[10px] uppercase text-slate-400 font-bold">CONDICIONADO</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.conditioned || '-' "></p></div>
                                         </div>
+                                        <div x-show="selectedVehicle.source === 'macal'" class="grid grid-cols-2 gap-3 mt-3">
+                                            <div class="rounded-xl bg-sky-50 border border-sky-200 p-3"><p class="text-[10px] uppercase text-sky-600 font-bold">TRACCIÓN</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.traction || '-' "></p></div>
+                                            <div class="rounded-xl bg-sky-50 border border-sky-200 p-3"><p class="text-[10px] uppercase text-sky-600 font-bold">TRANSMISIÓN</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.transmission || '-' "></p></div>
+                                            <div class="rounded-xl bg-sky-50 border border-sky-200 p-3"><p class="text-[10px] uppercase text-sky-600 font-bold">CILINDRADA</p><p class="mt-1 font-black text-slate-800" x-text="selectedVehicle.engine || '-' "></p></div>
+                                        </div>
                                         <div class="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 p-4"><p class="text-[10px] uppercase text-emerald-700 font-bold">Valor inicial</p><p class="mt-1 text-2xl font-black text-emerald-700" x-text="formatMoney(selectedVehicle.initialValue)"></p></div>
                                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                                             <a x-show="selectedVehicle.certificateUrl" :href="selectedVehicle.certificateUrl" target="_blank" rel="noopener noreferrer" class="min-h-[62px] border border-slate-300 hover:bg-slate-50 text-slate-700 px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-wide flex items-center justify-center text-center gap-2"><i class="fa-solid fa-file-pdf text-red-600 text-base"></i> Certificados de anotaciones vigentes (CAV)</a>
                                             <button x-show="!selectedVehicle.certificateUrl" type="button" disabled class="min-h-[62px] border border-slate-200 bg-slate-50 text-slate-400 px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-wide flex items-center justify-center text-center gap-2"><i class="fa-solid fa-spinner" :class="selectedVehicle.detailLoading ? 'animate-spin' : ''"></i><span x-text="selectedVehicle.detailLoading ? 'Cargando CAV...' : 'CAV no disponible'"></span></button>
-                                            <a :href="selectedVehicle.source === 'manquehue' ? manquehueSignupUrl : 'https://webrematereyco.plataformagroup.cl/Registro/remateREL'" target="_blank" rel="noopener noreferrer" class="min-h-[62px] bg-blue-950 hover:bg-blue-900 text-white px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-wide flex items-center justify-center text-center gap-2"><i class="fa-solid fa-gavel"></i> <span x-text="selectedVehicle.source === 'manquehue' ? 'Inscribirse en remate Manquehue' : 'Inscribirse en remate online'"></span></a>
+                                            <a :href="selectedVehicle.source === 'manquehue' ? manquehueSignupUrl : (selectedVehicle.source === 'macal' ? macalHowToBuyUrl : 'https://webrematereyco.plataformagroup.cl/Registro/remateREL')" target="_blank" rel="noopener noreferrer" class="min-h-[62px] bg-blue-950 hover:bg-blue-900 text-white px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-wide flex items-center justify-center text-center gap-2"><i class="fa-solid fa-gavel"></i> <span x-text="selectedVehicle.source === 'manquehue' ? 'Inscribirse en remate Manquehue' : (selectedVehicle.source === 'macal' ? 'Cómo participar en Macal' : 'Inscribirse en remate online')"></span></a>
                                         </div>
-                                        <a :href="selectedVehicle.detailUrl" target="_blank" rel="noopener noreferrer" class="mt-5 w-full bg-violet-600 hover:bg-violet-700 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-arrow-up-right-from-square"></i> <span x-text="selectedVehicle.source === 'manquehue' ? 'Ver ficha original de Manquehue' : 'Ver ficha original de Reyco'"></span></a>
+                                        <a :href="selectedVehicle.detailUrl" target="_blank" rel="noopener noreferrer" class="mt-5 w-full bg-violet-600 hover:bg-violet-700 text-white px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-arrow-up-right-from-square"></i> <span x-text="selectedVehicle.source === 'manquehue' ? 'Ver ficha original de Manquehue' : (selectedVehicle.source === 'macal' ? 'Ver ficha original de Macal' : 'Ver ficha original de Reyco')"></span></a>
                                     </div>
                                 </div>
                             </div>
@@ -216,18 +228,18 @@
                         <p class="text-sm text-slate-300 mt-1 max-w-2xl">Revisa remates de vehículos siniestrados y utiliza esta información como apoyo para tasaciones, reparaciones y compras.</p>
                     </div>
                     <div class="hero-metrics grid grid-cols-2 gap-3 shrink-0">
-                        <div class="metric-card rounded-xl px-4 py-3"><div class="text-2xl font-black" x-text="selectedSource === 'karcal' ? remates.length : (selectedSource === 'reyco' ? (reycoVehicles.length ? 1 : '-') : (manquehueVehicles.length ? 1 : '-'))"></div><div class="text-[10px] text-slate-300 uppercase" x-text="selectedSource === 'karcal' ? 'Remates Karcal' : (selectedSource === 'reyco' ? 'Catalogo Reyco' : 'Catalogo Manquehue')"></div></div>
-                        <div class="metric-card rounded-xl px-4 py-3"><div class="text-2xl font-black" x-text="selectedSource === 'karcal' ? (vehicleTotalsLoading || totalVehicleCount === null ? '...' : totalVehicleCount) : (selectedSource === 'reyco' ? (reycoSyncing ? '...' : reycoVehicles.length) : (manquehueSyncing ? '...' : manquehueVehicles.length))"></div><div class="text-[10px] text-slate-300 uppercase" x-text="selectedSource === 'karcal' ? 'Vehículos Karcal' : (selectedSource === 'reyco' ? 'Vehículos Reyco' : 'Vehículos Manquehue')"></div></div>
+                        <div class="metric-card rounded-xl px-4 py-3"><div class="text-2xl font-black" x-text="selectedSource === 'karcal' ? remates.length : (selectedSource === 'reyco' ? (reycoVehicles.length ? 1 : '-') : (selectedSource === 'manquehue' ? (manquehueVehicles.length ? 1 : '-') : (macalVehicles.length ? 1 : '-'))) "></div><div class="text-[10px] text-slate-300 uppercase" x-text="selectedSource === 'karcal' ? 'Remates Karcal' : (selectedSource === 'reyco' ? 'Catalogo Reyco' : (selectedSource === 'manquehue' ? 'Catalogo Manquehue' : 'Catalogo Macal'))"></div></div>
+                        <div class="metric-card rounded-xl px-4 py-3"><div class="text-2xl font-black" x-text="selectedSource === 'karcal' ? (vehicleTotalsLoading || totalVehicleCount === null ? '...' : totalVehicleCount) : (selectedSource === 'reyco' ? (reycoSyncing ? '...' : reycoVehicles.length) : (selectedSource === 'manquehue' ? (manquehueSyncing ? '...' : manquehueVehicles.length) : (macalSyncing ? '...' : macalVehicles.length)))"></div><div class="text-[10px] text-slate-300 uppercase" x-text="selectedSource === 'karcal' ? 'Vehículos Karcal' : (selectedSource === 'reyco' ? 'Vehículos Reyco' : (selectedSource === 'manquehue' ? 'Vehículos Manquehue' : 'Vehículos Macal'))"></div></div>
                     </div>
                 </section>
 
                 <section class="source-switcher bg-white rounded-2xl border p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div>
                         <p class="text-[10px] uppercase tracking-widest font-black text-slate-400">Fuente activa</p>
-                        <h2 class="text-lg font-black text-slate-900 mt-1" x-text="selectedSource === 'karcal' ? 'Remates Karcal' : (selectedSource === 'reyco' ? 'Remates Reyco' : 'Remates Manquehue')"></h2>
+                        <h2 class="text-lg font-black text-slate-900 mt-1" x-text="selectedSource === 'karcal' ? 'Remates Karcal' : (selectedSource === 'reyco' ? 'Remates Reyco' : (selectedSource === 'manquehue' ? 'Remates Manquehue' : 'Remates Macal'))"></h2>
                         <p class="text-xs text-slate-500 mt-1">Elige una fuente para consultar únicamente sus remates y vehículos.</p>
                     </div>
-                    <div data-source-selector role="tablist" aria-label="Seleccionar fuente de remates" class="source-tabs w-full lg:w-[42rem]">
+                    <div data-source-selector role="tablist" aria-label="Seleccionar fuente de remates" class="source-tabs w-full lg:w-[56rem]">
                         <button type="button" role="tab" @click="selectSource('karcal')" :aria-selected="selectedSource === 'karcal'" :class="selectedSource === 'karcal' ? 'source-tab active' : 'source-tab'">
                             <span class="source-tab-label"><i class="fa-solid fa-building-columns"></i> Karcal</span>
                             <span class="source-tab-count" x-text="remates.length + ' remates disponibles'"></span>
@@ -239,6 +251,10 @@
                         <button type="button" role="tab" @click="selectSource('manquehue')" :aria-selected="selectedSource === 'manquehue'" :class="selectedSource === 'manquehue' ? 'source-tab active manquehue' : 'source-tab'">
                             <span class="source-tab-label"><i class="fa-solid fa-gavel"></i> Manquehue</span>
                             <span class="source-tab-count" x-text="manquehueSyncing ? 'Sincronizando catalogo...' : (manquehueVehicles.length ? manquehueVehicles.length + ' vehiculos disponibles' : 'Cargar catalogo Manquehue')"></span>
+                        </button>
+                        <button type="button" role="tab" @click="selectSource('macal')" :aria-selected="selectedSource === 'macal'" :class="selectedSource === 'macal' ? 'source-tab active macal' : 'source-tab'">
+                            <span class="source-tab-label"><i class="fa-solid fa-car"></i> Macal</span>
+                            <span class="source-tab-count" x-text="macalSyncing ? 'Sincronizando catalogo...' : (macalVehicles.length ? macalVehicles.length + ' vehiculos disponibles' : 'Cargar catalogo Macal')"></span>
                         </button>
                     </div>
                 </section>
@@ -370,6 +386,27 @@
                     <div x-show="!manquehueSyncing && filteredManquehueVehicles.length === 0" x-cloak class="bg-white rounded-2xl border border-dashed border-orange-300 p-8 text-center"><i class="fa-solid fa-car text-3xl text-orange-200"></i><p class="mt-3 text-sm font-bold text-orange-700" x-text="manquehueError ? manquehueError : 'No hay vehículos cargados de Manquehue.'"></p><button type="button" @click="syncManquehue()" class="mt-3 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-cloud-arrow-down mr-1"></i> Sincronizar Manquehue</button></div>
                 </section>
 
+                <section id="macal-vehicles" x-show="selectedSource === 'macal'" x-cloak class="vehicle-section macal-section bg-white rounded-2xl border border-sky-200 shadow-sm p-4 sm:p-5 space-y-4">
+                    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3">
+                        <div class="section-heading"><div><div class="flex items-center gap-2 mb-1"><span class="source-pill source-pill-macal"><i class="fa-solid fa-car"></i> Macal</span><span class="text-[11px] font-bold text-sky-600">Catálogo independiente</span></div><h2 class="text-lg font-black text-sky-950">Vehículos Macal</h2><p class="text-xs text-slate-500">Autos usados sincronizados desde el catálogo público de Macal.</p></div></div>
+                        <div class="flex items-center gap-2"><span class="text-xs font-bold text-sky-700" x-text="macalSyncing ? 'Sincronizando...' : filteredMacalVehicles.length + ' resultados'"></span><button type="button" @click="syncMacal()" :disabled="macalSyncing" class="bg-sky-600 hover:bg-sky-700 disabled:opacity-60 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-rotate" :class="macalSyncing ? 'animate-spin' : ''"></i> Actualizar</button></div>
+                    </div>
+                    <div class="bg-sky-50 border border-sky-200 rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div class="relative flex-1"><i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-sky-400 text-sm"></i><input x-model="macalSearch" type="search" placeholder="Buscar en Macal: marca, modelo, año o patente..." class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-sky-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
+                        <p class="text-[11px] text-sky-800" x-show="macalMessage" x-text="macalMessage"></p>
+                    </div>
+                    <div x-show="macalError" class="bg-rose-50 border border-rose-200 rounded-xl p-3 text-sm text-rose-800" x-text="macalError"></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                        <template x-for="vehicle in filteredMacalVehicles" :key="vehicle.id">
+                            <article class="bg-white rounded-2xl border border-sky-200 shadow-sm hover:shadow-md hover:border-sky-400 transition overflow-hidden">
+                                <div class="h-36 bg-gradient-to-br from-sky-950 to-slate-950 flex items-center justify-center relative overflow-hidden"><img x-show="vehicle.imageUrl" :src="vehicle.imageUrl" :alt="vehicle.make + ' ' + vehicle.model" loading="lazy" referrerpolicy="no-referrer" @error="vehicle.imageUrl = ''" class="w-full h-full object-cover"><i x-show="!vehicle.imageUrl" class="fa-solid fa-car-side text-5xl text-white/20"></i><span class="absolute top-3 left-3 bg-sky-300 text-sky-950 text-[10px] font-black px-2 py-1 rounded-lg" x-text="vehicle.auctionDate || 'Macal'"></span></div>
+                                <div class="p-4"><div class="flex items-start justify-between gap-3"><div><p class="text-[10px] uppercase tracking-widest text-sky-600 font-black" x-text="vehicle.make"></p><h3 class="text-base font-black text-slate-900" x-text="vehicle.model"></h3></div><span class="text-xs font-bold text-slate-500" x-text="vehicle.year"></span></div><p class="mt-2 text-xs text-slate-500" x-text="[vehicle.fuel, vehicle.kilometers ? Number(vehicle.kilometers).toLocaleString('es-CL') + ' km' : ''].filter(Boolean).join(' · ')"></p><div class="mt-4 flex items-end justify-between gap-3"><div><p class="text-[10px] text-slate-400 uppercase font-bold">Precio mínimo</p><p class="text-lg font-black text-emerald-600" x-text="formatMoney(vehicle.initialValue)"></p></div><button @click="openVehicle(vehicle)" class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-eye"></i> Ver auto</button></div></div>
+                            </article>
+                        </template>
+                    </div>
+                    <div x-show="!macalSyncing && filteredMacalVehicles.length === 0" x-cloak class="bg-white rounded-2xl border border-dashed border-sky-300 p-8 text-center"><i class="fa-solid fa-car text-3xl text-sky-200"></i><p class="mt-3 text-sm font-bold text-sky-700" x-text="macalError ? macalError : 'No hay vehículos cargados de Macal.'"></p><button type="button" @click="syncMacal()" class="mt-3 bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-cloud-arrow-down mr-1"></i> Sincronizar Macal</button></div>
+                </section>
+
             </main>
         </div>
     </div>
@@ -383,12 +420,18 @@
             const manquehueListingUrl = 'https://www.rematesmanquehue.cl/proximo-remate';
             const manquehueBaseUrl = 'https://www.rematesmanquehue.cl/';
             const manquehueSignupUrl = 'https://rematemanquehue.plataformagroup.cl/';
+            const macalListingUrl = 'https://macal.cl/autos-usados';
+            const macalBaseUrl = 'https://macal.cl/';
+            const macalApiUrl = 'https://macal.cl/api/marketplace/search';
+            const macalHowToBuyUrl = 'https://macal.cl/autos-usados/como-comprar';
             return {
                 selectedSource: 'karcal',
                 manquehueSignupUrl,
+                macalHowToBuyUrl,
                 search: '',
                 reycoSearch: '',
                 manquehueSearch: '',
+                macalSearch: '',
                 selectedAuction: '',
                 calendarYear: 2026,
                 calendarMonth: 3,
@@ -413,6 +456,10 @@
                 manquehueMessage: '',
                 manquehueError: '',
                 manquehueVehicles: [],
+                macalSyncing: false,
+                macalMessage: '',
+                macalError: '',
+                macalVehicles: [],
                 vehicleTotalsLoading: false,
                 totalVehicleCount: null,
                 globalVehiclesLoading: false,
@@ -451,6 +498,10 @@
                 get filteredManquehueVehicles() {
                     const query = this.manquehueSearch.trim().toLowerCase();
                     return this.manquehueVehicles.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year} ${vehicle.fuel} ${vehicle.lotNumber}`.toLowerCase().includes(query));
+                },
+                get filteredMacalVehicles() {
+                    const query = this.macalSearch.trim().toLowerCase();
+                    return this.macalVehicles.filter(vehicle => !query || `${vehicle.make} ${vehicle.model} ${vehicle.year} ${vehicle.fuel} ${vehicle.plate} ${vehicle.auctionDate}`.toLowerCase().includes(query));
                 },
                 get calendarYears() {
                     return [...new Set(this.remates
@@ -499,10 +550,11 @@
                     if (cell.auctions.length) this.selectAuction(cell.auctions[0]);
                 },
                 selectSource(source) {
-                    this.selectedSource = source === 'reyco' ? 'reyco' : (source === 'manquehue' ? 'manquehue' : 'karcal');
+                    this.selectedSource = source === 'reyco' ? 'reyco' : (source === 'manquehue' ? 'manquehue' : (source === 'macal' ? 'macal' : 'karcal'));
                     this.closeVehicleViewer();
                     if (this.selectedSource === 'reyco' && !this.reycoVehicles.length && !this.reycoSyncing) this.syncReyco();
                     if (this.selectedSource === 'manquehue' && !this.manquehueVehicles.length && !this.manquehueSyncing) this.syncManquehue();
+                    if (this.selectedSource === 'macal' && !this.macalVehicles.length && !this.macalSyncing) this.syncMacal();
                     if (this.selectedSource === 'karcal' && !this.vehicles.length && this.remates.length) this.loadSelectedAuction();
                 },
                 previousMonth() {
@@ -786,6 +838,194 @@
                         vehicle.detailLoading = false;
                     }
                 },
+                cleanMacalText(value) {
+                    return String(value || '')
+                        .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+                        .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+                        .replace(/<!--[\s\S]*?-->/g, ' ')
+                        .replace(/<[^>]+>/g, ' ')
+                        .replace(/&nbsp;|&#160;/gi, ' ')
+                        .replace(/&amp;/gi, '&')
+                        .replace(/&quot;/gi, '"')
+                        .replace(/&#39;|&apos;/gi, "'")
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                },
+                parseMacalListing(html) {
+                    const matches = [...String(html || '').matchAll(/<a\b[^>]*href=["']([^"']*\/V\d+-\d+)["'][^>]*>[\s\S]*?<\/a>/gi)];
+                    const unique = new Map();
+                    matches.forEach((match, index) => {
+                        const detailUrl = new URL(match[1], macalBaseUrl).href;
+                        if (unique.has(detailUrl)) return;
+                        const card = match[0];
+                        const cardText = this.cleanMacalText(card);
+                        const detailPath = decodeURIComponent(new URL(detailUrl).pathname).split('/').filter(Boolean);
+                        const lotIndex = detailPath.findIndex(part => /^V\d+-\d+$/i.test(part));
+                        const lotId = lotIndex >= 0 ? detailPath[lotIndex] : `MACAL-${index + 1}`;
+                        const year = lotIndex > 0 ? detailPath[lotIndex - 1] : (cardText.match(/\b((?:19|20)\d{2})\b/)?.[1] || '');
+                        const make = lotIndex > 2 ? detailPath[lotIndex - 3] : 'MACAL';
+                        const model = lotIndex > 1 ? detailPath[lotIndex - 2] : (cardText.match(/#\s*([^\d]+?)(?=\s+\d{4})/i)?.[1] || `Lote ${lotId}`);
+                        const imageMatch = card.match(/(?:src|data-src)=["']([^"']*(?:speed\.macal\.cl|macal\.cl)[^"']+\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)["']/i);
+                        const imageUrl = imageMatch?.[1] ? this.normalizeRemoteUrl(new URL(imageMatch[1].replace(/&amp;/gi, '&'), macalBaseUrl).href) : '';
+                        const priceMatch = cardText.match(/(?:M[ií]n(?:imo)?|Precio m[ií]nimo)\s*:?\s*\$?\s*([\d.]+)/i);
+                        const auctionDate = cardText.match(/Subasta\s*:?\s*(\d{2}[-/]\d{2}[-/]\d{4})/i)?.[1] || '';
+                        const kilometersMatch = cardText.match(/([\d.]+)\s*km/i);
+                        const fuel = cardText.match(/\b(Gasolina|Diesel|Di[eé]sel|El[eé]ctrico|H[ií]brido)\b/i)?.[1] || '';
+                        const transmission = cardText.match(/(?:Transmisi[oó]n\s*:?\s*)(Mec[aá]nica|Autom[aá]tica)/i)?.[1] || '';
+                        unique.set(detailUrl, {
+                            id: `macal-${lotId}`,
+                            make: make.toUpperCase(),
+                            model: model.toUpperCase(),
+                            year,
+                            initialValue: priceMatch?.[1] ? Number(priceMatch[1].replace(/\./g, '')) : 0,
+                            auctionDate,
+                            url: macalListingUrl,
+                            detailUrl,
+                            imageUrl,
+                            images: imageUrl ? [imageUrl] : [],
+                            lotNumber: lotId,
+                            lotId,
+                            kilometers: kilometersMatch?.[1] ? Number(kilometersMatch[1].replace(/\./g, '')) : '',
+                            fuel,
+                            transmission,
+                            traction: '',
+                            engine: '',
+                            plate: '',
+                            working: '',
+                            scrap: '',
+                            keys: '',
+                            conditioned: '',
+                            certificateUrl: '',
+                            inspectionUrl: '',
+                            video: '',
+                            detailLoading: false,
+                            source: 'macal'
+                        });
+                    });
+                    return [...unique.values()];
+                },
+                formatMacalDate(value) {
+                    const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    return match ? `${match[3]}-${match[2]}-${match[1]}` : String(value || '');
+                },
+                parseMacalVehicle(item, index) {
+                    const id = String(item.id || item.operational_id || `MACAL-${index + 1}`);
+                    const brand = String(item.brand || 'MACAL').trim();
+                    const model = String(item.model || item.title || `Lote ${id}`).trim();
+                    const vehicleType = String(item.car_type || '').toUpperCase();
+                    const category = vehicleType.includes('FURG') ? 'furgones-usados' : (vehicleType.includes('MOTO') ? 'motos-usadas' : (vehicleType.includes('CAMION') ? 'camiones-usados' : 'autos-usados'));
+                    const detailUrl = `${macalBaseUrl}${category}/${encodeURIComponent(brand)}/${encodeURIComponent(model)}/${encodeURIComponent(item.year || '')}/${encodeURIComponent(id)}`;
+                    const images = Array.isArray(item.photos)
+                        ? item.photos.map(image => this.normalizeRemoteUrl(String(image || ''))).filter(Boolean)
+                        : (item.image_url ? [this.normalizeRemoteUrl(item.image_url)] : []);
+                    const numericPrice = Number(item.price_clp ?? item.min_price ?? 0);
+                    const numericKilometers = Number(item.mileage_km);
+                    return {
+                        id: `macal-${id}`,
+                        make: brand.toUpperCase(),
+                        model: model.toUpperCase(),
+                        year: item.year || '',
+                        initialValue: Number.isFinite(numericPrice) ? numericPrice : 0,
+                        auctionDate: this.formatMacalDate(item.auction_date_formatted || item.auction_date),
+                        url: macalListingUrl,
+                        detailUrl,
+                        imageUrl: images[0] || '',
+                        images,
+                        lotNumber: item.lote || id,
+                        lotId: id,
+                        kilometers: Number.isFinite(numericKilometers) ? Math.round(numericKilometers) : '',
+                        fuel: String(item.fuel_type || '').trim(),
+                        transmission: String(item.transmission || '').trim(),
+                        traction: '',
+                        engine: '',
+                        plate: String(item.patente || '').trim(),
+                        working: '',
+                        scrap: '',
+                        keys: '',
+                        conditioned: '',
+                        certificateUrl: '',
+                        inspectionUrl: '',
+                        video: '',
+                        detailLoading: false,
+                        source: 'macal'
+                    };
+                },
+                async syncMacal() {
+                    if (this.macalSyncing) return;
+                    this.macalSyncing = true;
+                    this.macalError = '';
+                    this.macalMessage = '';
+                    try {
+                        const response = await fetch(macalApiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                            body: JSON.stringify({
+                                entity_type: 'vehicle',
+                                page: 1,
+                                per_page: 100,
+                                filters: { status: ['available', 'adjudicated'] },
+                                facets: ['brand', 'model', 'auction_date_formatted']
+                            })
+                        });
+                        if (!response.ok) throw new Error(`Macal respondió ${response.status}`);
+                        const payload = await response.json();
+                        const vehicles = Array.isArray(payload.items) ? payload.items.map((item, index) => this.parseMacalVehicle(item, index)) : [];
+                        if (!vehicles.length) throw new Error('Macal no devolvió vehículos en su catálogo público');
+                        this.macalVehicles = vehicles;
+                        this.selectedSource = 'macal';
+                        this.macalMessage = `Macal sincronizado: ${vehicles.length} vehículos disponibles (${new Date().toLocaleString('es-CL')}).`;
+                    } catch (error) {
+                        this.macalError = 'No se pudo sincronizar Macal en este momento. Intenta nuevamente o abre su catálogo oficial.';
+                        console.warn(this.macalError, error);
+                    } finally {
+                        this.macalSyncing = false;
+                    }
+                },
+                async loadMacalVehicleDetails(vehicle) {
+                    if (!vehicle || vehicle.source !== 'macal' || !vehicle.detailUrl || vehicle.detailLoading || vehicle.detailLoaded) return;
+                    vehicle.detailLoading = true;
+                    try {
+                        const html = await this.fetchRemoteText(vehicle.detailUrl, 3, 'html');
+                        const text = this.cleanMacalText(html);
+                        const imageUrls = [...html.matchAll(/https?:\/\/speed\.macal\.cl\/imagenes\/[^"'<>\s]+/gi)]
+                            .map(match => this.normalizeRemoteUrl(match[0].replace(/&amp;/gi, '&')))
+                            .filter(Boolean);
+                        const uniqueImages = [...new Set(imageUrls)];
+                        if (uniqueImages.length) {
+                            vehicle.images = uniqueImages;
+                            vehicle.imageUrl = uniqueImages[0];
+                        }
+                        const priceMatch = text.match(/Precio m[ií]nimo\s*:?\s*\$?\s*([\d.]+)/i);
+                        if (priceMatch?.[1]) vehicle.initialValue = Number(priceMatch[1].replace(/\./g, ''));
+                        const auctionMatch = text.match(/Subasta\s+(\d{2}[-/]\d{2}[-/]\d{4})(?:\s+a\s+las\s+([\d:]+))?/i);
+                        if (auctionMatch?.[1]) vehicle.auctionDate = auctionMatch[2] ? `${auctionMatch[1]} ${auctionMatch[2]}` : auctionMatch[1];
+                        const yearMatch = text.match(/A[ñn]o\s*:?\s*((?:19|20)\d{2})/i);
+                        if (yearMatch?.[1]) vehicle.year = yearMatch[1];
+                        const kilometersMatch = text.match(/Kil[oó]metros\s*:?\s*([\d.]+)/i);
+                        if (kilometersMatch?.[1]) vehicle.kilometers = Number(kilometersMatch[1].replace(/\./g, ''));
+                        const fuelMatch = text.match(/Combustible\s*:?\s*(Gasolina|Diesel|Di[eé]sel|El[eé]ctrico|H[ií]brido)/i);
+                        if (fuelMatch?.[1]) vehicle.fuel = fuelMatch[1];
+                        const transmissionMatch = text.match(/Transmisi[oó]n\s*:?\s*(Mec[aá]nica|Autom[aá]tica)/i);
+                        if (transmissionMatch?.[1]) vehicle.transmission = transmissionMatch[1];
+                        const tractionMatch = text.match(/Tracci[oó]n\s*:?\s*([A-Za-z0-9xX+-]+)/i);
+                        if (tractionMatch?.[1]) vehicle.traction = tractionMatch[1];
+                        const engineMatch = text.match(/Cilindrada\s*:?\s*([\d.,]+)/i);
+                        if (engineMatch?.[1]) vehicle.engine = engineMatch[1];
+                        const cavContext = text.match(/.{0,500}(?:Certificado de anotaciones vigentes|\bCAV\b).{0,500}/i)?.[0] || '';
+                        const documentUrls = [...(html.matchAll(/(?:href|src|data-url)=["']([^"']+)["']/gi))]
+                            .map(match => match[1])
+                            .filter(url => /cav|certificado|\.pdf/i.test(url));
+                        const cavUrl = documentUrls.find(url => /cav|certificado/i.test(url)) || documentUrls[0] || cavContext.match(/https?:\/\/[^"'<>\s]+/i)?.[0];
+                        if (cavUrl) vehicle.certificateUrl = new URL(cavUrl, macalBaseUrl).href;
+                        vehicle.video = html.match(/https?:\/\/(?:www\.)?youtube\.com\/(?:embed\/|watch\?v=)[^"'<>\s]+/i)?.[0] || '';
+                        vehicle.detailLoaded = true;
+                    } catch (error) {
+                        vehicle.detailError = 'No se pudo cargar el detalle adicional de Macal.';
+                        console.warn(vehicle.detailError, error);
+                    } finally {
+                        vehicle.detailLoading = false;
+                    }
+                },
                 prepareGlobalSearch() {
                     this.globalCatalogScheduled = true;
                     this.loadRemoteVehicleTotals();
@@ -1017,6 +1257,7 @@
                     this.viewerOpen = true;
                     if (vehicle && vehicle.source === 'reyco') this.loadReycoVehicleDetails(vehicle);
                     if (vehicle && vehicle.source === 'manquehue') this.loadManquehueVehicleDetails(vehicle);
+                    if (vehicle && vehicle.source === 'macal') this.loadMacalVehicleDetails(vehicle);
                 },
                 changeSelectedVehicleImage(step) {
                     const images = this.selectedVehicle && Array.isArray(this.selectedVehicle.images) ? this.selectedVehicle.images : [];
@@ -1032,8 +1273,10 @@
                     this.search = '';
                     this.reycoSearch = '';
                     this.manquehueSearch = '';
+                    this.macalSearch = '';
                     this.syncKarcalMessage = '';
                     this.manquehueMessage = '';
+                    this.macalMessage = '';
                     this.rematePage = 1;
                     if (this.remates.length) {
                         this.selectedAuction = this.remates[0].id;
