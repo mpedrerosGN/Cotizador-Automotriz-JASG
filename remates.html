@@ -852,7 +852,7 @@
                         .trim();
                 },
                 parseMacalListing(html) {
-                    const matches = [...String(html || '').matchAll(/<a\b[^>]*href=["']([^"']*\/V\d+-\d+)["'][^>]*>[\s\S]*?<\/a>/gi)];
+                    const matches = [...String(html || '').matchAll(/<a\b[^>]*href=["']([^"']*\/V[A-Z0-9]+-\d+)["'][^>]*>[\s\S]*?<\/a>/gi)];
                     const unique = new Map();
                     matches.forEach((match, index) => {
                         const detailUrl = new URL(match[1], macalBaseUrl).href;
@@ -860,7 +860,7 @@
                         const card = match[0];
                         const cardText = this.cleanMacalText(card);
                         const detailPath = decodeURIComponent(new URL(detailUrl).pathname).split('/').filter(Boolean);
-                        const lotIndex = detailPath.findIndex(part => /^V\d+-\d+$/i.test(part));
+                        const lotIndex = detailPath.findIndex(part => /^V[A-Z0-9]+-\d+$/i.test(part));
                         const lotId = lotIndex >= 0 ? detailPath[lotIndex] : `MACAL-${index + 1}`;
                         const year = lotIndex > 0 ? detailPath[lotIndex - 1] : (cardText.match(/\b((?:19|20)\d{2})\b/)?.[1] || '');
                         const make = lotIndex > 2 ? detailPath[lotIndex - 3] : 'MACAL';
@@ -950,12 +950,40 @@
                         source: 'macal'
                     };
                 },
+                async loadMacalVehiclesFromPages() {
+                    const listingHtml = await this.fetchRemoteText(macalListingUrl, 2, 'html');
+                    const dateMatches = [...String(listingHtml || '').matchAll(/(?:fecha_remate=|fecha_remate["']?\s*[:=]\s*["']?)(20\d{2}-\d{2}-\d{2})/gi)]
+                        .map(match => match[1]);
+                    const fallbackDates = [...String(listingHtml || '').matchAll(/\b(20\d{2}-\d{2}-\d{2})\b/g)]
+                        .map(match => match[1]);
+                    const dates = [...new Set(dateMatches.length ? dateMatches : fallbackDates)].slice(0, 12);
+                    const pageUrls = dates.map(date => `${macalListingUrl}?fecha_remate=${encodeURIComponent(date)}`);
+                    const pages = await Promise.all(pageUrls.map(async url => {
+                        try {
+                            return await this.fetchRemoteText(url, 1, 'html');
+                        } catch (error) {
+                            console.warn('No se pudo leer una fecha del catálogo Macal', url, error);
+                            return '';
+                        }
+                    }));
+                    const vehicles = [listingHtml, ...pages]
+                        .flatMap(page => this.parseMacalListing(page))
+                        .filter(vehicle => vehicle?.detailUrl);
+                    return [...new Map(vehicles.map(vehicle => [vehicle.detailUrl, vehicle])).values()];
+                },
                 async syncMacal() {
                     if (this.macalSyncing) return;
                     this.macalSyncing = true;
                     this.macalError = '';
                     this.macalMessage = '';
                     try {
+                        const webVehicles = await this.loadMacalVehiclesFromPages();
+                        if (webVehicles.length) {
+                            this.macalVehicles = webVehicles;
+                            this.selectedSource = 'macal';
+                            this.macalMessage = `Macal sincronizado mediante catalogo web: ${webVehicles.length} vehiculos disponibles (${new Date().toLocaleString('es-CL')}).`;
+                            return;
+                        }
                         const response = await fetch(macalApiUrl, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
