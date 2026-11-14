@@ -865,12 +865,14 @@
                 printReport(mode = 'internal') {
                     this.printMode = mode === 'client' ? 'client' : 'internal';
                     this.showVerdictModal = false;
+                    document.body.classList.toggle('client-print-active', this.printMode === 'client');
                     const restore = () => {
                         this.printMode = 'internal';
+                        document.body.classList.remove('client-print-active');
                         window.removeEventListener('afterprint', restore);
                     };
                     window.addEventListener('afterprint', restore, { once: true });
-                    window.print();
+                    this.$nextTick(() => window.setTimeout(() => window.print(), 50));
                 },
 
                 startNewAppraisal() {
