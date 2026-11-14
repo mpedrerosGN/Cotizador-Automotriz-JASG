@@ -20,13 +20,16 @@
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
+            .client-report { display: none !important; }
+            body.client-print-active .internal-report { display: none !important; }
+            body.client-print-active .client-report { display: block !important; }
             body { background: white !important; color: #0f172a !important; }
             @page { size: letter; margin: 1cm; }
         }
         .print-only { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen" x-data="tasadorApp()" x-init="init()">
+<body class="bg-slate-50 text-slate-800 min-h-screen" :class="{ 'client-print-active': printMode === 'client' }" x-data="tasadorApp()" x-init="init()">
     <div class="flex min-h-screen flex-col lg:flex-row">
         <aside class="w-full lg:w-64 lg:shrink-0 bg-slate-900 text-white border-b lg:border-b-0 lg:border-r border-slate-700/80 shadow-2xl no-print">
             <div class="px-4 py-3 lg:px-5 lg:py-6 border-b border-slate-700/70">
@@ -365,7 +368,7 @@
     </main>
 
     <!-- INFORME PDF EJECUTIVO PROFESIONAL (Estilo Documento Formal JASG - Solo visible al imprimir) -->
-    <div class="print-only bg-white text-slate-900 p-8 max-w-4xl mx-auto space-y-6">
+    <div class="print-only internal-report bg-white text-slate-900 p-8 max-w-4xl mx-auto space-y-6">
 
         <!-- Membrete Profesional JASG -->
         <div class="flex justify-between items-center border-b-2 border-slate-900 pb-4">
@@ -478,6 +481,57 @@
         </div>
     </div>
 
+    <!-- INFORME PDF CLIENTE -->
+    <div class="print-only client-report bg-white text-slate-900 p-8 max-w-4xl mx-auto space-y-6">
+        <div class="flex justify-between items-center border-b-2 border-slate-900 pb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-14 h-14 bg-white border border-slate-200 rounded-lg p-1 flex items-center justify-center overflow-hidden">
+                    <img data-jasg-brand-logo class="hidden w-full h-full object-contain" alt="Logo JASG">
+                    <span data-jasg-brand-fallback class="text-blue-700 font-black text-lg tracking-wider">JASG</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tight text-slate-900">JASG AUTOMOTRIZ</h1>
+                    <p class="text-xs text-slate-600">Informe de Inspección Vehicular</p>
+                </div>
+            </div>
+            <div class="text-right text-xs space-y-0.5">
+                <p class="font-bold text-red-600 font-mono text-sm" x-text="'FOLIO #' + (car.folio || '0000')"></p>
+                <p class="text-slate-500" x-text="new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })"></p>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs">
+            <div class="space-y-1">
+                <p class="font-bold text-slate-800 border-b border-slate-200 pb-1 mb-2 uppercase tracking-wider text-[10px]">Información del Vehículo</p>
+                <p><strong class="text-slate-600">Vehículo:</strong> <span class="font-semibold" x-text="(car.brand === 'Otra' ? car.customBrand : car.brand) + ' ' + (car.model === 'Otro' ? car.customModel : car.model)"></span></p>
+                <p><strong class="text-slate-600">Versión:</strong> <span x-text="car.version || 'S/A'"></span></p>
+                <p><strong class="text-slate-600">Año / Color:</strong> <span x-text="(car.year || 'S/A') + ' | ' + (car.color || 'S/A')"></span></p>
+                <p><strong class="text-slate-600">Kilometraje:</strong> <span x-text="car.km ? car.km + ' km' : 'S/A'"></span></p>
+                <p><strong class="text-slate-600">Patente / VIN:</strong> <span class="uppercase font-mono font-bold" x-text="car.plate || 'S/A'"></span></p>
+            </div>
+            <div class="space-y-1">
+                <p class="font-bold text-slate-800 border-b border-slate-200 pb-1 mb-2 uppercase tracking-wider text-[10px]">Datos de la Inspección</p>
+                <p><strong class="text-slate-600">Inspector:</strong> <span class="font-semibold" x-text="car.inspector || 'JASG Automotriz'"></span></p>
+                <p><strong class="text-slate-600">Propietario / Cliente:</strong> <span x-text="car.client || 'Particular'"></span></p>
+                <p><strong class="text-slate-600">Resultado:</strong> <span>Inspección visual y técnica realizada</span></p>
+            </div>
+        </div>
+        <div class="space-y-3 pt-2">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-1">Resultado de la Inspección</h3>
+            <table class="w-full text-left text-xs border-collapse">
+                <thead><tr class="bg-slate-100 text-slate-700"><th class="p-1.5 border border-slate-300">Categoría</th><th class="p-1.5 border border-slate-300">Ítem Inspeccionado</th><th class="p-1.5 border border-slate-300 w-24 text-center">Estado</th><th class="p-1.5 border border-slate-300">Observación</th></tr></thead>
+                <tbody>
+                    <template x-for="anomaly in getAnomalies()"><tr><td class="p-1.5 border border-slate-300" x-text="anomaly.section"></td><td class="p-1.5 border border-slate-300" x-text="anomaly.label"></td><td class="p-1.5 border border-slate-300 text-center font-bold" :class="anomaly.status === 'Malo' ? 'text-red-600' : 'text-amber-600'" x-text="anomaly.status.toUpperCase()"></td><td class="p-1.5 border border-slate-300" x-text="anomaly.note || 'Requiere revisión según estado indicado.'"></td></tr></template>
+                    <template x-if="getAnomalies().length === 0"><tr><td colspan="4" class="p-3 text-center text-slate-500 italic border border-slate-300">Sin observaciones registradas. Vehículo en excelente estado.</td></tr></template>
+                </tbody>
+            </table>
+        </div>
+        <div class="space-y-3 pt-2"><h4 class="font-bold text-xs uppercase tracking-wider text-slate-700 border-b border-slate-300 pb-1">Registro Fotográfico</h4><div class="grid grid-cols-3 gap-3"><template x-for="cat in categories"><template x-for="img in cat.images"><div class="border border-slate-200 p-1.5 rounded bg-slate-50"><img :src="img.data" class="w-full h-28 object-cover rounded"><p class="text-[9px] text-slate-600 truncate mt-1 font-medium" x-text="cat.name + (img.note ? ' - ' + img.note : '')"></p></div></template></template></div></div>
+        <div class="pt-16 grid grid-cols-2 gap-12 text-center text-xs"><div class="border-t border-slate-400 pt-2"><p class="font-bold text-slate-800" x-text="car.inspector || 'Inspector Autorizado'"></p><p class="text-slate-500">JASG Automotriz</p></div><div class="border-t border-slate-400 pt-2"><p class="font-bold text-slate-800" x-text="car.client || 'Propietario / Cliente'"></p><p class="text-slate-500">Conforme Inspección Vehicular</p></div></div>
+        <div class="text-center text-[10px] text-slate-400 pt-6 border-t border-slate-200">Documento generado digitalmente por JASG Automotriz. Sujeto a revisión mecánica final.</div>
+    </div>
+
+    <!-- FIN INFORME PDF CLIENTE -->
+
     <!-- Modal de Veredicto / Informe Resumen -->
     <div x-show="showVerdictModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print" style="display: none;">
         <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6">
@@ -528,9 +582,12 @@
 
             <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
                 <button @click="showVerdictModal = false" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition">Cerrar</button>
-                <button @click="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2">
+                <button @click="printReport('internal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     Imprimir Informe Ejecutivo PDF
+                </button>
+                <button data-testid="print-client-report" @click="printReport('client')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i> PDF para cliente (sin valores)
                 </button>
             </div>
         </div>
@@ -675,6 +732,7 @@
                 showVerdictModal: false,
                 showMaintainerModal: false,
                 showHistoryModal: false,
+                printMode: 'internal',
                 editingItemIndex: null,
                 newItemForm: { label: '', importance: 'Alta' },
                 savedAppraisals: [],
@@ -802,6 +860,17 @@
 
                     this.$watch('car', () => this.saveDraft(), { deep: true });
                     this.$watch('categories', () => this.saveDraft(), { deep: true });
+                },
+
+                printReport(mode = 'internal') {
+                    this.printMode = mode === 'client' ? 'client' : 'internal';
+                    this.showVerdictModal = false;
+                    const restore = () => {
+                        this.printMode = 'internal';
+                        window.removeEventListener('afterprint', restore);
+                    };
+                    window.addEventListener('afterprint', restore, { once: true });
+                    window.print();
                 },
 
                 startNewAppraisal() {
