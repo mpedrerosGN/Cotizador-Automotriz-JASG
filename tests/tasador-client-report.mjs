@@ -8,6 +8,7 @@ assert.match(html, /generateClientReport\(\)/);
 
 const clientTemplate = html.match(/<!-- INFORME PDF CLIENTE -->([\s\S]*?)<!-- FIN INFORME PDF CLIENTE -->/);
 assert.ok(clientTemplate, 'Debe existir una plantilla independiente para el cliente');
-assert.doesNotMatch(clientTemplate[1], /formatMoney|commercialValue|calculateRepairCost|calculateSuggestedOffer|deduction|\$|CLP|pesos/i);
+assert.match(clientTemplate[1], /calculateSuggestedOffer/);
+assert.doesNotMatch(clientTemplate[1], /commercialValue|calculateRepairCost|deduction|\$|CLP|pesos/i);
 
 console.log('Tasador client report RED checks passed');
